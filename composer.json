@@ -1,0 +1,17 @@
+{
+  "name": "corelabs/checkout-fields",
+  "description": "Custom WooCommerce checkout fields with a drag-drop builder and conditional logic.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "version": "1.0.0",
+  "require": { "php": ">=7.4" },
+  "require-dev": {
+    "phpunit/phpunit": "^9",
+    "brain/monkey": "^2",
+    "yoast/phpunit-polyfills": "^2"
+  },
+  "autoload": { "psr-4": { "CoreLabs\\CheckoutFields\\": "includes/" } },
+  "autoload-dev": { "psr-4": { "CoreLabs\\CheckoutFields\\Tests\\": "tests/php/" } },
+  "scripts": { "test": "phpunit -c phpunit.xml.dist" },
+  "config": { "allow-plugins": { "*": true } }
+}

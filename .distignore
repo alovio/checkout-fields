@@ -1,0 +1,22 @@
+# Files excluded from the distributed wp.org plugin zip (dev-only).
+# NOTE: src/, assets/, composer.json, package.json and webpack.config.js are
+# intentionally SHIPPED (wp.org Guideline 1/4: source + build tools must be
+# available alongside the compiled build/).
+.DS_Store
+/.git
+/.github
+/.gitignore
+/.distignore
+/.wp-env.json
+/.playwright-mcp
+/node_modules
+/tests
+/docs
+/composer.lock
+/package-lock.json
+/phpunit.xml.dist
+/.phpunit.result.cache
+/.wordpress-org
+/bin
+/corelabs-checkout-fields-pro
+/includes/Pro
