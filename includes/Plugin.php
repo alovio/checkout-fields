@@ -37,5 +37,8 @@ final class Plugin {
 		( new \CoreLabs\CheckoutFields\Admin\RestController() )->register();
 		( new \CoreLabs\CheckoutFields\Admin\SettingsPage() )->register();
 		( new \CoreLabs\CheckoutFields\Admin\BuilderAssets() )->register();
+
+		( new \CoreLabs\CheckoutFields\Checkout\ClassicRenderer() )->register();
+		( new \CoreLabs\CheckoutFields\Checkout\OrderPersistence() )->register();
 	}
 }
