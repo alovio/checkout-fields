@@ -77,7 +77,7 @@ final class BlockIntegration {
 
 		$errors = Validator::validate( $group, $field_values, $values );
 		if ( ! empty( $errors ) ) {
-			throw new RouteException( 'clcf_checkout_fields_invalid', (string) $errors[0], 400 );
+			throw new RouteException( 'clcf_checkout_fields_invalid', esc_html( (string) $errors[0] ), 400 );
 		}
 
 		( new OrderPersistence( $this->repo ) )->save( $order, $group, $field_values, $values );
