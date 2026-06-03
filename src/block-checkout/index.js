@@ -13,9 +13,10 @@ import { useSelect, dispatch } from '@wordpress/data';
 import { activeMap } from '../frontend/conditional-logic';
 import { buildValues } from '../checkout-conditions/data-sources';
 
-const { ExperimentalOrderMeta } = window.wc.blocksCheckout;
+const { ExperimentalOrderMeta, extensionCartUpdate } = window.wc.blocksCheckout;
 
 const CONFIG = window.CLCF_BLOCK || { fields: [], ctx: {}, sources: [] };
+const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 );
 
 function selectedShippingRate( cartData ) {
 	const packages = ( cartData && cartData.shippingRates ) || [];
@@ -108,7 +109,9 @@ function CheckoutFields() {
 		const payment = select( 'wc/store/payment' );
 		const cartData = cart ? cart.getCartData() : {};
 		const customer = cart ? cart.getCustomerData() : {};
+		const ext = cartData && cartData.extensions && cartData.extensions.clcf ? cartData.extensions.clcf : {};
 		return {
+			serverCtx: ext.ctx || {},
 			paymentMethod: payment && payment.getActivePaymentMethod ? payment.getActivePaymentMethod() : '',
 			shippingMethod: selectedShippingRate( cartData ),
 			billingCountry: ( customer && customer.billingAddress && customer.billingAddress.country ) || '',
@@ -116,13 +119,25 @@ function CheckoutFields() {
 		};
 	}, [] );
 
-	const ctx = { ...( CONFIG.ctx || {} ), ...live };
+	// Server context (role / cart categories / etc.) overlaid with the bits the
+	// shopper changes live on the page (payment, shipping, address, field values).
+	const ctx = {
+		...live.serverCtx,
+		paymentMethod: live.paymentMethod,
+		shippingMethod: live.shippingMethod || live.serverCtx.shippingMethod || '',
+		billingCountry: live.billingCountry || live.serverCtx.billingCountry || '',
+		shippingCountry: live.shippingCountry || live.serverCtx.shippingCountry || '',
+	};
 	const tokenMap = buildValues( values, ctx );
 	const map = activeMap( fields, tokenMap );
 
-	// Push current values to the Store API whenever they change.
+	// Push current values to the Store API whenever they change. When any field
+	// carries a fee (Pro), also push to the cart so the fee total updates live.
 	useEffect( () => {
 		dispatch( 'wc/store/checkout' ).setExtensionData( 'clcf', { fields: values } );
+		if ( HAS_FEES && typeof extensionCartUpdate === 'function' ) {
+			extensionCartUpdate( { namespace: 'clcf', data: { fields: values } } );
+		}
 	}, [ values ] );
 
 	const setValue = ( id, v ) => setValues( ( prev ) => ( { ...prev, [ id ]: v } ) );

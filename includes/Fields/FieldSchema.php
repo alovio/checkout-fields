@@ -32,6 +32,8 @@ final class FieldSchema {
 
 		$ops     = (array) apply_filters( 'clcf_allowed_operators', array( 'is', 'is_not', 'contains', 'gt', 'lt' ) );
 		$actions = (array) apply_filters( 'clcf_allowed_actions', array( 'show', 'hide', 'require' ) );
+		// Pricing is a Pro feature: free = no modes (price stripped); Pro lifts this filter.
+		$modes = (array) apply_filters( 'clcf_price_modes', array() );
 
 		// First pass: keep valid-typed fields with unique, non-empty ids.
 		$kept = array();
@@ -70,6 +72,7 @@ final class FieldSchema {
 			);
 			$out[] = array_merge(
 				$entry,
+				self::normalize_pricing( $f, $modes ),
 				self::normalize_conditional( $f, $ids, (string) $f['id'], $ops, $actions ),
 				self::normalize_constraints( $f )
 			);
@@ -78,6 +81,25 @@ final class FieldSchema {
 		return array(
 			'version' => 1,
 			'fields'  => $out,
+		);
+	}
+
+	/**
+	 * Pro pricing keys. Free tier ($modes empty) keeps no price at all.
+	 *
+	 * @param array<string,mixed> $f
+	 * @param string[]            $modes
+	 * @return array<string,mixed>
+	 */
+	private static function normalize_pricing( array $f, array $modes ): array {
+		if ( empty( $modes ) ) {
+			return array();
+		}
+		$price = isset( $f['price'] ) ? (float) $f['price'] : 0.0;
+		$mode  = (string) ( $f['priceMode'] ?? 'fixed' );
+		return array(
+			'price'     => $price < 0 ? 0.0 : $price,
+			'priceMode' => in_array( $mode, $modes, true ) ? $mode : ( $modes[0] ?? 'fixed' ),
 		);
 	}
 

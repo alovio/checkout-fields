@@ -99,7 +99,14 @@ final class CheckoutConditionData {
 			'shippingCountry' => '',
 		);
 
-		if ( function_exists( 'WC' ) && WC()->cart ) {
+		// Guard: the cart/session/customer are only safe to read after wp_loaded.
+		// (Block types register on `init`, before the cart exists — touching it
+		// there triggers wc_doing_it_wrong.)
+		if ( ! function_exists( 'WC' ) || ! did_action( 'wp_loaded' ) ) {
+			return $ctx;
+		}
+
+		if ( WC()->cart ) {
 			$cats  = array();
 			$prods = array();
 			foreach ( WC()->cart->get_cart() as $item ) {
@@ -118,13 +125,13 @@ final class CheckoutConditionData {
 			$ctx['cartSubtotal']   = (float) WC()->cart->get_subtotal();
 		}
 
-		if ( function_exists( 'WC' ) && WC()->session ) {
+		if ( WC()->session ) {
 			$chosen                = (array) WC()->session->get( 'chosen_shipping_methods', array() );
 			$ctx['shippingMethod'] = isset( $chosen[0] ) ? (string) $chosen[0] : '';
 			$ctx['paymentMethod']  = (string) WC()->session->get( 'chosen_payment_method', '' );
 		}
 
-		if ( function_exists( 'WC' ) && WC()->customer ) {
+		if ( WC()->customer ) {
 			$ctx['billingCountry']  = (string) WC()->customer->get_billing_country();
 			$ctx['shippingCountry'] = (string) WC()->customer->get_shipping_country();
 		}

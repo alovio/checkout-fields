@@ -5,7 +5,6 @@ namespace CoreLabs\CheckoutFields\Checkout;
 
 use Automattic\WooCommerce\Blocks\Integrations\IntegrationInterface;
 use Automattic\WooCommerce\StoreApi\Exceptions\RouteException;
-use CoreLabs\CheckoutFields\Admin\SourceCatalog;
 use CoreLabs\CheckoutFields\Fields\FieldRepository;
 
 defined( 'ABSPATH' ) || exit;
@@ -52,6 +51,29 @@ final class BlockIntegration {
 								'type'        => array( 'object', 'null' ),
 								'context'     => array( 'view', 'edit' ),
 								'optional'    => true,
+							),
+						);
+					},
+					'schema_type'     => ARRAY_A,
+				)
+			);
+
+			// Expose the dynamic context on the cart endpoint so the Block client
+			// can resolve role/cart-category conditions live (read-only).
+			woocommerce_store_api_register_endpoint_data(
+				array(
+					'endpoint'        => 'cart',
+					'namespace'       => 'clcf',
+					'data_callback'   => static function () {
+						return array( 'ctx' => CheckoutConditionData::context() );
+					},
+					'schema_callback' => static function () {
+						return array(
+							'ctx' => array(
+								'description' => 'CLCF checkout context for conditional logic.',
+								'type'        => 'object',
+								'context'     => array( 'view', 'edit' ),
+								'readonly'    => true,
 							),
 						);
 					},
@@ -121,12 +143,10 @@ final class BlockFieldsIntegration implements IntegrationInterface {
 		wp_register_script( 'clcf-block-checkout', CLCF_URL . 'build/block-checkout.js', $deps, $asset['version'], true );
 		wp_set_script_translations( 'clcf-block-checkout', 'corelabs-checkout-fields', CLCF_PATH . 'languages' );
 
+		// Static config only — the dynamic context comes from the cart Store API
+		// endpoint data (computed per-request, safely after wp_loaded).
 		$group = ( new FieldRepository() )->get();
-		$data  = array(
-			'fields'  => array_values( (array) ( $group['fields'] ?? array() ) ),
-			'ctx'     => CheckoutConditionData::context(),
-			'sources' => SourceCatalog::sources(),
-		);
+		$data  = array( 'fields' => array_values( (array) ( $group['fields'] ?? array() ) ) );
 		wp_add_inline_script( 'clcf-block-checkout', 'window.CLCF_BLOCK = ' . wp_json_encode( $data ) . ';', 'before' );
 	}
 
