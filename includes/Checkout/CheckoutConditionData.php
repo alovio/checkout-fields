@@ -64,6 +64,29 @@ final class CheckoutConditionData {
 	 * @return array<string,string>
 	 */
 	public static function build( array $field_values = array(), array $posted = array() ): array {
+		$ctx = self::context();
+
+		if ( isset( $posted['payment_method'] ) ) {
+			$ctx['paymentMethod'] = (string) $posted['payment_method'];
+		}
+		if ( isset( $posted['billing_country'] ) && '' !== (string) $posted['billing_country'] ) {
+			$ctx['billingCountry'] = (string) $posted['billing_country'];
+		}
+		if ( isset( $posted['shipping_country'] ) && '' !== (string) $posted['shipping_country'] ) {
+			$ctx['shippingCountry'] = (string) $posted['shipping_country'];
+		}
+
+		return self::from_values( $field_values, $ctx );
+	}
+
+	/**
+	 * Gather the raw checkout context from WooCommerce (cart/session/customer).
+	 * Returns the `ctx` shape that from_values()/buildValues() consume; also sent
+	 * to the Block client so it can resolve conditions live.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function context(): array {
 		$ctx = array(
 			'role'            => self::current_role(),
 			'cartCategories'  => array(),
@@ -71,9 +94,9 @@ final class CheckoutConditionData {
 			'cartQty'         => 0,
 			'cartSubtotal'    => 0,
 			'shippingMethod'  => '',
-			'paymentMethod'   => isset( $posted['payment_method'] ) ? (string) $posted['payment_method'] : '',
-			'billingCountry'  => isset( $posted['billing_country'] ) ? (string) $posted['billing_country'] : '',
-			'shippingCountry' => isset( $posted['shipping_country'] ) ? (string) $posted['shipping_country'] : '',
+			'paymentMethod'   => '',
+			'billingCountry'  => '',
+			'shippingCountry' => '',
 		);
 
 		if ( function_exists( 'WC' ) && WC()->cart ) {
@@ -98,18 +121,15 @@ final class CheckoutConditionData {
 		if ( function_exists( 'WC' ) && WC()->session ) {
 			$chosen                = (array) WC()->session->get( 'chosen_shipping_methods', array() );
 			$ctx['shippingMethod'] = isset( $chosen[0] ) ? (string) $chosen[0] : '';
+			$ctx['paymentMethod']  = (string) WC()->session->get( 'chosen_payment_method', '' );
 		}
 
 		if ( function_exists( 'WC' ) && WC()->customer ) {
-			if ( '' === $ctx['billingCountry'] ) {
-				$ctx['billingCountry'] = (string) WC()->customer->get_billing_country();
-			}
-			if ( '' === $ctx['shippingCountry'] ) {
-				$ctx['shippingCountry'] = (string) WC()->customer->get_shipping_country();
-			}
+			$ctx['billingCountry']  = (string) WC()->customer->get_billing_country();
+			$ctx['shippingCountry'] = (string) WC()->customer->get_shipping_country();
 		}
 
-		return self::from_values( $field_values, $ctx );
+		return $ctx;
 	}
 
 	private static function current_role(): string {
