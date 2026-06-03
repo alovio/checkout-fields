@@ -1,0 +1,20 @@
+[
+  {
+    "name": "guest empty cart",
+    "fieldValues": {},
+    "ctx": { "role": "guest", "cartCategories": [], "cartProducts": [], "cartQty": 0, "cartSubtotal": 0, "shippingMethod": "", "paymentMethod": "", "billingCountry": "", "shippingCountry": "" },
+    "expected": { "@user_role": "guest", "@cart_qty": "0", "@cart_subtotal": "0", "@shipping_method": "", "@payment_method": "", "@billing_country": "", "@shipping_country": "" }
+  },
+  {
+    "name": "full context with submitted fields",
+    "fieldValues": { "vat_id": "DE123", "biz": "yes" },
+    "ctx": { "role": "wholesale", "cartCategories": [12], "cartProducts": [99], "cartQty": 3, "cartSubtotal": 150, "shippingMethod": "flat_rate:1", "paymentMethod": "cod", "billingCountry": "DE", "shippingCountry": "DE" },
+    "expected": { "vat_id": "DE123", "biz": "yes", "@user_role": "wholesale", "@cart_has_category:12": "yes", "@cart_has_product:99": "yes", "@cart_qty": "3", "@cart_subtotal": "150", "@shipping_method": "flat_rate:1", "@payment_method": "cod", "@billing_country": "DE", "@shipping_country": "DE" }
+  },
+  {
+    "name": "multiple categories, empty role coerced to guest, decimal subtotal",
+    "fieldValues": {},
+    "ctx": { "role": "", "cartCategories": [5, 12], "cartProducts": [], "cartQty": 2, "cartSubtotal": 49.5, "shippingMethod": "free_shipping:2", "paymentMethod": "bacs", "billingCountry": "US", "shippingCountry": "CA" },
+    "expected": { "@user_role": "guest", "@cart_has_category:5": "yes", "@cart_has_category:12": "yes", "@cart_qty": "2", "@cart_subtotal": "49.5", "@shipping_method": "free_shipping:2", "@payment_method": "bacs", "@billing_country": "US", "@shipping_country": "CA" }
+  }
+]
