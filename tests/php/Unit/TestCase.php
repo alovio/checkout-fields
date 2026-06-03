@@ -23,6 +23,7 @@ abstract class TestCase extends PHPUnitTestCase {
 		Monkey\Functions\when( 'sanitize_text_field' )->returnArg( 1 );
 		Monkey\Functions\when( 'sanitize_textarea_field' )->returnArg( 1 );
 		Monkey\Functions\when( 'sanitize_key' )->returnArg( 1 );
+		Monkey\Functions\when( 'wp_json_encode' )->alias( static fn( $v ) => json_encode( $v ) );
 	}
 
 	protected function tearDown(): void {
