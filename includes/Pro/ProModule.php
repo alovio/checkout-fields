@@ -28,7 +28,6 @@ final class ProModule {
 			return;
 		}
 		add_filter( 'clcf_field_types', array( $this, 'field_types' ) );
-		add_filter( 'clcf_price_modes', array( $this, 'price_modes' ) );
 	}
 
 	/**
@@ -37,13 +36,5 @@ final class ProModule {
 	 */
 	public function field_types( $types ): array {
 		return array_merge( (array) $types, array( 'file', 'date' ) );
-	}
-
-	/**
-	 * @param string[] $modes
-	 * @return string[]
-	 */
-	public function price_modes( $modes ): array {
-		return array( 'fixed', 'per_unit', 'percent' );
 	}
 }

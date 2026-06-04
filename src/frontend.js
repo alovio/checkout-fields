@@ -92,25 +92,11 @@ function init() {
 	if ( ! payload ) {
 		return;
 	}
-	const fields = payload.group.fields || [];
-	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 );
-
 	const run = () => apply( payload.group, payload.seed );
 	document.addEventListener( 'change', run, true );
 	document.addEventListener( 'input', run, true );
 	if ( window.jQuery ) {
 		window.jQuery( document.body ).on( 'updated_checkout', run );
-
-		// When a priced field changes, ask WooCommerce to recalculate the order
-		// review so the fee (added server-side from the posted values) shows live.
-		if ( hasFees ) {
-			document.addEventListener( 'change', ( e ) => {
-				const name = e.target && e.target.name ? e.target.name : '';
-				if ( name.indexOf( 'clcf[' ) === 0 ) {
-					window.jQuery( document.body ).trigger( 'update_checkout' );
-				}
-			}, true );
-		}
 	}
 	run();
 }

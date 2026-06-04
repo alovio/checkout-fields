@@ -46,7 +46,6 @@ final class BuilderAssets {
 				'isPro'      => (bool) apply_filters( 'clcf_is_pro', false ),
 				'operators'  => (array) apply_filters( 'clcf_allowed_operators', array( 'is', 'is_not', 'contains', 'gt', 'lt' ) ),
 				'actions'    => (array) apply_filters( 'clcf_allowed_actions', array( 'show', 'hide', 'require' ) ),
-				'priceModes' => (array) apply_filters( 'clcf_price_modes', array() ),
 				'locations'  => SourceCatalog::locations(),
 				'sources'    => SourceCatalog::sources(),
 			)

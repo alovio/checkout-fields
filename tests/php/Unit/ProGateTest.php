@@ -25,9 +25,4 @@ class ProGateTest extends TestCase {
 		$this->assertContains( 'file', $out );
 		$this->assertContains( 'date', $out );
 	}
-
-	public function test_price_modes_includes_per_unit_and_percent(): void {
-		$out = ( new ProModule() )->price_modes( array() );
-		$this->assertSame( array( 'fixed', 'per_unit', 'percent' ), $out );
-	}
 }

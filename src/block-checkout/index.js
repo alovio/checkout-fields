@@ -13,10 +13,9 @@ import { useSelect, dispatch } from '@wordpress/data';
 import { activeMap } from '../frontend/conditional-logic';
 import { buildValues } from '../checkout-conditions/data-sources';
 
-const { ExperimentalOrderMeta, extensionCartUpdate } = window.wc.blocksCheckout;
+const { ExperimentalOrderMeta } = window.wc.blocksCheckout;
 
 const CONFIG = window.CLCF_BLOCK || { fields: [], ctx: {}, sources: [] };
-const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 );
 
 function selectedShippingRate( cartData ) {
 	const packages = ( cartData && cartData.shippingRates ) || [];
@@ -131,13 +130,9 @@ function CheckoutFields() {
 	const tokenMap = buildValues( values, ctx );
 	const map = activeMap( fields, tokenMap );
 
-	// Push current values to the Store API whenever they change. When any field
-	// carries a fee (Pro), also push to the cart so the fee total updates live.
+	// Push current values to the Store API whenever they change.
 	useEffect( () => {
 		dispatch( 'wc/store/checkout' ).setExtensionData( 'clcf', { fields: values } );
-		if ( HAS_FEES && typeof extensionCartUpdate === 'function' ) {
-			extensionCartUpdate( { namespace: 'clcf', data: { fields: values } } );
-		}
 	}, [ values ] );
 
 	const setValue = ( id, v ) => setValues( ( prev ) => ( { ...prev, [ id ]: v } ) );

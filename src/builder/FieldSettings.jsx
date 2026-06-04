@@ -13,36 +13,6 @@ const LOCATIONS = ( window.CLCF_BUILDER && window.CLCF_BUILDER.locations ) || [
 	{ value: 'after_order_notes', label: 'After order notes' },
 ];
 
-// Pricing is a Pro feature — present only when the gate lifts clcf_price_modes.
-const PRICE_MODES = ( window.CLCF_BUILDER && window.CLCF_BUILDER.priceModes ) || [];
-
-function PricingControl( { field, set } ) {
-	if ( ! PRICE_MODES.length ) {
-		return null;
-	}
-	const mode = field.priceMode || 'fixed';
-	const label = mode === 'percent' ? __( 'Fee — percentage (%)', T ) : mode === 'per_unit' ? __( 'Fee — price per unit', T ) : __( 'Fee amount', T );
-	const options = [
-		{ label: __( 'Fixed fee', T ), value: 'fixed' },
-		...( field.type === 'number' ? [ { label: __( 'Per unit (× number entered)', T ), value: 'per_unit' } ] : [] ),
-		{ label: __( 'Percentage of subtotal', T ), value: 'percent' },
-	].filter( ( o ) => PRICE_MODES.includes( o.value ) );
-	return (
-		<div className="clcf-pricing">
-			<TextControl
-				type="number"
-				min={ 0 }
-				step="0.01"
-				label={ label }
-				help={ __( 'Added to the order total when this field is filled in or selected.', T ) }
-				value={ field.price || 0 }
-				onChange={ ( v ) => set( { price: Math.max( 0, parseFloat( v ) || 0 ) } ) }
-			/>
-			<SelectControl label={ __( 'Pricing mode', T ) } value={ mode } options={ options } onChange={ ( v ) => set( { priceMode: v } ) } />
-		</div>
-	);
-}
-
 function DefaultControl( { field, set } ) {
 	const t = field.type;
 	if ( HAS_PLACEHOLDER.includes( t ) ) {
@@ -133,8 +103,6 @@ export default function FieldSettings() {
 			{ optionsEmpty && (
 				<Notice status="warning" isDismissible={ false }>{ __( 'Add at least one option.', T ) }</Notice>
 			) }
-
-			<PricingControl field={ field } set={ set } />
 
 			<ConditionEditor field={ field } />
 		</div>

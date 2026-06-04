@@ -39,6 +39,7 @@ final class SourceCatalog {
 			array( 'token' => '@billing_country', 'label' => __( 'Billing country', 'corelabs-checkout-fields' ), 'input' => 'select', 'values' => self::countries() ),
 			array( 'token' => '@shipping_country', 'label' => __( 'Shipping country', 'corelabs-checkout-fields' ), 'input' => 'select', 'values' => self::countries() ),
 			array( 'token' => '@cart_has_category', 'label' => __( 'Cart has category', 'corelabs-checkout-fields' ), 'input' => 'suffix', 'values' => self::categories() ),
+			array( 'token' => '@cart_has_product', 'label' => __( 'Cart has product', 'corelabs-checkout-fields' ), 'input' => 'suffix', 'values' => self::products() ),
 			array( 'token' => '@cart_qty', 'label' => __( 'Cart item count', 'corelabs-checkout-fields' ), 'input' => 'number' ),
 			array( 'token' => '@cart_subtotal', 'label' => __( 'Cart subtotal', 'corelabs-checkout-fields' ), 'input' => 'number' ),
 		);
@@ -93,6 +94,27 @@ final class SourceCatalog {
 		$out = array();
 		foreach ( WC()->countries->get_countries() as $code => $name ) {
 			$out[] = array( 'value' => (string) $code, 'label' => (string) $name );
+		}
+		return $out;
+	}
+
+	/** @return array<int,array{value:string,label:string}> */
+	private static function products(): array {
+		if ( ! function_exists( 'wc_get_products' ) ) {
+			return array();
+		}
+		$products = wc_get_products(
+			array(
+				'limit'   => 200,
+				'status'  => 'publish',
+				'orderby' => 'title',
+				'order'   => 'ASC',
+				'return'  => 'objects',
+			)
+		);
+		$out = array();
+		foreach ( (array) $products as $p ) {
+			$out[] = array( 'value' => (string) $p->get_id(), 'label' => $p->get_name() );
 		}
 		return $out;
 	}
