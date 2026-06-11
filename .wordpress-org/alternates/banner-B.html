@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { margin: 0; }
+  .canvas {
+    width: 1544px; height: 500px; overflow: hidden; position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(120deg, #5B4DF0 0%, #4F46E5 42%, #6D28D9 100%);
+    color: #ffffff;
+  }
+  .bloom {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(58% 90% at 90% 16%, rgba(167,139,250,0.50) 0%, rgba(167,139,250,0) 60%),
+      radial-gradient(48% 80% at 4% 94%, rgba(99,102,241,0.42) 0%, rgba(99,102,241,0) 60%);
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.055) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 24%, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 24%, #000 100%);
+  }
+  .content {
+    position: absolute; left: 100px; top: 0; height: 100%; width: 700px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(255,255,255,0.13); border: 1px solid rgba(255,255,255,0.24);
+    font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #F1EDFF; margin-bottom: 28px;
+  }
+  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 4px rgba(52,211,153,0.25); }
+  h1 { font-size: 78px; line-height: 0.98; font-weight: 800; letter-spacing: -0.024em; }
+  h1 .l2 { display: block; }
+  .woo { font-size: 23px; font-weight: 700; color: #C4B5FD; margin-top: 16px; margin-bottom: 28px; }
+  .woo strong { color: #ffffff; }
+  .tagline { font-size: 25px; line-height: 1.42; font-weight: 500; color: #E9E5FF; max-width: 620px; }
+  .tagline .hl { color: #ffffff; font-weight: 700; }
+
+  .motif { position: absolute; right: 86px; top: 50%; transform: translateY(-50%); width: 600px; height: 420px; }
+
+  .if-node {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    width: 86px; height: 86px; border-radius: 24px;
+    background: linear-gradient(135deg, #6366F1, #8B5CF6);
+    box-shadow: 0 18px 38px -10px rgba(40,20,120,0.8), 0 0 0 7px rgba(255,255,255,0.14);
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 28px; font-weight: 800; letter-spacing: 0.02em; z-index: 3;
+  }
+  .wires { position: absolute; left: 84px; top: 0; width: 110px; height: 100%; z-index: 1; }
+
+  .card {
+    position: absolute; left: 178px; width: 422px;
+    background: rgba(255,255,255,0.98);
+    border-radius: 20px;
+    box-shadow: 0 34px 64px -24px rgba(23,12,80,0.7), 0 0 0 1px rgba(255,255,255,0.5);
+    padding: 18px 22px 20px 22px;
+  }
+  .card.classic { top: 22px; }
+  .card.block { bottom: 22px; }
+  .chip {
+    position: absolute; top: -14px; right: 20px;
+    font-size: 12px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 6px 13px; border-radius: 999px; color: #fff;
+    box-shadow: 0 8px 18px -6px rgba(23,12,80,0.55);
+  }
+  .card.classic .chip { background: #4F46E5; }
+  .card.block .chip { background: #7C3AED; }
+  .card h3 { font-size: 14px; font-weight: 800; color: #3730A3; margin-bottom: 14px; letter-spacing: 0.02em; }
+  .frow { display: flex; align-items: center; gap: 11px; height: 48px; padding: 0 14px; border-radius: 12px; }
+  .frow + .frow { margin-top: 11px; }
+  .frow.muted { background: #F4F4FB; border: 1.5px solid #E6E6F5; }
+  .frow.muted .bar { height: 11px; border-radius: 6px; background: #D9DBEF; }
+  .frow.muted .bar.w1 { width: 96px; } .frow.muted .bar.w2 { width: 64px; margin-left: auto; }
+  .frow.live { background: #F2FBF7; border: 1.5px solid #34D399; box-shadow: 0 8px 20px -10px rgba(16,185,129,0.5); }
+  .frow.live .check { width: 21px; height: 21px; border-radius: 6px; background: #10B981; position: relative; flex: none; }
+  .frow.live .check::after {
+    content: ""; position: absolute; left: 7px; top: 3.5px; width: 5px; height: 10px;
+    border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(43deg);
+  }
+  .frow.live .lbl { font-size: 14.5px; font-weight: 700; color: #065F46; }
+  .frow.live .tag {
+    margin-left: auto; font-size: 11px; font-weight: 800; color: #047857;
+    background: #D1FAE5; border: 1.5px solid #A7F3D0; border-radius: 999px; padding: 4px 10px; letter-spacing: 0.04em;
+  }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="bloom"></div>
+    <div class="grid"></div>
+    <div class="content">
+      <span class="eyebrow"><span class="dot"></span>Conditional logic &mdash; free</span>
+      <h1>CoreLabs Checkout<span class="l2">Fields</span></h1>
+      <div class="woo">for <strong>WooCommerce</strong></div>
+      <p class="tagline">One rule builder. <span class="hl">Both checkouts.</span> Show, hide or require fields by cart, role, shipping or payment &mdash; on <span class="hl">classic and Block</span>.</p>
+    </div>
+    <div class="motif">
+      <svg class="wires" viewBox="0 0 110 420" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 210 C 56 210, 56 118, 110 118" stroke="#A7F3D0" stroke-width="3.5" stroke-dasharray="2 8" stroke-linecap="round"/>
+        <path d="M2 210 C 56 210, 56 302, 110 302" stroke="#34D399" stroke-width="3.5" stroke-linecap="round"/>
+      </svg>
+      <div class="if-node">IF</div>
+      <div class="card classic">
+        <span class="chip">Classic checkout</span>
+        <h3>Billing &amp; payment</h3>
+        <div class="frow muted"><span class="bar w1"></span><span class="bar w2"></span></div>
+        <div class="frow live"><span class="check"></span><span class="lbl">Delivery instructions</span><span class="tag">SHOWN</span></div>
+      </div>
+      <div class="card block">
+        <span class="chip">Block checkout</span>
+        <h3>Order summary</h3>
+        <div class="frow muted"><span class="bar w1"></span><span class="bar w2"></span></div>
+        <div class="frow live"><span class="check"></span><span class="lbl">Delivery instructions</span><span class="tag">SHOWN</span></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

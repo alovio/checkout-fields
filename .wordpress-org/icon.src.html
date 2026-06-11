@@ -4,29 +4,32 @@
 <meta charset="utf-8">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  html, body { width: 100%; height: 100%; }
-  body { display: flex; }
-  .icon {
-    width: 100vmin; height: 100vmin;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 55%, #9333ea 100%);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
+  body { margin: 0; }
+  .canvas {
+    width: 256px; height: 256px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #5B4DF0 0%, #6D28D9 100%);
   }
-  svg { width: 62vmin; height: 62vmin; display: block; }
+  svg { position: absolute; inset: 0; }
 </style>
 </head>
 <body>
-  <div class="icon">
-    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <!-- form field bars -->
-      <rect x="10" y="16" width="58" height="11" rx="5.5" fill="#ffffff"/>
-      <rect x="10" y="44.5" width="42" height="11" rx="5.5" fill="#ffffff"/>
-      <rect x="10" y="73" width="58" height="11" rx="5.5" fill="#ffffff" opacity="0.55"/>
-      <!-- conditional branch from middle field to a node -->
-      <path d="M52 50 H74 a8 8 0 0 1 8 8 V70" stroke="#34d399" stroke-width="6" stroke-linecap="round"/>
-      <circle cx="82" cy="75" r="9" fill="#34d399"/>
-      <!-- checkmark in node -->
-      <path d="M78 75.5 l3 3 l5.5 -6" stroke="#0b3b2e" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <div class="canvas">
+    <svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- source node -->
+      <circle cx="62" cy="128" r="26" fill="#ffffff"/>
+      <circle cx="62" cy="128" r="11" fill="#6D28D9"/>
+      <!-- dotted branch up (shown) -->
+      <path d="M62 96 C 62 76, 92 84, 100 84" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-dasharray="0.5 13"/>
+      <!-- dotted branch down (hidden) -->
+      <path d="M62 160 C 62 180, 92 172, 100 172" stroke="rgba(255,255,255,0.55)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0.5 13"/>
+      <!-- shown pill -->
+      <rect x="104" y="56" width="116" height="56" rx="28" fill="#ffffff"/>
+      <rect x="120" y="76" width="44" height="16" rx="8" fill="#C4B5FD"/>
+      <rect x="176" y="70" width="28" height="28" rx="8" fill="#34D399"/>
+      <path d="M183.5 84.5 l4.5 4.5 l8 -9" stroke="#065F46" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- hidden pill (ghost) -->
+      <rect x="104" y="144" width="116" height="56" rx="28" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.65)" stroke-width="4" stroke-dasharray="3 12" stroke-linecap="round"/>
+      <rect x="120" y="164" width="44" height="16" rx="8" fill="rgba(255,255,255,0.4)"/>
     </svg>
   </div>
 </body>

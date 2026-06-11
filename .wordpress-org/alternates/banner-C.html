@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { margin: 0; }
+  .canvas {
+    width: 1544px; height: 500px; overflow: hidden; position: relative;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+      radial-gradient(70% 120% at 88% 10%, rgba(124,58,237,0.55) 0%, rgba(124,58,237,0) 55%),
+      radial-gradient(55% 95% at 8% 100%, rgba(79,70,229,0.5) 0%, rgba(79,70,229,0) 60%),
+      linear-gradient(120deg, #1E1B4B 0%, #251F63 50%, #312E81 100%);
+    color: #ffffff;
+  }
+  .grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 46px 46px;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 30%, #000 100%);
+  }
+  .content {
+    position: absolute; left: 100px; top: 0; height: 100%; width: 700px;
+    display: flex; flex-direction: column; justify-content: center; z-index: 2;
+  }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px; align-self: flex-start;
+    padding: 8px 16px; border-radius: 999px;
+    background: rgba(52,211,153,0.12); border: 1px solid rgba(52,211,153,0.45);
+    font-size: 15px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: #A7F3D0; margin-bottom: 28px;
+  }
+  .eyebrow .dot { width: 9px; height: 9px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 4px rgba(52,211,153,0.22); }
+  h1 { font-size: 78px; line-height: 0.98; font-weight: 800; letter-spacing: -0.024em; }
+  h1 .l2 { display: block; }
+  .woo { font-size: 23px; font-weight: 700; color: #A5B4FC; margin-top: 16px; margin-bottom: 28px; }
+  .woo strong { color: #ffffff; }
+  .tagline { font-size: 25px; line-height: 1.42; font-weight: 500; color: #C7D2FE; max-width: 620px; }
+  .tagline .hl { color: #ffffff; font-weight: 700; }
+
+  .motif { position: absolute; right: 70px; top: 50%; transform: translateY(-50%); width: 640px; height: 400px; z-index: 1; }
+  .wires { position: absolute; inset: 0; }
+
+  .nodechip {
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; gap: 11px;
+    height: 58px; padding: 0 20px; border-radius: 16px;
+    background: rgba(255,255,255,0.07); border: 1.5px solid rgba(165,180,252,0.4);
+    backdrop-filter: blur(4px);
+    font-size: 16px; font-weight: 700; color: #E0E7FF;
+  }
+  .nodechip .radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #34D399; background: radial-gradient(circle, #34D399 4.5px, transparent 5px); }
+
+  .diamond {
+    position: absolute; left: 280px; top: 50%;
+    width: 92px; height: 92px; transform: translate(-50%,-50%) rotate(45deg);
+    background: linear-gradient(135deg, #6366F1, #A855F7);
+    border-radius: 22px;
+    box-shadow: 0 0 0 8px rgba(139,92,246,0.18), 0 0 54px 6px rgba(139,92,246,0.55), 0 22px 44px -12px rgba(0,0,0,0.6);
+    z-index: 2;
+  }
+  .diamond span {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    transform: rotate(-45deg); font-size: 26px; font-weight: 800; color: #fff; letter-spacing: 0.02em;
+  }
+  .branchlbl { position: absolute; font-size: 13px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+  .branchlbl.yes { left: 366px; top: 96px; color: #34D399; }
+  .branchlbl.no { left: 366px; top: 282px; color: #818CF8; }
+
+  .out {
+    position: absolute; right: 0; width: 250px;
+    display: flex; align-items: center; gap: 12px;
+    height: 60px; padding: 0 18px; border-radius: 16px;
+  }
+  .out.shown {
+    top: 62px;
+    background: #ffffff;
+    box-shadow: 0 0 0 2px #34D399, 0 0 44px 2px rgba(52,211,153,0.4), 0 24px 44px -16px rgba(0,0,0,0.55);
+  }
+  .out.shown .check { width: 24px; height: 24px; border-radius: 7px; background: #10B981; position: relative; flex: none; }
+  .out.shown .check::after {
+    content: ""; position: absolute; left: 8px; top: 4px; width: 6px; height: 11px;
+    border: solid #fff; border-width: 0 2.5px 2.5px 0; transform: rotate(43deg);
+  }
+  .out.shown .lbl { font-size: 15.5px; font-weight: 700; color: #134E4A; }
+  .out.hidden {
+    bottom: 62px;
+    background: rgba(255,255,255,0.04);
+    border: 2px dashed rgba(165,180,252,0.45);
+  }
+  .out.hidden .ghost { width: 24px; height: 24px; border-radius: 7px; border: 2px dashed rgba(165,180,252,0.55); flex: none; }
+  .out.hidden .lbl { font-size: 15.5px; font-weight: 600; color: rgba(199,210,254,0.55); text-decoration: line-through; text-decoration-thickness: 1.5px; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <div class="grid"></div>
+    <div class="content">
+      <span class="eyebrow"><span class="dot"></span>Conditional logic &mdash; free</span>
+      <h1>CoreLabs Checkout<span class="l2">Fields</span></h1>
+      <div class="woo">for <strong>WooCommerce</strong></div>
+      <p class="tagline"><span class="hl">Show, hide or require</span> checkout fields by cart, role, shipping or payment &mdash; live, on <span class="hl">classic and Block</span> checkout.</p>
+    </div>
+    <div class="motif">
+      <svg class="wires" viewBox="0 0 640 400" preserveAspectRatio="none" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M196 200 H 234" stroke="#818CF8" stroke-width="3.5" stroke-dasharray="2 8" stroke-linecap="round"/>
+        <path d="M326 200 C 372 200, 350 92, 396 92 L 388 92" stroke="#34D399" stroke-width="3.5" stroke-linecap="round"/>
+        <path d="M326 200 C 372 200, 350 308, 396 308 L 388 308" stroke="#818CF8" stroke-width="3.5" stroke-dasharray="2 8" stroke-linecap="round"/>
+      </svg>
+      <div class="nodechip"><span class="radio"></span>Cash on delivery</div>
+      <div class="diamond"><span>IF</span></div>
+      <span class="branchlbl yes">show</span>
+      <span class="branchlbl no">hide</span>
+      <div class="out shown"><span class="check"></span><span class="lbl">Exact cash ready</span></div>
+      <div class="out hidden"><span class="ghost"></span><span class="lbl">Card surcharge note</span></div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { margin: 0; }
+  .canvas {
+    width: 256px; height: 256px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #5B4DF0 0%, #6D28D9 100%);
+  }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- back card (Block) -->
+      <rect x="96" y="46" width="124" height="150" rx="20" fill="rgba(255,255,255,0.35)"/>
+      <!-- front card (Classic) -->
+      <rect x="68" y="74" width="124" height="150" rx="20" fill="#ffffff"/>
+      <rect x="86" y="96" width="64" height="14" rx="7" fill="#C4B5FD"/>
+      <rect x="86" y="124" width="88" height="14" rx="7" fill="#E3E0FB"/>
+      <!-- highlighted conditional row -->
+      <rect x="86" y="152" width="88" height="40" rx="12" fill="#D1FAE5"/>
+      <rect x="96" y="162" width="20" height="20" rx="6" fill="#10B981"/>
+      <path d="M101 172 l3.6 3.6 l6.4 -7.2" stroke="#ffffff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="126" y="167" width="38" height="10" rx="5" fill="#34D399"/>
+      <!-- dotted IF wire entering -->
+      <path d="M22 172 C 48 172, 56 172, 86 172" stroke="#ffffff" stroke-width="9" stroke-linecap="round" stroke-dasharray="0.5 17"/>
+      <circle cx="24" cy="172" r="17" fill="#ffffff"/>
+      <circle cx="24" cy="172" r="7" fill="#6D28D9"/>
+    </svg>
+  </div>
+</body>
+</html>

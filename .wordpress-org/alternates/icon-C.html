@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { margin: 0; }
+  .canvas {
+    width: 256px; height: 256px; position: relative; overflow: hidden;
+    background:
+      radial-gradient(80% 80% at 75% 20%, rgba(124,58,237,0.6) 0%, rgba(124,58,237,0) 60%),
+      linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+  }
+  svg { position: absolute; inset: 0; }
+</style>
+</head>
+<body>
+  <div class="canvas">
+    <svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- glow -->
+      <circle cx="92" cy="128" r="64" fill="rgba(139,92,246,0.35)"/>
+      <!-- diamond -->
+      <rect x="56" y="92" width="72" height="72" rx="18" transform="rotate(45 92 128)" fill="url(#g)"/>
+      <defs>
+        <linearGradient id="g" x1="56" y1="92" x2="128" y2="164" gradientUnits="userSpaceOnUse">
+          <stop stop-color="#6366F1"/><stop offset="1" stop-color="#A855F7"/>
+        </linearGradient>
+      </defs>
+      <text x="92" y="139" text-anchor="middle" font-family="-apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif" font-size="30" font-weight="800" fill="#ffffff">IF</text>
+      <!-- wires -->
+      <path d="M122 98 C 142 76, 148 76, 160 76" stroke="#34D399" stroke-width="8" stroke-linecap="round"/>
+      <path d="M122 158 C 142 180, 148 180, 160 180" stroke="rgba(165,180,252,0.7)" stroke-width="8" stroke-linecap="round" stroke-dasharray="0.5 15"/>
+      <!-- shown pill -->
+      <rect x="158" y="50" width="76" height="52" rx="26" fill="#ffffff"/>
+      <rect x="172" y="68" width="26" height="16" rx="8" fill="#C4B5FD"/>
+      <rect x="204" y="64" width="24" height="24" rx="7" fill="#34D399"/>
+      <path d="M210 76 l4 4 l7 -8" stroke="#065F46" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- hidden pill -->
+      <rect x="158" y="154" width="76" height="52" rx="26" fill="rgba(255,255,255,0.08)" stroke="rgba(165,180,252,0.6)" stroke-width="4" stroke-dasharray="3 11" stroke-linecap="round"/>
+      <rect x="172" y="172" width="26" height="16" rx="8" fill="rgba(199,210,254,0.4)"/>
+    </svg>
+  </div>
+</body>
+</html>
