@@ -1,11 +1,11 @@
 <?php
 /**
- * Plugin Name: CoreLabs Checkout Fields for WooCommerce
- * Plugin URI: https://addons.itahir.com/corelabs-checkout-fields
+ * Plugin Name: Alovio Checkout Fields for WooCommerce
+ * Plugin URI: https://alovio.org/checkout-fields
  * Description: Add custom WooCommerce checkout fields with a drag-and-drop builder and full conditional logic — on classic and Block checkout.
  * Version: 1.0.0
- * Author: CoreLabs
- * Author URI: https://addons.itahir.com
+ * Author: Alovio
+ * Author URI: https://alovio.org
  * Requires at least: 6.4
  * Requires PHP: 7.4
  * Requires Plugins: woocommerce

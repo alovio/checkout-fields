@@ -1,4 +1,4 @@
-=== CoreLabs Checkout Fields for WooCommerce ===
+=== Alovio Checkout Fields for WooCommerce ===
 Contributors: 74h1r
 Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
@@ -12,7 +12,7 @@ Add custom WooCommerce checkout fields with a drag-and-drop builder and full con
 
 == Description ==
 
-**CoreLabs Checkout Fields** lets you add unlimited custom fields to the WooCommerce checkout and **show, hide, or require** them based on real checkout context — cart contents, product category, customer role, shipping method, payment method, and country — all without writing code.
+**Alovio Checkout Fields** lets you add unlimited custom fields to the WooCommerce checkout and **show, hide, or require** them based on real checkout context — cart contents, product category, customer role, shipping method, payment method, and country — all without writing code.
 
 Most checkout-field plugins lock conditional logic behind a paid upgrade. This one gives you the **full conditional engine for free**, including multi-condition AND/OR rules, and it behaves **identically on the classic checkout and the new Block (Store API) checkout**.
 
