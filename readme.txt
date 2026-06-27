@@ -1,8 +1,8 @@
-=== Alovio Checkout Fields for WooCommerce ===
+=== Alovio Checkout Fields – Custom WooCommerce Checkout Fields + Conditional Logic ===
 Contributors: 74h1r
 Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPL-2.0-or-later
@@ -53,6 +53,10 @@ On the order (HPOS-safe order meta), shown on the admin order screen and in orde
 = Will it slow down my checkout? =
 
 No. Conditions are evaluated by a small shared engine on the page and re-checked server-side on submit; there is no extra page load.
+
+= Is this a free alternative to Checkout Field Editor for WooCommerce? =
+
+Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager or a similar plugin, Alovio Checkout Fields gives you the full conditional-logic engine — show / hide / require with multi-condition AND/OR rules — free, and identical on both the classic and Block (Store API) checkout. Most alternatives paywall conditional logic; here it is in the free plugin.
 
 == Screenshots ==
 
