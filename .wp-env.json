@@ -1,8 +1,7 @@
 {
 	"plugins": [ "https://downloads.wordpress.org/plugin/woocommerce.zip" ],
 	"mappings": {
-		"wp-content/plugins/corelabs-checkout-fields": ".",
-		"wp-content/plugins/corelabs-checkout-fields-pro": "./corelabs-checkout-fields-pro"
+		"wp-content/plugins/corelabs-checkout-fields": "."
 	},
 	"config": {
 		"WP_DEBUG": true,

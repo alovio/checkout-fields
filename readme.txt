@@ -28,9 +28,13 @@ Most checkout-field plugins lock conditional logic behind a paid upgrade. This o
 * Choose where each field appears (after order notes, before order notes, after customer details, before payment) and its width — full or half, so two fields can sit side by side.
 * Validation (required and conditionally-required), then the values are saved to the order and shown on the admin order screen and in order emails. HPOS-compatible.
 
-= Pro =
+= 100% free — no Pro version =
 
-A separate Pro add-on unlocks field-driven pricing/fees, file-upload and date/time field types, repeatable field groups, My-Account-editable fields, import/export, and per-rule analytics. The free plugin is fully functional on its own.
+There is no paid tier and no locked features. Everything this plugin does — conditional logic, field-driven fees, file uploads, every field type — is included, free.
+
+= Also by Alovio =
+
+We build focused WooCommerce & WordPress tools under the Alovio brand — see [alovio.org](https://alovio.org) for the full family.
 
 == Installation ==
 

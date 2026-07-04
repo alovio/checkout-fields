@@ -29,11 +29,6 @@ final class Plugin {
 		}
 		$this->booted = true;
 
-		// The Pro module is shipped separately (excluded from the free build); load it only when present.
-		if ( class_exists( \CoreLabs\CheckoutFields\Pro\ProModule::class ) ) {
-			( new \CoreLabs\CheckoutFields\Pro\ProModule() )->register();
-		}
-
 		( new \CoreLabs\CheckoutFields\Admin\RestController() )->register();
 		( new \CoreLabs\CheckoutFields\Admin\SettingsPage() )->register();
 		( new \CoreLabs\CheckoutFields\Admin\BuilderAssets() )->register();

@@ -43,7 +43,6 @@ final class BuilderAssets {
 				'root'       => esc_url_raw( rest_url( '/' ) ),
 				'nonce'      => wp_create_nonce( 'wp_rest' ),
 				'fieldTypes' => FieldTypes::all(),
-				'isPro'      => (bool) apply_filters( 'clcf_is_pro', false ),
 				'operators'  => (array) apply_filters( 'clcf_allowed_operators', array( 'is', 'is_not', 'contains', 'gt', 'lt' ) ),
 				'actions'    => (array) apply_filters( 'clcf_allowed_actions', array( 'show', 'hide', 'require' ) ),
 				'locations'  => SourceCatalog::locations(),
