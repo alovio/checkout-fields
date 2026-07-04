@@ -29,18 +29,46 @@ export function makeId() {
 	return `fld_${ counter }_${ Math.random().toString( 36 ).slice( 2, 7 ) }`;
 }
 
-export const initialState = { fields: [], selectedId: null };
+export const HISTORY_LIMIT = 25;
+
+export const initialSim = { role: 'guest', payment: '', shipping: '', country: '', cartPreset: 'default' };
+
+export const initialState = { fields: [], selectedId: null, sim: initialSim, past: [] };
+
+/** Push the current fields snapshot before a mutating action (bounded). */
+function remember( state ) {
+	const past = [ ...state.past, state.fields ];
+	if ( past.length > HISTORY_LIMIT ) {
+		past.shift();
+	}
+	return past;
+}
 
 export function reducer( state = initialState, action = {} ) {
 	switch ( action.type ) {
+		case 'UNDO': {
+			if ( ! state.past.length ) {
+				return state;
+			}
+			const past = [ ...state.past ];
+			const fields = past.pop();
+			return { ...state, fields, past, selectedId: fields.some( ( f ) => f.id === state.selectedId ) ? state.selectedId : null };
+		}
+		case 'SET_SIM':
+			return { ...state, sim: { ...state.sim, ...action.patch } };
+		case 'INSERT_FIELDS': {
+			const fields = [ ...state.fields, ...action.fields ];
+			return { ...state, past: remember( state ), fields, selectedId: action.fields.length ? action.fields[ 0 ].id : state.selectedId };
+		}
 		case 'ADD_FIELD': {
 			const defaults = DEFAULTS[ action.fieldType ] || DEFAULTS.text;
 			const field = { id: action.id, type: action.fieldType, ...defaults, options: [ ...defaults.options ] };
-			return { ...state, fields: [ ...state.fields, field ], selectedId: field.id };
+			return { ...state, past: remember( state ), fields: [ ...state.fields, field ], selectedId: field.id };
 		}
 		case 'UPDATE_FIELD':
 			return {
 				...state,
+				past: remember( state ),
 				fields: state.fields.map( ( f ) => ( f.id === action.id ? { ...f, ...action.patch } : f ) ),
 			};
 		case 'REMOVE_FIELD': {
@@ -52,7 +80,7 @@ export function reducer( state = initialState, action = {} ) {
 					}
 					return f;
 				} );
-			return { ...state, fields, selectedId: state.selectedId === action.id ? null : state.selectedId };
+			return { ...state, past: remember( state ), fields, selectedId: state.selectedId === action.id ? null : state.selectedId };
 		}
 		case 'DUPLICATE_FIELD': {
 			const idx = state.fields.findIndex( ( f ) => f.id === action.id );
@@ -65,7 +93,7 @@ export function reducer( state = initialState, action = {} ) {
 			}
 			const fields = [ ...state.fields ];
 			fields.splice( idx + 1, 0, copy );
-			return { ...state, fields, selectedId: copy.id };
+			return { ...state, past: remember( state ), fields, selectedId: copy.id };
 		}
 		case 'REORDER': {
 			const fields = [ ...state.fields ];
@@ -74,15 +102,40 @@ export function reducer( state = initialState, action = {} ) {
 			}
 			const [ moved ] = fields.splice( action.from, 1 );
 			fields.splice( action.to, 0, moved );
-			return { ...state, fields };
+			return { ...state, past: remember( state ), fields };
 		}
 		case 'SELECT':
 			return { ...state, selectedId: action.id };
 		case 'HYDRATE':
-			return { ...state, fields: Array.isArray( action.fields ) ? action.fields : [] };
+			return { ...state, past: [], fields: Array.isArray( action.fields ) ? action.fields : [] };
 		default:
 			return state;
 	}
+}
+
+/**
+ * Remap a template's local ids to fresh unique ids, rewriting sibling condition
+ * references. Context tokens (`@…`) are left untouched.
+ *
+ * @param {Array} templateFields
+ * @return {Array} fields ready for INSERT_FIELDS
+ */
+export function remapTemplate( templateFields ) {
+	const idMap = {};
+	const fields = ( templateFields || [] ).map( ( f ) => {
+		const copy = JSON.parse( JSON.stringify( f ) );
+		idMap[ copy.id ] = makeId();
+		copy.id = idMap[ copy.id ];
+		return copy;
+	} );
+	fields.forEach( ( f ) => {
+		if ( Array.isArray( f.conditions ) ) {
+			f.conditions = f.conditions.map( ( r ) =>
+				r.field && r.field[ 0 ] !== '@' && idMap[ r.field ] ? { ...r, field: idMap[ r.field ] } : r
+			);
+		}
+	} );
+	return fields;
 }
 
 export const actions = {
@@ -93,10 +146,15 @@ export const actions = {
 	reorder: ( from, to ) => ( { type: 'REORDER', from, to } ),
 	selectField: ( id ) => ( { type: 'SELECT', id } ),
 	hydrate: ( fields ) => ( { type: 'HYDRATE', fields } ),
+	undo: () => ( { type: 'UNDO' } ),
+	setSim: ( patch ) => ( { type: 'SET_SIM', patch } ),
+	insertFields: ( templateFields ) => ( { type: 'INSERT_FIELDS', fields: remapTemplate( templateFields ) } ),
 };
 
 export const selectors = {
 	getFields: ( state ) => state.fields,
 	getSelected: ( state ) => state.fields.find( ( f ) => f.id === state.selectedId ) || null,
 	getSelectedId: ( state ) => state.selectedId,
+	getSim: ( state ) => state.sim,
+	canUndo: ( state ) => state.past.length > 0,
 };
