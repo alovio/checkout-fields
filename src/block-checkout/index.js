@@ -90,6 +90,41 @@ function Field( { field, value, onChange } ) {
 		control = <input type={ htmlType } { ...common } placeholder={ field.placeholder || '' } />;
 	} else if ( field.type === 'date' ) {
 		control = <input type="date" { ...common } min={ field.min || undefined } max={ field.max || undefined } />;
+	} else if ( field.type === 'file' ) {
+		const cfg = CONFIG.upload || {};
+		const pick = async ( e ) => {
+			const file = e.target.files && e.target.files[ 0 ];
+			if ( ! file ) {
+				onChange( '' );
+				return;
+			}
+			if ( cfg.maxMb && file.size > cfg.maxMb * 1048576 ) {
+				e.target.value = '';
+				onChange( '' );
+				window.alert( `File is too large (max ${ cfg.maxMb } MB).` );
+				return;
+			}
+			try {
+				const form = new FormData();
+				form.append( 'file', file );
+				const resp = await fetch( cfg.url, { method: 'POST', headers: { 'X-CLCF-Nonce': cfg.nonce }, body: form } );
+				const data = await resp.json();
+				if ( ! resp.ok || ! data.token ) {
+					throw new Error( ( data && data.message ) || 'upload failed' );
+				}
+				onChange( data.token );
+			} catch ( err ) {
+				e.target.value = '';
+				onChange( '' );
+				window.alert( err.message || 'Upload failed — please try again.' );
+			}
+		};
+		control = (
+			<>
+				<input type="file" id={ id } accept={ cfg.accept || undefined } required={ !! field.required && ! value } onChange={ pick } />
+				{ value ? <small className="clcf-block-field__desc">✓ { __( 'File attached', 'corelabs-checkout-fields' ) }</small> : null }
+			</>
+		);
 	} else {
 		control = <input type="text" { ...common } placeholder={ field.placeholder || '' } maxLength={ field.maxLength || undefined } />;
 	}

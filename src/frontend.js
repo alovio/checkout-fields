@@ -87,11 +87,70 @@ function apply( group, seed ) {
 	} );
 }
 
+/**
+ * File pickers: upload on selection to clcf/v1/upload, write the returned token
+ * into the field's hidden input (the raw file never rides the checkout submit).
+ */
+function wireUploads() {
+	const cfg = ( window.CLCF_FE && window.CLCF_FE.upload ) || null;
+	if ( ! cfg ) {
+		return;
+	}
+	document.addEventListener( 'change', async ( e ) => {
+		const picker = e.target;
+		if ( ! picker.classList || ! picker.classList.contains( 'clcf-file-picker' ) ) {
+			return;
+		}
+		const wrap = picker.closest( '.clcf-field' );
+		const hidden = wrap.querySelector( 'input[type="hidden"]' );
+		const status = wrap.querySelector( '.clcf-file-status' );
+		const file = picker.files && picker.files[ 0 ];
+		if ( ! file ) {
+			hidden.value = '';
+			if ( status ) {
+				status.textContent = '';
+			}
+			return;
+		}
+		if ( file.size > cfg.maxMb * 1048576 ) {
+			picker.value = '';
+			hidden.value = '';
+			if ( status ) {
+				status.textContent = `File is too large (max ${ cfg.maxMb } MB).`;
+			}
+			return;
+		}
+		if ( status ) {
+			status.textContent = 'Uploading…';
+		}
+		try {
+			const form = new FormData();
+			form.append( 'file', file );
+			const resp = await fetch( cfg.url, { method: 'POST', headers: { 'X-CLCF-Nonce': cfg.nonce }, body: form } );
+			const data = await resp.json();
+			if ( ! resp.ok || ! data.token ) {
+				throw new Error( ( data && data.message ) || 'upload failed' );
+			}
+			hidden.value = data.token;
+			if ( status ) {
+				status.textContent = `✓ ${ data.name }`;
+			}
+		} catch ( err ) {
+			picker.value = '';
+			hidden.value = '';
+			if ( status ) {
+				status.textContent = err.message || 'Upload failed — please try again.';
+			}
+		}
+	}, true );
+}
+
 function init() {
 	const payload = parsePayload();
 	if ( ! payload ) {
 		return;
 	}
+	wireUploads();
 	const fields = payload.group.fields || [];
 	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 );
 

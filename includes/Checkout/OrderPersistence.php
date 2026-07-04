@@ -60,7 +60,15 @@ final class OrderPersistence {
 			}
 
 			$label   = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
-			$display = self::format_value( $f, $val );
+			if ( 'file' === $type ) {
+				$resolved = FileUploads::consume( (string) $val );
+				if ( null === $resolved ) {
+					continue; // token vanished — nothing to attach.
+				}
+				$display = $resolved['url'];
+			} else {
+				$display = self::format_value( $f, $val );
+			}
 
 			$stored[] = array( 'id' => $id, 'label' => $label, 'display' => $display );
 			$order->add_meta_data( $label, $display, true );
@@ -103,7 +111,12 @@ final class OrderPersistence {
 		}
 		echo '<div class="clcf-order-fields"><h3>' . esc_html__( 'Checkout fields', 'corelabs-checkout-fields' ) . '</h3>';
 		foreach ( $rows as $r ) {
-			printf( '<p><strong>%s:</strong> %s</p>', esc_html( (string) $r['label'] ), esc_html( (string) $r['display'] ) );
+			$display = (string) $r['display'];
+			if ( 0 === strpos( $display, 'http' ) ) {
+				printf( '<p><strong>%s:</strong> <a href="%s" target="_blank" rel="noopener">%s</a></p>', esc_html( (string) $r['label'] ), esc_url( $display ), esc_html__( 'View file', 'corelabs-checkout-fields' ) );
+			} else {
+				printf( '<p><strong>%s:</strong> %s</p>', esc_html( (string) $r['label'] ), esc_html( $display ) );
+			}
 		}
 		echo '</div>';
 	}

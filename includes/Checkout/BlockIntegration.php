@@ -102,7 +102,10 @@ final class BlockIntegration {
 		// only the real "Place order" submit does.
 		$is_draft_update = ! empty( $request['__experimental_calc_totals'] );
 
-		$errors = Validator::validate( $group, $field_values, $values );
+		$errors = array_merge(
+			Validator::validate( $group, $field_values, $values ),
+			FileUploads::validate_tokens( $group, $field_values )
+		);
 		if ( ! empty( $errors ) && ! $is_draft_update ) {
 			throw new RouteException( 'clcf_checkout_fields_invalid', esc_html( (string) $errors[0] ), 400 );
 		}
@@ -155,7 +158,15 @@ final class BlockFieldsIntegration implements IntegrationInterface {
 		// Static config only — the dynamic context comes from the cart Store API
 		// endpoint data (computed per-request, safely after wp_loaded).
 		$group = ( new FieldRepository() )->get();
-		$data  = array( 'fields' => array_values( (array) ( $group['fields'] ?? array() ) ) );
+		$data  = array(
+			'fields' => array_values( (array) ( $group['fields'] ?? array() ) ),
+			'upload' => array(
+				'url'    => esc_url_raw( rest_url( 'clcf/v1/upload' ) ),
+				'nonce'  => wp_create_nonce( 'clcf_upload' ),
+				'accept' => '.' . implode( ',.', FileUploads::allowed_extensions() ),
+				'maxMb'  => round( FileUploads::max_bytes() / 1048576, 1 ),
+			),
+		);
 		wp_add_inline_script( 'clcf-block-checkout', 'window.CLCF_BLOCK = ' . wp_json_encode( $data ) . ';', 'before' );
 	}
 

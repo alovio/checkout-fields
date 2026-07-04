@@ -23,9 +23,8 @@ class FieldTypesTest extends TestCase {
 		}
 	}
 
-	public function test_file_not_valid_yet(): void {
-		// The file type lands in the next chunk (upload pipeline required).
-		$this->assertFalse( FieldTypes::is_valid( 'file' ) );
+	public function test_file_is_valid(): void {
+		$this->assertTrue( FieldTypes::is_valid( 'file' ) );
 	}
 
 	public function test_all_defaults_to_free_set(): void {

@@ -33,6 +33,8 @@ function Control( { field } ) {
 			return <div className="clcf-input">{ __( 'Select date', T ) } 📅</div>;
 		case 'time':
 			return <div className="clcf-input">{ __( 'Select time', T ) } 🕐</div>;
+		case 'file':
+			return <div className="clcf-input">📎 { __( 'Choose file…', T ) }</div>;
 		default:
 			return <div className="clcf-input">{ ph || '…' }</div>;
 	}

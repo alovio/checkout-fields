@@ -92,7 +92,11 @@ final class ClassicRenderer {
 			}
 		}
 		$values = CheckoutConditionData::build( $field_values, $context );
-		foreach ( Validator::validate( $group, $field_values, $values ) as $error ) {
+		$errors = array_merge(
+			Validator::validate( $group, $field_values, $values ),
+			FileUploads::validate_tokens( $group, $field_values )
+		);
+		foreach ( $errors as $error ) {
 			wc_add_notice( $error, 'error' );
 		}
 	}
@@ -187,6 +191,21 @@ final class ClassicRenderer {
 				$max = ! empty( $f['max'] ) ? sprintf( ' max="%s"', esc_attr( (string) $f['max'] ) ) : '';
 				$val = ( '' !== $default ) ? sprintf( ' value="%s"', esc_attr( $default ) ) : '';
 				printf( '<input type="date" id="%s" name="%s"%s%s%s%s />', esc_attr( $fid ), esc_attr( $name ), $req, $min, $max, $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
+			}
+			case 'file': {
+				// The picker never posts the raw file — frontend.js uploads it to
+				// clcf/v1/upload on selection and writes the token into the hidden input.
+				$accept = '.' . implode( ',.', FileUploads::allowed_extensions() );
+				printf(
+					'<input type="file" id="%s" class="clcf-file-picker" data-clcf-file-for="%s" accept="%s"%s />',
+					esc_attr( $fid ),
+					esc_attr( $id ),
+					esc_attr( $accept ),
+					$req // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				);
+				printf( '<input type="hidden" name="%s" value="" />', esc_attr( $name ) );
+				echo '<small class="clcf-file-status" aria-live="polite"></small>';
 				break;
 			}
 			default: // text

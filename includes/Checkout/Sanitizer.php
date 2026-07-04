@@ -46,6 +46,12 @@ final class Sanitizer {
 						$out[ $id ] = esc_url_raw( trim( (string) $val ) );
 					}
 					break;
+				case 'file':
+					// Value is an upload token (32 hex chars), never a raw file.
+					if ( null !== $val && preg_match( '/^[a-f0-9]{32}$/', (string) $val ) ) {
+						$out[ $id ] = (string) $val;
+					}
+					break;
 				case 'textarea':
 					if ( null !== $val && '' !== $val ) {
 						$out[ $id ] = sanitize_textarea_field( (string) $val );

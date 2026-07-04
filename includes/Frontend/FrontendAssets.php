@@ -28,6 +28,17 @@ final class FrontendAssets {
 
 		wp_enqueue_script( 'clcf-frontend', CLCF_URL . 'build/frontend.js', $asset['dependencies'], $asset['version'], true );
 		wp_set_script_translations( 'clcf-frontend', 'corelabs-checkout-fields', CLCF_PATH . 'languages' );
+		wp_localize_script(
+			'clcf-frontend',
+			'CLCF_FE',
+			array(
+				'upload' => array(
+					'url'   => esc_url_raw( rest_url( 'clcf/v1/upload' ) ),
+					'nonce' => wp_create_nonce( 'clcf_upload' ),
+					'maxMb' => round( \CoreLabs\CheckoutFields\Checkout\FileUploads::max_bytes() / 1048576, 1 ),
+				),
+			)
+		);
 
 		if ( file_exists( CLCF_PATH . 'assets/css/frontend.css' ) ) {
 			wp_enqueue_style( 'clcf-frontend', CLCF_URL . 'assets/css/frontend.css', array(), CLCF_VERSION );
