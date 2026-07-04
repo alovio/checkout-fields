@@ -1,5 +1,6 @@
 /* Alovio Checkout Fields — checkout-facing styles (classic checkout).
-   The Block checkout gets the same layout vocabulary via build/block-checkout.css. */
+   One consistent visual language for ALL field types; the Block checkout gets
+   the same vocabulary via build/style-block-checkout.css. */
 
 .clcf-fields {
 	margin: 18px 0;
@@ -9,7 +10,7 @@
 .clcf-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
-	gap: 14px 16px;
+	gap: 18px 16px;
 }
 .clcf-grid .clcf-w-full { grid-column: 1 / -1; }
 @media ( max-width: 600px ) {
@@ -17,15 +18,14 @@
 	.clcf-grid .clcf-w-half { grid-column: 1 / -1; }
 }
 
-.clcf-field {
-	margin: 0;
-	padding: 0;
-}
+.clcf-field { margin: 0; padding: 0; }
 
+/* ── Labels & descriptions ─────────────────────────────────── */
 .clcf-field__label {
 	display: block;
 	font-weight: 600;
-	margin-bottom: 6px;
+	font-size: 0.95em;
+	margin-bottom: 7px;
 	line-height: 1.35;
 }
 .clcf-field__label abbr.required {
@@ -34,63 +34,160 @@
 	border: none;
 	margin-left: 2px;
 }
-
 .clcf-field__desc {
 	display: block;
 	color: #6b7280;
-	font-size: 0.86em;
+	font-size: 0.85em;
 	line-height: 1.45;
-	margin: -2px 0 6px;
+	margin: -3px 0 7px;
 }
 
+/* ── Text-like inputs — every type, one look ───────────────── */
 .clcf-field input[type="text"],
+.clcf-field input[type="email"],
+.clcf-field input[type="tel"],
+.clcf-field input[type="url"],
 .clcf-field input[type="number"],
+.clcf-field input[type="date"],
+.clcf-field input[type="time"],
 .clcf-field select,
 .clcf-field textarea {
+	display: block;
 	width: 100%;
-	padding: 10px 12px;
-	border: 1px solid #d1d5db;
-	border-radius: 8px;
+	min-height: 46px;
+	padding: 11px 14px;
+	border: 1.5px solid #d7d9de;
+	border-radius: 10px;
 	background: #fff;
+	color: inherit;
+	font: inherit;
 	line-height: 1.4;
 	box-sizing: border-box;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	-webkit-appearance: none;
+	appearance: none;
 }
-.clcf-field textarea { min-height: 84px; resize: vertical; }
+.clcf-field select {
+	background-image: url( "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" );
+	background-repeat: no-repeat;
+	background-position: right 14px center;
+	padding-right: 38px;
+}
+.clcf-field input[type="date"],
+.clcf-field input[type="time"] {
+	-webkit-appearance: auto;
+	appearance: auto; /* keep native pickers, inherit the box style */
+}
+.clcf-field textarea { min-height: 92px; resize: vertical; }
 
+.clcf-field input:hover,
+.clcf-field select:hover,
+.clcf-field textarea:hover { border-color: #b9bdc4; }
+
+.clcf-field input:focus,
 .clcf-field input:focus-visible,
+.clcf-field select:focus,
 .clcf-field select:focus-visible,
+.clcf-field textarea:focus,
 .clcf-field textarea:focus-visible {
-	outline: 2px solid #f97316;
-	outline-offset: 1px;
+	outline: none;
 	border-color: #f97316;
+	box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
 }
+.clcf-field ::placeholder { color: #9ca3af; }
 
+/* ── Checkbox & radio: tappable boxed rows ─────────────────── */
 .clcf-checkbox,
 .clcf-opt {
 	display: flex;
 	align-items: center;
-	gap: 9px;
+	gap: 11px;
+	padding: 12px 14px;
+	border: 1.5px solid #d7d9de;
+	border-radius: 10px;
+	background: #fff;
 	font-weight: 500;
 	cursor: pointer;
-	margin: 4px 0;
+	margin: 0;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.clcf-opt + .clcf-opt { margin-top: 8px; }
+.clcf-checkbox:hover,
+.clcf-opt:hover { border-color: #fdba74; }
+.clcf-checkbox:has( input:checked ),
+.clcf-opt:has( input:checked ) {
+	border-color: #f97316;
+	background: #fff7ed;
 }
 .clcf-checkbox input[type="checkbox"],
 .clcf-opt input[type="radio"] {
-	width: 17px;
-	height: 17px;
+	width: 19px;
+	height: 19px;
 	margin: 0;
+	flex: none;
 	accent-color: #f97316;
+	cursor: pointer;
 }
+.clcf-checkbox .required, .clcf-opt .required { margin-left: 2px; }
 
+/* ── File upload: drop-zone look on the native input ───────── */
+.clcf-field input[type="file"].clcf-file-picker {
+	display: block;
+	width: 100%;
+	padding: 12px;
+	border: 1.5px dashed #c9ccd2;
+	border-radius: 10px;
+	background: #fafafa;
+	box-sizing: border-box;
+	font: inherit;
+	color: #6b7280;
+	cursor: pointer;
+	transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.clcf-field input[type="file"].clcf-file-picker:hover {
+	border-color: #f97316;
+	background: #fff7ed;
+}
+.clcf-field input[type="file"].clcf-file-picker:focus-visible {
+	outline: none;
+	border-color: #f97316;
+	box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+.clcf-field input[type="file"].clcf-file-picker::file-selector-button {
+	font: inherit;
+	font-weight: 600;
+	color: #1f2328;
+	background: #fff;
+	border: 1.5px solid #d7d9de;
+	border-radius: 8px;
+	padding: 8px 14px;
+	margin-right: 12px;
+	cursor: pointer;
+	transition: border-color 0.15s ease;
+}
+.clcf-field input[type="file"].clcf-file-picker:hover::file-selector-button {
+	border-color: #f97316;
+	color: #ea580c;
+}
+.clcf-file-status {
+	display: block;
+	margin-top: 7px;
+	font-size: 0.85em;
+	color: #6b7280;
+}
+.clcf-file-status:not( :empty ) { color: #047857; font-weight: 600; }
+
+/* ── Heading fields ────────────────────────────────────────── */
 .clcf-field--heading .clcf-heading {
 	font-size: 1.15em;
-	margin: 6px 0 2px;
+	font-weight: 700;
+	margin: 8px 0 2px;
 }
 
-/* Validation state (WooCommerce adds this class on invalid fields). */
+/* ── Validation state (WooCommerce toggles these classes) ──── */
 .clcf-field.woocommerce-invalid input,
 .clcf-field.woocommerce-invalid select,
 .clcf-field.woocommerce-invalid textarea {
 	border-color: #dc2626;
-	box-shadow: 0 0 0 1px #dc2626;
+	box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
 }

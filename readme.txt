@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,9 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
 == Changelog ==
+
+= 1.2.1 =
+* Redesigned checkout-field styling on both checkouts: one consistent look for every field type (the new email/date/time/phone/URL inputs were unstyled), tappable boxed checkbox/radio rows with a highlighted checked state, a drop-zone style file picker, unified heights, and clear focus states.
 
 = 1.2.0 =
 * This plugin is now 100% free, forever — the Pro tier is gone and everything it would have held is included.
