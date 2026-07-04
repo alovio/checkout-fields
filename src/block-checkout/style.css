@@ -8,7 +8,6 @@
 	margin: 16px 0;
 }
 .clcf-block-fields .clcf-w-full { grid-column: 1 / -1; }
-.clcf-block-fields .clcf-w-half:last-child:nth-child(odd) { grid-column: 1 / -1; }
 @media ( max-width: 600px ) {
 	.clcf-block-fields.clcf-grid { grid-template-columns: 1fr; }
 	.clcf-block-fields .clcf-w-half { grid-column: 1 / -1; }

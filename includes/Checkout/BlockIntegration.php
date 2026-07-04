@@ -97,8 +97,13 @@ final class BlockIntegration {
 		$field_values = Sanitizer::sanitize( $group, $raw );
 		$values       = CheckoutConditionData::build( $field_values, $this->request_context( $request ) );
 
+		// Draft/totals updates (e.g. switching payment method fires
+		// __experimental_calc_totals) must not surface validation errors —
+		// only the real "Place order" submit does.
+		$is_draft_update = ! empty( $request['__experimental_calc_totals'] );
+
 		$errors = Validator::validate( $group, $field_values, $values );
-		if ( ! empty( $errors ) ) {
+		if ( ! empty( $errors ) && ! $is_draft_update ) {
 			throw new RouteException( 'clcf_checkout_fields_invalid', esc_html( (string) $errors[0] ), 400 );
 		}
 
