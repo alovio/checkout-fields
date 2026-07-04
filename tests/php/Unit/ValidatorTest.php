@@ -50,6 +50,24 @@ class ValidatorTest extends TestCase {
 		$this->assertSame( array(), Validator::validate( $group, array( 'w' => 'Paper' ), array( 'w' => 'Paper' ) ) );
 	}
 
+	public function test_email_url_date_time_validation(): void {
+		\Brain\Monkey\Functions\when( 'is_email' )->alias( static fn( $v ) => (bool) filter_var( $v, FILTER_VALIDATE_EMAIL ) );
+		$group = array(
+			'fields' => array(
+				array( 'id' => 'em', 'type' => 'email', 'label' => 'Email' ),
+				array( 'id' => 'ur', 'type' => 'url', 'label' => 'URL' ),
+				array( 'id' => 'dt', 'type' => 'date', 'label' => 'Date', 'min' => '2026-01-01', 'max' => '2026-12-31' ),
+				array( 'id' => 'tm', 'type' => 'time', 'label' => 'Time' ),
+			),
+		);
+		$ok = array( 'em' => 'a@b.com', 'ur' => 'https://alovio.org', 'dt' => '2026-06-15', 'tm' => '14:30' );
+		$this->assertSame( array(), Validator::validate( $group, $ok, $ok ) );
+
+		$bad = array( 'em' => 'not-an-email', 'ur' => 'not a url', 'dt' => '2027-01-01', 'tm' => '25:99' );
+		$errors = Validator::validate( $group, $bad, $bad );
+		$this->assertCount( 4, $errors );
+	}
+
 	public function test_conditional_require_via_payment_method(): void {
 		// "agree" becomes required only when paying COD.
 		$group = array(

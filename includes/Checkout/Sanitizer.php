@@ -29,9 +29,21 @@ final class Sanitizer {
 
 			switch ( $type ) {
 				case 'text':
-				case 'date': // Pro type; sanitized as text if ever present.
+				case 'phone':
+				case 'date':
+				case 'time':
 					if ( null !== $val && '' !== $val ) {
 						$out[ $id ] = sanitize_text_field( (string) $val );
+					}
+					break;
+				case 'email':
+					if ( null !== $val && '' !== $val ) {
+						$out[ $id ] = sanitize_email( trim( (string) $val ) );
+					}
+					break;
+				case 'url':
+					if ( null !== $val && '' !== $val ) {
+						$out[ $id ] = esc_url_raw( trim( (string) $val ) );
 					}
 					break;
 				case 'textarea':

@@ -58,6 +58,38 @@ final class Validator {
 				$errors[] = sprintf( __( '“%s” must be a number.', 'corelabs-checkout-fields' ), $label );
 			}
 
+			if ( 'email' === $type && ! is_email( (string) $value ) ) {
+				/* translators: %s: field label */
+				$errors[] = sprintf( __( '“%s” must be a valid email address.', 'corelabs-checkout-fields' ), $label );
+			}
+
+			if ( 'url' === $type && false === filter_var( (string) $value, FILTER_VALIDATE_URL ) ) {
+				/* translators: %s: field label */
+				$errors[] = sprintf( __( '“%s” must be a valid URL.', 'corelabs-checkout-fields' ), $label );
+			}
+
+			if ( 'time' === $type && ! preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', (string) $value ) ) {
+				/* translators: %s: field label */
+				$errors[] = sprintf( __( '“%s” must be a valid time.', 'corelabs-checkout-fields' ), $label );
+			}
+
+			if ( 'date' === $type ) {
+				$ts = strtotime( (string) $value );
+				if ( false === $ts ) {
+					/* translators: %s: field label */
+					$errors[] = sprintf( __( '“%s” is not a valid date.', 'corelabs-checkout-fields' ), $label );
+				} else {
+					if ( ! empty( $f['min'] ) && $ts < (int) strtotime( (string) $f['min'] ) ) {
+						/* translators: %s: field label */
+						$errors[] = sprintf( __( '“%s” is before the earliest allowed date.', 'corelabs-checkout-fields' ), $label );
+					}
+					if ( ! empty( $f['max'] ) && $ts > (int) strtotime( (string) $f['max'] ) ) {
+						/* translators: %s: field label */
+						$errors[] = sprintf( __( '“%s” is after the latest allowed date.', 'corelabs-checkout-fields' ), $label );
+					}
+				}
+			}
+
 			if ( in_array( $type, array( 'select', 'radio' ), true ) && ! empty( $f['options'] ) ) {
 				$valid = array_map( 'strval', (array) $f['options'] );
 				if ( ! in_array( (string) $value, $valid, true ) ) {

@@ -85,6 +85,11 @@ function Field( { field, value, onChange } ) {
 				) ) }
 			</span>
 		);
+	} else if ( field.type === 'email' || field.type === 'phone' || field.type === 'url' || field.type === 'time' ) {
+		const htmlType = { email: 'email', phone: 'tel', url: 'url', time: 'time' }[ field.type ];
+		control = <input type={ htmlType } { ...common } placeholder={ field.placeholder || '' } />;
+	} else if ( field.type === 'date' ) {
+		control = <input type="date" { ...common } min={ field.min || undefined } max={ field.max || undefined } />;
 	} else {
 		control = <input type="text" { ...common } placeholder={ field.placeholder || '' } maxLength={ field.maxLength || undefined } />;
 	}

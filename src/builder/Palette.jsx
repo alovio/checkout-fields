@@ -14,7 +14,11 @@ const META = {
 	radio: { label: __( 'Radio', T ), ic: '◉' },
 	select: { label: __( 'Dropdown', T ), ic: '▾' },
 	heading: { label: __( 'Heading', T ), ic: 'H' },
+	email: { label: __( 'Email', T ), ic: '@' },
+	phone: { label: __( 'Phone', T ), ic: '☎' },
+	url: { label: __( 'URL', T ), ic: '🔗' },
 	date: { label: __( 'Date', T ), ic: '📅' },
+	time: { label: __( 'Time', T ), ic: '🕐' },
 	file: { label: __( 'File', T ), ic: '📎' },
 };
 

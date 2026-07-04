@@ -17,8 +17,11 @@ export const DEFAULTS = {
 	radio: { label: 'Choose one', ...BASE, options: [ 'Option 1' ] },
 	select: { label: 'Select', ...BASE, options: [ 'Option 1' ] },
 	heading: { label: 'Section heading', ...BASE, description: '' },
-	// Pro types (full impl is a Pro follow-up); kept so the palette doesn't break when Pro is on.
+	email: { label: 'Email address', ...BASE },
+	phone: { label: 'Phone number', ...BASE },
+	url: { label: 'Website / link', ...BASE },
 	date: { label: 'Pick a date', ...BASE, min: '', max: '' },
+	time: { label: 'Pick a time', ...BASE },
 	file: { label: 'Upload a file', ...BASE },
 };
 

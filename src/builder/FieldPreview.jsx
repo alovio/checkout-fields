@@ -23,6 +23,16 @@ function Control( { field } ) {
 			);
 		case 'select':
 			return <div className="clcf-input">{ ( field.options && field.options[ 0 ] ) || __( 'Choose…', T ) } ▾</div>;
+		case 'email':
+			return <div className="clcf-input">{ ph || 'name@example.com' }</div>;
+		case 'phone':
+			return <div className="clcf-input">{ ph || '+1 555 000 0000' }</div>;
+		case 'url':
+			return <div className="clcf-input">{ ph || 'https://…' }</div>;
+		case 'date':
+			return <div className="clcf-input">{ __( 'Select date', T ) } 📅</div>;
+		case 'time':
+			return <div className="clcf-input">{ __( 'Select time', T ) } 🕐</div>;
 		default:
 			return <div className="clcf-input">{ ph || '…' }</div>;
 	}

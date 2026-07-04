@@ -9,7 +9,7 @@ import Fee from './panels/Fee';
 
 const T = 'corelabs-checkout-fields';
 
-const TYPE_IC = { text: 'Aa', textarea: '¶', number: '#', checkbox: '☑', radio: '◉', select: '▾', heading: 'H', date: '📅', file: '📎' };
+const TYPE_IC = { text: 'Aa', textarea: '¶', number: '#', checkbox: '☑', radio: '◉', select: '▾', heading: 'H', email: '@', phone: '☎', url: '🔗', date: '📅', time: '🕐', file: '📎' };
 
 export default function SettingsPanel() {
 	const field = useSelect( ( select ) => select( STORE ).getSelected(), [] );

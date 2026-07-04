@@ -47,4 +47,30 @@ class SanitizerTest extends TestCase {
 		$this->assertArrayNotHasKey( 'head', $out );
 		$this->assertArrayNotHasKey( 'ghost', $out );
 	}
+
+	public function test_new_types_sanitized_by_kind(): void {
+		\Brain\Monkey\Functions\when( 'sanitize_email' )->alias( static fn( $v ) => filter_var( $v, FILTER_SANITIZE_EMAIL ) );
+		\Brain\Monkey\Functions\when( 'esc_url_raw' )->alias( static fn( $v ) => filter_var( $v, FILTER_SANITIZE_URL ) );
+		$group = array(
+			'fields' => array(
+				array( 'id' => 'em', 'type' => 'email' ),
+				array( 'id' => 'ph', 'type' => 'phone' ),
+				array( 'id' => 'ur', 'type' => 'url' ),
+				array( 'id' => 'dt', 'type' => 'date' ),
+				array( 'id' => 'tm', 'type' => 'time' ),
+			),
+		);
+		$out = Sanitizer::sanitize( $group, array(
+			'em' => ' user@example.com ',
+			'ph' => '+994 50 123 45 67',
+			'ur' => 'https://alovio.org/x',
+			'dt' => '2026-08-01',
+			'tm' => '14:30',
+		) );
+		$this->assertSame( 'user@example.com', $out['em'] );
+		$this->assertSame( '+994 50 123 45 67', $out['ph'] );
+		$this->assertSame( 'https://alovio.org/x', $out['ur'] );
+		$this->assertSame( '2026-08-01', $out['dt'] );
+		$this->assertSame( '14:30', $out['tm'] );
+	}
 }

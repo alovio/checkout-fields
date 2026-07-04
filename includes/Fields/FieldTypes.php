@@ -6,13 +6,13 @@ namespace CoreLabs\CheckoutFields\Fields;
 defined( 'ABSPATH' ) || exit;
 
 /**
- * Registry of supported checkout-field types. The free set is fixed; Pro extends
- * it via the `clcf_field_types` filter (adds file, date).
+ * Registry of supported checkout-field types — all free. The `clcf_field_types`
+ * filter remains as an extensibility point only, never a lock.
  */
 final class FieldTypes {
 
-	/** @var string[] Free-tier field types. */
-	public const FREE = array( 'text', 'textarea', 'number', 'checkbox', 'radio', 'select', 'heading' );
+	/** @var string[] Built-in field types (everything is free). */
+	public const FREE = array( 'text', 'textarea', 'number', 'checkbox', 'radio', 'select', 'heading', 'email', 'phone', 'url', 'date', 'time' );
 
 	/** @return string[] */
 	public static function all(): array {

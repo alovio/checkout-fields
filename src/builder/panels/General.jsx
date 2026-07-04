@@ -5,7 +5,7 @@ import { STORE } from '../store';
 
 const T = 'corelabs-checkout-fields';
 const HAS_OPTIONS = [ 'radio', 'select' ];
-const HAS_PLACEHOLDER = [ 'text', 'textarea', 'number' ];
+const HAS_PLACEHOLDER = [ 'text', 'textarea', 'number', 'email', 'phone', 'url' ];
 const HAS_MAXLEN = [ 'text', 'textarea' ];
 
 function DefaultControl( { field, set } ) {
@@ -55,6 +55,13 @@ export default function General( { field } ) {
 					<TextControl type="number" label={ __( 'Min', T ) } value={ field.min || '' } onChange={ ( v ) => set( { min: v } ) } />
 					<TextControl type="number" label={ __( 'Max', T ) } value={ field.max || '' } onChange={ ( v ) => set( { max: v } ) } />
 					<TextControl type="number" label={ __( 'Step', T ) } value={ field.step || '' } onChange={ ( v ) => set( { step: v } ) } />
+				</div>
+			) }
+
+			{ field.type === 'date' && (
+				<div style={ { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 } }>
+					<TextControl type="date" label={ __( 'Earliest date', T ) } value={ field.min || '' } onChange={ ( v ) => set( { min: v } ) } />
+					<TextControl type="date" label={ __( 'Latest date', T ) } value={ field.max || '' } onChange={ ( v ) => set( { max: v } ) } />
 				</div>
 			) }
 

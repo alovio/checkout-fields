@@ -17,10 +17,15 @@ class FieldTypesTest extends TestCase {
 		$this->assertFalse( FieldTypes::is_valid( 'rocket' ) );
 	}
 
-	public function test_pro_types_invalid_when_gate_off(): void {
-		// `file`/`date` are Pro-only and not in the free set (gate off in unit tests).
+	public function test_new_types_are_valid(): void {
+		foreach ( array( 'email', 'phone', 'url', 'date', 'time' ) as $type ) {
+			$this->assertTrue( FieldTypes::is_valid( $type ), $type );
+		}
+	}
+
+	public function test_file_not_valid_yet(): void {
+		// The file type lands in the next chunk (upload pipeline required).
 		$this->assertFalse( FieldTypes::is_valid( 'file' ) );
-		$this->assertFalse( FieldTypes::is_valid( 'date' ) );
 	}
 
 	public function test_all_defaults_to_free_set(): void {

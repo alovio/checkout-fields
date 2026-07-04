@@ -173,6 +173,22 @@ final class ClassicRenderer {
 				}
 				echo '</select>';
 				break;
+			case 'email':
+			case 'phone':
+			case 'url':
+			case 'time': {
+				$html_type = array( 'email' => 'email', 'phone' => 'tel', 'url' => 'url', 'time' => 'time' )[ $type ];
+				$val       = ( '' !== $default ) ? sprintf( ' value="%s"', esc_attr( $default ) ) : '';
+				printf( '<input type="%s" id="%s" name="%s"%s%s%s />', esc_attr( $html_type ), esc_attr( $fid ), esc_attr( $name ), $req, $ph, $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
+			}
+			case 'date': {
+				$min = ! empty( $f['min'] ) ? sprintf( ' min="%s"', esc_attr( (string) $f['min'] ) ) : '';
+				$max = ! empty( $f['max'] ) ? sprintf( ' max="%s"', esc_attr( (string) $f['max'] ) ) : '';
+				$val = ( '' !== $default ) ? sprintf( ' value="%s"', esc_attr( $default ) ) : '';
+				printf( '<input type="date" id="%s" name="%s"%s%s%s%s />', esc_attr( $fid ), esc_attr( $name ), $req, $min, $max, $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				break;
+			}
 			default: // text
 				$ml  = ! empty( $f['maxLength'] ) ? sprintf( ' maxlength="%d"', (int) $f['maxLength'] ) : '';
 				$val = ( '' !== $default ) ? sprintf( ' value="%s"', esc_attr( $default ) ) : '';
