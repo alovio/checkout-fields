@@ -122,6 +122,21 @@ class FieldSchemaTest extends TestCase {
 		$this->assertSame( 'after_order_notes', $out['fields'][2]['location'] );
 	}
 
+	public function test_width_normalized(): void {
+		$out = FieldSchema::normalize(
+			array(
+				'fields' => array(
+					array( 'id' => 'a', 'type' => 'text', 'width' => 'half' ),
+					array( 'id' => 'b', 'type' => 'text', 'width' => 'bogus' ),
+					array( 'id' => 'c', 'type' => 'text' ),
+				),
+			)
+		);
+		$this->assertSame( 'half', $out['fields'][0]['width'] );
+		$this->assertSame( 'full', $out['fields'][1]['width'] );
+		$this->assertSame( 'full', $out['fields'][2]['width'] );
+	}
+
 	public function test_number_constraints_normalized(): void {
 		$out = FieldSchema::normalize(
 			array(

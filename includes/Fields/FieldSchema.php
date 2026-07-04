@@ -66,6 +66,7 @@ final class FieldSchema {
 				'description' => isset( $f['description'] ) ? sanitize_text_field( (string) $f['description'] ) : '',
 				'default'     => isset( $f['default'] ) ? sanitize_text_field( (string) $f['default'] ) : '',
 				'location'    => self::normalize_location( $f ),
+				'width'       => in_array( $f['width'] ?? '', array( 'full', 'half' ), true ) ? (string) $f['width'] : 'full',
 				'options'     => self::normalize_options( $f ),
 			);
 			$out[] = array_merge(

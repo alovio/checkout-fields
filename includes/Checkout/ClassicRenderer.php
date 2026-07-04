@@ -58,7 +58,7 @@ final class ClassicRenderer {
 		$values = CheckoutConditionData::build();
 		$active = ConditionalLogic::active_map( $group, $values );
 
-		echo '<div class="clcf-fields clcf-fields--' . esc_attr( $location ) . '">';
+		echo '<div class="clcf-fields clcf-grid clcf-fields--' . esc_attr( $location ) . '">';
 		foreach ( $fields as $f ) {
 			$this->render_field( $f, ! empty( $active[ $f['id'] ?? '' ] ) );
 		}
@@ -102,8 +102,10 @@ final class ClassicRenderer {
 		$type  = (string) ( $f['type'] ?? '' );
 		$label = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
 
+		$wclass = 'clcf-w-' . ( ( 'half' === ( $f['width'] ?? '' ) ) ? 'half' : 'full' );
+
 		if ( 'heading' === $type ) {
-			printf( '<div class="clcf-field clcf-field--heading" data-clcf-field="%s"%s>', esc_attr( $id ), $active ? '' : ' hidden' );
+			printf( '<div class="clcf-field clcf-field--heading %s" data-clcf-field="%s"%s>', esc_attr( $wclass ), esc_attr( $id ), $active ? '' : ' hidden' );
 			printf( '<h4 class="clcf-heading">%s</h4>', esc_html( $label ) );
 			if ( '' !== (string) ( $f['description'] ?? '' ) ) {
 				printf( '<p class="clcf-field__desc">%s</p>', esc_html( (string) $f['description'] ) );
@@ -113,7 +115,7 @@ final class ClassicRenderer {
 		}
 
 		$fid = 'clcf_field_' . $id;
-		printf( '<p class="clcf-field" data-clcf-field="%s"%s>', esc_attr( $id ), $active ? '' : ' hidden' );
+		printf( '<p class="clcf-field %s" data-clcf-field="%s"%s>', esc_attr( $wclass ), esc_attr( $id ), $active ? '' : ' hidden' );
 
 		$is_group = in_array( $type, array( 'radio' ), true );
 		if ( $is_group ) {

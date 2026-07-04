@@ -28,5 +28,9 @@ final class FrontendAssets {
 
 		wp_enqueue_script( 'clcf-frontend', CLCF_URL . 'build/frontend.js', $asset['dependencies'], $asset['version'], true );
 		wp_set_script_translations( 'clcf-frontend', 'corelabs-checkout-fields', CLCF_PATH . 'languages' );
+
+		if ( file_exists( CLCF_PATH . 'assets/css/frontend.css' ) ) {
+			wp_enqueue_style( 'clcf-frontend', CLCF_URL . 'assets/css/frontend.css', array(), CLCF_VERSION );
+		}
 	}
 }
