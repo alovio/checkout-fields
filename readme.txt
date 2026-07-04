@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.1.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -18,12 +18,14 @@ Most checkout-field plugins lock conditional logic behind a paid upgrade. This o
 
 = Free features =
 
+* **Visual builder with live preview** — fields render exactly as they will look on the checkout, and a "Preview as" bar simulates role, payment method, shipping, cart and country so you can watch conditional fields show and hide in real time.
+* **One-click recipes** — pre-built field sets (COD confirmation, gift message, VAT/EU B2B, delivery notes) with conditional logic already wired.
 * Drag-and-drop field builder on a single admin page (WooCommerce → Checkout Fields).
 * Field types: text, text area, number, checkbox, multiple choice (radio), dropdown (select), and section heading.
 * **Full conditional logic — free:** show / hide / require, single or multi-condition (AND/OR).
 * Condition sources: cart contents, product category, customer role, shipping method, payment method, billing/shipping country, and other checkout fields.
 * Works on **both** the classic checkout and the Block checkout, with live show/hide as the shopper changes payment, shipping, or address.
-* Choose where each field appears (after order notes, before order notes, after customer details, before payment).
+* Choose where each field appears (after order notes, before order notes, after customer details, before payment) and its width — full or half, so two fields can sit side by side.
 * Validation (required and conditionally-required), then the values are saved to the order and shown on the admin order screen and in order emails. HPOS-compatible.
 
 = Pro =
@@ -64,6 +66,15 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
 == Changelog ==
+
+= 1.1.0 =
+* New visual builder: fields render checkout-style with click-to-edit, drag reorder, and a live "Preview as" simulation bar (role / payment / shipping / cart / country) that shows conditional logic working in real time.
+* New sentence-style condition editor with AND/OR groups and Show / Hide / Require actions.
+* One-click recipes: COD confirmation, gift message, VAT/EU B2B, delivery notes.
+* Field width option (full / half) — half-width fields sit side by side on the checkout, on both classic and Block.
+* Polished checkout styling for fields on both classic and Block checkout.
+* Undo support and Cmd/Ctrl+S save in the builder.
+* Fix: switching payment method on the Block checkout no longer surfaces a premature "required" notice.
 
 = 1.0.0 =
 * Initial release: custom checkout fields with a drag-drop builder and full conditional logic, on classic and Block checkout.
