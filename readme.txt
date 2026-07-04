@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -35,7 +35,8 @@ There is no paid tier and no locked features. Everything this plugin does — co
 
 = Also by Alovio =
 
-We build focused WooCommerce & WordPress tools under the Alovio brand — see [alovio.org](https://alovio.org) for the full family.
+* [Alovio Calculator](https://wordpress.org/plugins/alovio-calculator/) — build cost, price and quote calculators with formulas, conditional logic and lead capture. 11 templates, 6 themes, free.
+* See [alovio.org](https://alovio.org) for the full family.
 
 == Installation ==
 
@@ -71,6 +72,9 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
 == Changelog ==
+
+= 1.2.2 =
+* Builder header now links to Alovio Calculator, our free calculator/quote builder; readme lists it under "Also by Alovio".
 
 = 1.2.1 =
 * Redesigned checkout-field styling on both checkouts: one consistent look for every field type (the new email/date/time/phone/URL inputs were unstyled), tappable boxed checkbox/radio rows with a highlighted checked state, a drop-zone style file picker, unified heights, and clear focus states.
