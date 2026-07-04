@@ -1,0 +1,58 @@
+/* Alovio Checkout Fields — Block checkout layout & label polish.
+   Inputs inherit the Block checkout's own styling; we add layout + consistency. */
+
+.clcf-block-fields.clcf-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px 16px;
+	margin: 16px 0;
+}
+.clcf-block-fields .clcf-w-full { grid-column: 1 / -1; }
+.clcf-block-fields .clcf-w-half:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media ( max-width: 600px ) {
+	.clcf-block-fields.clcf-grid { grid-template-columns: 1fr; }
+	.clcf-block-fields .clcf-w-half { grid-column: 1 / -1; }
+}
+
+.clcf-block-field__label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	line-height: 1.35;
+}
+.clcf-block-field__label abbr { color: #dc2626; text-decoration: none; border: none; }
+
+.clcf-block-field__desc {
+	display: block;
+	color: #6b7280;
+	font-size: 0.86em;
+	margin: -2px 0 6px;
+}
+
+.clcf-block-field input[type="text"],
+.clcf-block-field input[type="number"],
+.clcf-block-field select,
+.clcf-block-field textarea {
+	width: 100%;
+	box-sizing: border-box;
+	padding: 10px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+}
+.clcf-block-field textarea { min-height: 84px; resize: vertical; }
+.clcf-block-field input:focus-visible,
+.clcf-block-field textarea:focus-visible,
+.clcf-block-field select:focus-visible {
+	outline: 2px solid #f97316;
+	outline-offset: 1px;
+}
+
+.clcf-block-checkbox,
+.clcf-block-radios label {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	cursor: pointer;
+}
+.clcf-block-checkbox input[type="checkbox"],
+.clcf-block-radios input[type="radio"] { accent-color: #f97316; margin: 0; }

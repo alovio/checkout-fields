@@ -12,6 +12,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { activeMap } from '../frontend/conditional-logic';
 import { buildValues } from '../checkout-conditions/data-sources';
+import './style.css';
 
 const { ExperimentalOrderMeta } = window.wc.blocksCheckout;
 
@@ -46,7 +47,7 @@ function Field( { field, value, onChange } ) {
 
 	if ( field.type === 'heading' ) {
 		return (
-			<div className="clcf-block-field clcf-block-field--heading">
+			<div className={ `clcf-block-field clcf-block-field--heading clcf-w-${ field.width === 'half' ? 'half' : 'full' }` }>
 				<strong>{ label }</strong>
 				{ field.description ? <p className="clcf-block-field__desc">{ field.description }</p> : null }
 			</div>
@@ -87,7 +88,7 @@ function Field( { field, value, onChange } ) {
 	}
 
 	return (
-		<div className="clcf-block-field">
+		<div className={ `clcf-block-field clcf-w-${ field.width === 'half' ? 'half' : 'full' }` }>
 			{ field.type !== 'checkbox' && (
 				<label htmlFor={ id } className="clcf-block-field__label">
 					{ label } { field.required ? <abbr title="required">*</abbr> : null }
@@ -144,7 +145,7 @@ function CheckoutFields() {
 
 	return (
 		<ExperimentalOrderMeta>
-			<div className="clcf-block-fields">
+			<div className="clcf-block-fields clcf-grid">
 				{ visible.map( ( f ) => (
 					<Field key={ f.id } field={ f } value={ values[ f.id ] || '' } onChange={ ( v ) => setValue( f.id, v ) } />
 				) ) }

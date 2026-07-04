@@ -1,0 +1,97 @@
+/* Alovio Checkout Fields — checkout-facing styles (classic checkout).
+   The Block checkout gets the same layout vocabulary via build/block-checkout.css. */
+
+.clcf-fields {
+	margin: 18px 0;
+}
+
+/* Two-column layout: half-width fields sit side by side, stack on mobile. */
+.clcf-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 14px 16px;
+}
+.clcf-grid .clcf-w-full { grid-column: 1 / -1; }
+.clcf-grid .clcf-w-half:last-child:nth-child(odd) { grid-column: 1 / -1; }
+@media ( max-width: 600px ) {
+	.clcf-grid { grid-template-columns: 1fr; }
+	.clcf-grid .clcf-w-half { grid-column: 1 / -1; }
+}
+
+.clcf-field {
+	margin: 0;
+	padding: 0;
+}
+
+.clcf-field__label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+	line-height: 1.35;
+}
+.clcf-field__label abbr.required {
+	color: #dc2626;
+	text-decoration: none;
+	border: none;
+	margin-left: 2px;
+}
+
+.clcf-field__desc {
+	display: block;
+	color: #6b7280;
+	font-size: 0.86em;
+	line-height: 1.45;
+	margin: -2px 0 6px;
+}
+
+.clcf-field input[type="text"],
+.clcf-field input[type="number"],
+.clcf-field select,
+.clcf-field textarea {
+	width: 100%;
+	padding: 10px 12px;
+	border: 1px solid #d1d5db;
+	border-radius: 8px;
+	background: #fff;
+	line-height: 1.4;
+	box-sizing: border-box;
+}
+.clcf-field textarea { min-height: 84px; resize: vertical; }
+
+.clcf-field input:focus-visible,
+.clcf-field select:focus-visible,
+.clcf-field textarea:focus-visible {
+	outline: 2px solid #f97316;
+	outline-offset: 1px;
+	border-color: #f97316;
+}
+
+.clcf-checkbox,
+.clcf-opt {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	font-weight: 500;
+	cursor: pointer;
+	margin: 4px 0;
+}
+.clcf-checkbox input[type="checkbox"],
+.clcf-opt input[type="radio"] {
+	width: 17px;
+	height: 17px;
+	margin: 0;
+	accent-color: #f97316;
+}
+
+.clcf-field--heading .clcf-heading {
+	font-size: 1.15em;
+	margin: 6px 0 2px;
+}
+
+/* Validation state (WooCommerce adds this class on invalid fields). */
+.clcf-field.woocommerce-invalid input,
+.clcf-field.woocommerce-invalid select,
+.clcf-field.woocommerce-invalid textarea {
+	border-color: #dc2626;
+	box-shadow: 0 0 0 1px #dc2626;
+}

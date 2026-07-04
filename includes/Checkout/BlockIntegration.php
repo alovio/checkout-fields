@@ -143,6 +143,10 @@ final class BlockFieldsIntegration implements IntegrationInterface {
 		wp_register_script( 'clcf-block-checkout', CLCF_URL . 'build/block-checkout.js', $deps, $asset['version'], true );
 		wp_set_script_translations( 'clcf-block-checkout', 'corelabs-checkout-fields', CLCF_PATH . 'languages' );
 
+		if ( file_exists( CLCF_PATH . 'build/style-block-checkout.css' ) ) {
+			wp_enqueue_style( 'clcf-block-checkout', CLCF_URL . 'build/style-block-checkout.css', array(), $asset['version'] );
+		}
+
 		// Static config only — the dynamic context comes from the cart Store API
 		// endpoint data (computed per-request, safely after wp_loaded).
 		$group = ( new FieldRepository() )->get();
