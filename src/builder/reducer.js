@@ -33,7 +33,7 @@ export const HISTORY_LIMIT = 25;
 
 export const initialSim = { role: 'guest', payment: '', shipping: '', country: '', cartPreset: 'default' };
 
-export const initialState = { fields: [], selectedId: null, sim: initialSim, past: [] };
+export const initialState = { fields: [], selectedId: null, sim: initialSim, past: [], activeRegion: 'after_order_notes' };
 
 /** Push the current fields snapshot before a mutating action (bounded). */
 function remember( state ) {
@@ -56,6 +56,8 @@ export function reducer( state = initialState, action = {} ) {
 		}
 		case 'SET_SIM':
 			return { ...state, sim: { ...state.sim, ...action.patch } };
+		case 'SET_REGION':
+			return { ...state, activeRegion: action.region };
 		case 'INSERT_FIELDS': {
 			const fields = [ ...state.fields, ...action.fields ];
 			return { ...state, past: remember( state ), fields, selectedId: action.fields.length ? action.fields[ 0 ].id : state.selectedId };
@@ -148,6 +150,7 @@ export const actions = {
 	hydrate: ( fields ) => ( { type: 'HYDRATE', fields } ),
 	undo: () => ( { type: 'UNDO' } ),
 	setSim: ( patch ) => ( { type: 'SET_SIM', patch } ),
+	setRegion: ( region ) => ( { type: 'SET_REGION', region } ),
 	insertFields: ( templateFields ) => ( { type: 'INSERT_FIELDS', fields: remapTemplate( templateFields ) } ),
 };
 
@@ -157,4 +160,5 @@ export const selectors = {
 	getSelectedId: ( state ) => state.selectedId,
 	getSim: ( state ) => state.sim,
 	canUndo: ( state ) => state.past.length > 0,
+	getActiveRegion: ( state ) => state.activeRegion,
 };

@@ -16,6 +16,16 @@ final class SettingsPage {
 
 	public function register(): void {
 		add_action( 'admin_menu', array( $this, 'add_page' ) );
+		add_filter( 'admin_body_class', array( $this, 'body_class' ) );
+	}
+
+	/** Full-bleed layout flag for the builder page only. */
+	public function body_class( string $classes ): string {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && false !== strpos( (string) $screen->id, self::SLUG ) ) {
+			$classes .= ' clcf-builder-page';
+		}
+		return $classes;
 	}
 
 	public function add_page(): void {
@@ -30,7 +40,7 @@ final class SettingsPage {
 	}
 
 	public function render(): void {
-		echo '<div class="wrap clcf-wrap"><h1>' . esc_html__( 'Checkout Fields', 'corelabs-checkout-fields' ) . '</h1>';
-		echo '<div id="clcf-builder-root"></div></div>';
+		// The v2 app ships its own header — no wp-admin wrap/h1.
+		echo '<div id="clcf-builder-root"></div>';
 	}
 }

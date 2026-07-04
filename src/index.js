@@ -2,7 +2,7 @@ import domReady from '@wordpress/dom-ready';
 import { createRoot } from '@wordpress/element';
 import apiFetch from '@wordpress/api-fetch';
 import './builder/store';
-import App from './builder/App';
+import App from './builder/AppShell';
 import '../assets/css/builder.css';
 
 domReady( () => {
