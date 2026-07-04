@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --flame: #f97316; --flame-deep: #ea580c; --flame-soft: #ffedd5; --flame-border: #fed7aa;
+    --coal: #1c1917; --coal-2: #292524;
+    --ink: #1f2328; --ink-2: #57606a; --ink-3: #8b949e;
+    --bg: #f6f5f4; --panel: #ffffff; --line: #e7e5e4; --line-2: #d6d3d1;
+    --green: #10b981; --green-soft: #d1fae5; --green-ink: #065f46;
+    --r: 12px; --r-sm: 8px;
+    --shadow: 0 1px 2px rgba(28,25,23,.06), 0 8px 24px -12px rgba(28,25,23,.14);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1460px; height: 940px; overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg); color: var(--ink); font-size: 13px;
+  }
+
+  /* ── App header ─────────────────────────────── */
+  .hdr {
+    height: 58px; background: var(--coal); color: #fff;
+    display: flex; align-items: center; gap: 16px; padding: 0 20px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
+  .logo .mark {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--flame), var(--flame-deep));
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .logo .sub { color: #a8a29e; font-weight: 600; font-size: 13px; margin-left: 2px; }
+  .hdr .crumbs { color: #78716c; font-size: 13px; }
+  .hdr .grow { flex: 1; }
+  .status { display: flex; align-items: center; gap: 7px; color: #a8a29e; font-size: 12.5px; font-weight: 600; }
+  .status .dot { width: 7px; height: 7px; border-radius: 50%; background: #f59e0b; }
+  .btn-ghost {
+    height: 34px; padding: 0 14px; border-radius: var(--r-sm); border: 1px solid #44403c;
+    background: transparent; color: #d6d3d1; font-size: 13px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-primary {
+    height: 34px; padding: 0 18px; border-radius: var(--r-sm); border: none;
+    background: linear-gradient(135deg, var(--flame), var(--flame-deep));
+    color: #fff; font-size: 13px; font-weight: 800;
+    box-shadow: 0 4px 14px -4px rgba(234,88,12,.6);
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+
+  /* ── Workspace ──────────────────────────────── */
+  .work { display: grid; grid-template-columns: 252px 1fr 340px; height: 882px; }
+
+  /* Palette */
+  .palette { background: var(--panel); border-right: 1px solid var(--line); padding: 18px 14px; overflow: hidden; }
+  .sec-label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 4px 6px 10px; }
+  .ptypes { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 22px; }
+  .ptype {
+    height: 72px; border: 1px solid var(--line); border-radius: var(--r);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
+    background: #fff; font-size: 12px; font-weight: 700; color: var(--ink-2); cursor: grab;
+  }
+  .ptype:hover { border-color: var(--flame-border); }
+  .ptype .ic {
+    width: 26px; height: 26px; border-radius: 7px; background: var(--flame-soft);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--flame-deep); font-weight: 800;
+  }
+  .tpl { border: 1px dashed var(--line-2); border-radius: var(--r); padding: 12px; }
+  .tpl h4 { font-size: 12.5px; margin-bottom: 4px; }
+  .tpl p { font-size: 11.5px; color: var(--ink-3); line-height: 1.45; margin-bottom: 9px; }
+  .tpl .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    font-size: 11px; font-weight: 700; color: var(--flame-deep);
+    background: var(--flame-soft); border: 1px solid var(--flame-border);
+    padding: 4px 9px; border-radius: 999px;
+  }
+
+  /* Canvas column */
+  .canvas-col { display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Simulation bar */
+  .simbar {
+    margin: 16px 22px 0; padding: 10px 14px;
+    background: var(--coal-2); border-radius: var(--r);
+    display: flex; align-items: center; gap: 10px; color: #d6d3d1;
+  }
+  .simbar .lbl { font-size: 12px; font-weight: 800; letter-spacing: .04em; color: #a8a29e; display: flex; align-items: center; gap: 7px; }
+  .simbar .lbl .eye { width: 16px; height: 16px; border-radius: 5px; background: var(--flame); }
+  .sim {
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 30px; padding: 0 11px; border-radius: 999px;
+    background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.14);
+    font-size: 12px; font-weight: 700; color: #e7e5e4;
+  }
+  .sim.active { background: rgba(249,115,22,.18); border-color: rgba(249,115,22,.55); color: #fdba74; }
+  .sim .car { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; opacity: .7; }
+  .simbar .hint { margin-left: auto; font-size: 11.5px; color: #78716c; }
+
+  /* Checkout preview canvas */
+  .canvas { flex: 1; overflow: hidden; padding: 16px 22px 22px; }
+  .sheet {
+    max-width: 660px; margin: 0 auto; background: var(--panel);
+    border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow);
+    padding: 26px 30px;
+  }
+  .sheet .shead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .sheet .shead h2 { font-size: 15px; font-weight: 800; }
+  .region-tag {
+    font-size: 11px; font-weight: 700; color: var(--ink-3);
+    border: 1px dashed var(--line-2); border-radius: 999px; padding: 4px 11px;
+  }
+  .wcrow { display: flex; gap: 12px; margin-bottom: 12px; }
+  .wcph { flex: 1; }
+  .wcph .cap { height: 9px; width: 34%; border-radius: 5px; background: #ece9e6; margin-bottom: 7px; }
+  .wcph .box { height: 34px; border-radius: 9px; background: #f3f1ef; border: 1px solid #e9e6e3; }
+
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .fld {
+    position: relative; border-radius: var(--r); padding: 12px 14px 13px;
+    border: 1px solid var(--line); background: #fff;
+  }
+  .fld.full { grid-column: 1 / -1; }
+  .fld:hover { border-color: var(--flame-border); }
+  .fld.selected {
+    border: 2px solid var(--flame);
+    box-shadow: 0 0 0 4px rgba(249,115,22,.12), var(--shadow);
+  }
+  .fld .flabel { font-size: 12.5px; font-weight: 700; margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+  .fld .req { color: #dc2626; }
+  .fld .input { height: 36px; border-radius: 9px; border: 1px solid var(--line-2); background: #fff; display: flex; align-items: center; padding: 0 12px; color: var(--ink-3); font-size: 13px; }
+  .fld .grip {
+    position: absolute; left: -13px; top: 50%; transform: translateY(-50%);
+    width: 22px; height: 30px; border-radius: 7px; background: #fff; border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center; color: var(--ink-3); font-size: 12px;
+    box-shadow: var(--shadow);
+  }
+  .fld .ops {
+    position: absolute; top: -13px; right: 10px; display: flex; gap: 4px;
+  }
+  .op {
+    width: 26px; height: 26px; border-radius: 7px; background: var(--coal); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-size: 12px;
+    box-shadow: 0 4px 10px -2px rgba(28,25,23,.4);
+  }
+  .logic-flag {
+    position: absolute; bottom: -11px; left: 12px;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 10.5px; font-weight: 800; letter-spacing: .03em;
+    background: var(--green-soft); color: var(--green-ink);
+    border: 1px solid #a7f3d0; border-radius: 999px; padding: 3px 9px;
+  }
+  .logic-flag.if { background: var(--flame-soft); color: var(--flame-deep); border-color: var(--flame-border); }
+  .fld.ghost {
+    border: 1.5px dashed var(--line-2); background: #fafaf9; opacity: .75;
+  }
+  .fld.ghost .flabel { color: var(--ink-3); }
+  .fld.ghost .input { background: #f5f5f4; border-style: dashed; }
+  .hiddenbar {
+    margin-top: 14px; display: flex; align-items: center; gap: 9px;
+    font-size: 12px; color: var(--ink-3); font-weight: 600;
+  }
+  .hiddenbar .line { flex: 1; height: 1px; background: var(--line); }
+
+  /* Settings panel */
+  .settings { background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; overflow: hidden; }
+  .sp-head { padding: 16px 18px 0; }
+  .sp-title { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .sp-title .ic { width: 30px; height: 30px; border-radius: 8px; background: var(--flame-soft); color: var(--flame-deep); font-weight: 800; display: flex; align-items: center; justify-content: center; }
+  .sp-title h3 { font-size: 14px; font-weight: 800; }
+  .sp-title small { display: block; font-size: 11px; color: var(--ink-3); font-weight: 600; }
+  .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--line); }
+  .tab { padding: 9px 13px; font-size: 12.5px; font-weight: 700; color: var(--ink-3); border-bottom: 2px solid transparent; }
+  .tab.on { color: var(--flame-deep); border-bottom-color: var(--flame); }
+  .sp-body { padding: 16px 18px; overflow: hidden; flex: 1; }
+  .rule-card { border: 1px solid var(--line); border-radius: var(--r); padding: 13px 14px; background: #fafaf9; }
+  .rule-when { font-size: 11px; font-weight: 800; letter-spacing: .07em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 9px; }
+  .sentence { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+  .tok {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line-2); background: #fff; border-radius: 8px;
+    padding: 5px 10px; font-weight: 700; color: var(--ink);
+  }
+  .tok.src { border-color: var(--flame-border); background: var(--flame-soft); color: var(--flame-deep); }
+  .tok.val { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+  .tok .car { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; opacity: .55; }
+  .andor {
+    display: inline-flex; border: 1px solid var(--line-2); border-radius: 8px; overflow: hidden; margin: 10px 0;
+  }
+  .andor span { padding: 5px 13px; font-size: 11.5px; font-weight: 800; color: var(--ink-3); background: #fff; }
+  .andor span.on { background: var(--coal); color: #fff; }
+  .addrule {
+    margin-top: 11px; display: inline-flex; align-items: center; gap: 7px;
+    font-size: 12.5px; font-weight: 800; color: var(--flame-deep);
+  }
+  .then { margin-top: 16px; }
+  .then .lbl { font-size: 11px; font-weight: 800; letter-spacing: .07em; color: var(--ink-3); text-transform: uppercase; margin-bottom: 9px; }
+  .seg { display: flex; border: 1px solid var(--line-2); border-radius: 9px; overflow: hidden; }
+  .seg span { flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; font-weight: 800; color: var(--ink-3); background: #fff; }
+  .seg span.on { background: linear-gradient(135deg, var(--flame), var(--flame-deep)); color: #fff; }
+  .sp-foot { padding: 13px 18px; border-top: 1px solid var(--line); display: flex; align-items: center; gap: 8px; color: var(--ink-3); font-size: 11.5px; }
+  .sp-foot .kbd { border: 1px solid var(--line-2); border-radius: 5px; padding: 2px 6px; font-size: 10.5px; font-weight: 700; background: #fff; }
+</style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="hdr">
+    <div class="logo"><span class="mark">▲</span>Alovio <span class="sub">Checkout Fields</span></div>
+    <span class="crumbs">/ Builder</span>
+    <div class="grow"></div>
+    <span class="status"><span class="dot"></span>Unsaved changes</span>
+    <button class="btn-ghost">⟲ Undo</button>
+    <button class="btn-ghost">Desktop ▾</button>
+    <button class="btn-primary">Save &amp; publish</button>
+  </div>
+
+  <div class="work">
+    <!-- Palette -->
+    <div class="palette">
+      <div class="sec-label">Add a field</div>
+      <div class="ptypes">
+        <div class="ptype"><span class="ic">Aa</span>Text</div>
+        <div class="ptype"><span class="ic">¶</span>Text area</div>
+        <div class="ptype"><span class="ic">#</span>Number</div>
+        <div class="ptype"><span class="ic">☑</span>Checkbox</div>
+        <div class="ptype"><span class="ic">◉</span>Radio</div>
+        <div class="ptype"><span class="ic">▾</span>Dropdown</div>
+        <div class="ptype"><span class="ic">H</span>Heading</div>
+        <div class="ptype"><span class="ic">＠</span>Email</div>
+      </div>
+      <div class="sec-label">Start from a template</div>
+      <div class="tpl">
+        <h4>One-click recipes</h4>
+        <p>Pre-built fields with conditional logic already wired.</p>
+        <div class="chips">
+          <span class="chip">COD confirmation</span>
+          <span class="chip">Gift message</span>
+          <span class="chip">VAT / EU B2B</span>
+          <span class="chip">Delivery notes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <div class="canvas-col">
+      <div class="simbar">
+        <span class="lbl"><span class="eye"></span>PREVIEW AS</span>
+        <span class="sim">Role: Guest <span class="car"></span></span>
+        <span class="sim active">Payment: Cash on delivery <span class="car"></span></span>
+        <span class="sim">Shipping: Flat rate <span class="car"></span></span>
+        <span class="sim">Cart: 2 items · $48 <span class="car"></span></span>
+        <span class="hint">Conditions evaluate live — exactly like your real checkout</span>
+      </div>
+      <div class="canvas">
+        <div class="sheet">
+          <div class="shead">
+            <h2>Checkout preview</h2>
+            <span class="region-tag">Region: After order notes ▾</span>
+          </div>
+          <div class="wcrow">
+            <div class="wcph"><div class="cap"></div><div class="box"></div></div>
+            <div class="wcph"><div class="cap" style="width:46%"></div><div class="box"></div></div>
+          </div>
+          <div class="fgrid">
+            <div class="fld full">
+              <div class="grip">⠿</div>
+              <div class="flabel">Delivery instructions</div>
+              <div class="input">Gate code, floor, safe place…</div>
+            </div>
+            <div class="fld selected full">
+              <div class="grip">⠿</div>
+              <div class="ops"><span class="op">⧉</span><span class="op">✕</span></div>
+              <div class="flabel">I&rsquo;ll have exact cash ready <span class="req">*</span></div>
+              <div class="input" style="width:36px; justify-content:center;">✓</div>
+              <span class="logic-flag if">IF · Payment is COD → SHOW</span>
+            </div>
+            <div class="fld">
+              <div class="flabel">Invoice needed?</div>
+              <div class="input">Yes / No</div>
+            </div>
+            <div class="fld">
+              <div class="flabel">Preferred time</div>
+              <div class="input">Morning ▾</div>
+            </div>
+          </div>
+          <div class="hiddenbar"><span>1 field hidden by current preview</span><span class="line"></span><span>VAT number — shows when Role is Wholesale</span></div>
+          <div class="fgrid" style="margin-top:12px;">
+            <div class="fld ghost full">
+              <div class="flabel">VAT number</div>
+              <div class="input">EU B2B only</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="settings">
+      <div class="sp-head">
+        <div class="sp-title">
+          <span class="ic">☑</span>
+          <div><h3>I&rsquo;ll have exact cash ready</h3><small>Checkbox · required</small></div>
+        </div>
+        <div class="tabs">
+          <span class="tab">General</span>
+          <span class="tab on">Logic</span>
+          <span class="tab">Layout</span>
+        </div>
+      </div>
+      <div class="sp-body">
+        <div class="rule-card">
+          <div class="rule-when">When</div>
+          <div class="sentence">
+            <span class="tok src">Payment method <span class="car"></span></span>
+            <span class="tok">is <span class="car"></span></span>
+            <span class="tok val">Cash on delivery <span class="car"></span></span>
+          </div>
+          <div class="andor"><span class="on">AND</span><span>OR</span></div>
+          <div class="sentence">
+            <span class="tok src">Cart subtotal <span class="car"></span></span>
+            <span class="tok">greater than <span class="car"></span></span>
+            <span class="tok val">$30 <span class="car"></span></span>
+          </div>
+          <div class="addrule">＋ Add condition</div>
+        </div>
+        <div class="then">
+          <div class="lbl">Then</div>
+          <div class="seg"><span class="on">Show</span><span>Hide</span><span>Require</span></div>
+        </div>
+      </div>
+      <div class="sp-foot">Changes preview instantly · <span class="kbd">⌘S</span> saves</div>
+    </div>
+  </div>
+</body>
+</html>
