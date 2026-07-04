@@ -3,12 +3,11 @@
  * here so it is unit-testable with plain Jest. The @wordpress/data store wrapper
  * lives in store.js.
  *
- * Note: checkout fields carry no pricing (that is Pro and handled elsewhere).
- * Conditions use the multi-rule model (`conditions[]`) for everyone — multi is
- * free here — so there is no single-condition branch.
+ * Conditions use the multi-rule model (`conditions[]`) for everyone, and every
+ * field can carry a fee (price/priceMode) — everything is free.
  */
 
-const BASE = { required: false, options: [], location: 'after_order_notes' };
+const BASE = { required: false, options: [], location: 'after_order_notes', width: 'full', price: 0, priceMode: 'fixed' };
 
 export const DEFAULTS = {
 	text: { label: 'Text field', ...BASE },

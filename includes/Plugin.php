@@ -36,6 +36,7 @@ final class Plugin {
 		( new \CoreLabs\CheckoutFields\Checkout\ClassicRenderer() )->register();
 		( new \CoreLabs\CheckoutFields\Checkout\OrderPersistence() )->register();
 		( new \CoreLabs\CheckoutFields\Checkout\BlockIntegration() )->register();
+		( new \CoreLabs\CheckoutFields\Checkout\FeesIntegration() )->register();
 		( new \CoreLabs\CheckoutFields\Frontend\FrontendAssets() )->register();
 	}
 }

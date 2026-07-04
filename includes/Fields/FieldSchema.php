@@ -67,6 +67,8 @@ final class FieldSchema {
 				'default'     => isset( $f['default'] ) ? sanitize_text_field( (string) $f['default'] ) : '',
 				'location'    => self::normalize_location( $f ),
 				'width'       => in_array( $f['width'] ?? '', array( 'full', 'half' ), true ) ? (string) $f['width'] : 'full',
+				'price'       => max( 0.0, (float) ( $f['price'] ?? 0 ) ),
+				'priceMode'   => in_array( $f['priceMode'] ?? '', array( 'fixed', 'per_unit', 'percent' ), true ) ? (string) $f['priceMode'] : 'fixed',
 				'options'     => self::normalize_options( $f ),
 			);
 			$out[] = array_merge(

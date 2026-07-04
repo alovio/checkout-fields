@@ -5,6 +5,7 @@ import { STORE } from './store';
 import General from './panels/General';
 import Logic from './panels/Logic';
 import Layout from './panels/Layout';
+import Fee from './panels/Fee';
 
 const T = 'corelabs-checkout-fields';
 
@@ -45,12 +46,16 @@ export default function SettingsPanel() {
 					<button className={ `clcf-tab${ tab === 'general' ? ' is-on' : '' }` } onClick={ () => setTab( 'general' ) }>{ __( 'General', T ) }</button>
 					<button className={ `clcf-tab${ tab === 'logic' ? ' is-on' : '' }` } onClick={ () => setTab( 'logic' ) }>{ __( 'Logic', T ) }</button>
 					<button className={ `clcf-tab${ tab === 'layout' ? ' is-on' : '' }` } onClick={ () => setTab( 'layout' ) }>{ __( 'Layout', T ) }</button>
+					{ field.type !== 'heading' && (
+						<button className={ `clcf-tab${ tab === 'fee' ? ' is-on' : '' }` } onClick={ () => setTab( 'fee' ) }>{ __( 'Fee', T ) }</button>
+					) }
 				</div>
 			</div>
 			<div className="clcf-sp-body">
 				{ tab === 'general' && <General field={ field } /> }
 				{ tab === 'logic' && <Logic field={ field } /> }
 				{ tab === 'layout' && <Layout field={ field } /> }
+				{ tab === 'fee' && field.type !== 'heading' && <Fee field={ field } /> }
 			</div>
 			<div className="clcf-sp-foot">
 				{ __( 'Changes preview instantly', T ) } · <span className="clcf-kbd">⌘S</span> { __( 'saves', T ) }
