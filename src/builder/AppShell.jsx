@@ -94,6 +94,10 @@ export default function AppShell() {
 					Alovio <span className="clcf-sub">{ __( 'Checkout Fields', T ) }</span>
 				</div>
 				<div className="clcf-grow"></div>
+				{ /* Alovio family slot — the Calculator link lands here when it ships. */ }
+				<a className="clcf-more" href="https://alovio.org" target="_blank" rel="noopener noreferrer">
+					{ __( 'More from Alovio', T ) } ↗
+				</a>
 				<span className={ statusCls }><span className="clcf-dot"></span>{ statusTxt }</span>
 				<button className="clcf-btn-ghost" disabled={ ! canUndo } onClick={ undo }>⟲ { __( 'Undo', T ) }</button>
 				<button className="clcf-btn-primary" disabled={ saving } onClick={ save }>

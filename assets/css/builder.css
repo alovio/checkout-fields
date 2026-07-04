@@ -78,6 +78,8 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 }
 .clcf-logo .clcf-sub { color: #a8a29e; font-weight: 600; font-size: 13px; margin-left: 2px; }
 .clcf-hdr .clcf-grow { flex: 1; }
+.clcf-more { color: #a8a29e; font-size: 12.5px; font-weight: 700; text-decoration: none; margin-right: 4px; }
+.clcf-more:hover { color: #fdba74; }
 .clcf-status { display: flex; align-items: center; gap: 7px; color: #a8a29e; font-size: 12.5px; font-weight: 600; }
 .clcf-status .clcf-dot { width: 7px; height: 7px; border-radius: 50%; background: #57534e; }
 .clcf-status.is-dirty .clcf-dot { background: #f59e0b; }

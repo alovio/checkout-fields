@@ -21,7 +21,8 @@ Most checkout-field plugins lock conditional logic behind a paid upgrade. This o
 * **Visual builder with live preview** — fields render exactly as they will look on the checkout, and a "Preview as" bar simulates role, payment method, shipping, cart and country so you can watch conditional fields show and hide in real time.
 * **One-click recipes** — pre-built field sets (COD confirmation, gift message, VAT/EU B2B, delivery notes) with conditional logic already wired.
 * Drag-and-drop field builder on a single admin page (WooCommerce → Checkout Fields).
-* Field types: text, text area, number, checkbox, multiple choice (radio), dropdown (select), and section heading.
+* 13 field types: text, text area, number, checkbox, radio, dropdown, heading, email, phone, URL, date, time, and secure file upload.
+* **Field-driven fees** — any field can add a fee to the order (fixed, per-unit, or percentage of subtotal), shown live in the totals on both checkouts.
 * **Full conditional logic — free:** show / hide / require, single or multi-condition (AND/OR).
 * Condition sources: cart contents, product category, customer role, shipping method, payment method, billing/shipping country, and other checkout fields.
 * Works on **both** the classic checkout and the Block checkout, with live show/hide as the shopper changes payment, shipping, or address.
