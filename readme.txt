@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,6 +66,10 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
 == Changelog ==
+
+= 1.1.1 =
+* Fix: dropdowns in the builder (simulation bar, region selector, condition tokens) opened visibly offset from their chip — wp-admin's global select min-height made the invisible overlay selects taller than their chips.
+* Fix: admin notices no longer push the full-height builder layout down.
 
 = 1.1.0 =
 * New visual builder: fields render checkout-style with click-to-edit, drag reorder, and a live "Preview as" simulation bar (role / payment / shipping / cart / country) that shows conditional logic working in real time.

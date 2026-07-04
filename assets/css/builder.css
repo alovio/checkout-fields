@@ -26,6 +26,26 @@
 body.clcf-builder-page #wpcontent { padding-left: 0; }
 body.clcf-builder-page #wpbody-content { padding-bottom: 0; }
 body.clcf-builder-page #wpfooter { display: none; }
+/* Admin notices would push the full-height app down and break its layout. */
+body.clcf-builder-page #wpbody-content > .notice,
+body.clcf-builder-page #wpbody-content > .update-nag,
+body.clcf-builder-page #wpbody-content > .error { display: none; }
+
+/* Invisible overlay selects (chips/tags disguise a native select): neutralise
+   wp-admin's global select styling (min-height 40px etc.) so the overlay matches
+   its chip exactly — otherwise the native dropdown opens visibly offset below. */
+.clcf-sim select,
+.clcf-region-tag select,
+.clcf-tok select {
+	min-height: 0;
+	height: 100%;
+	max-width: none;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	line-height: 1;
+	background: none;
+}
 
 .clcf-app {
 	font-size: 13px;
