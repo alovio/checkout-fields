@@ -1,11 +1,18 @@
 /* Alovio Checkout Fields — Block checkout layout & label polish.
    Inputs inherit the Block checkout's own styling; we add layout + consistency. */
 
+/* The extra selector out-specifies wc-blocks'
+   `.wc-block-components-totals-wrapper.slot-wrapper > * > *` (padding: 16px 0),
+   which otherwise wins the tie by load order and leaves the fields flush with
+   the panel edge. */
+.wc-block-components-totals-wrapper.slot-wrapper > * > .clcf-block-fields.clcf-grid,
 .clcf-block-fields.clcf-grid {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	gap: 14px 16px;
-	margin: 16px 0;
+	margin: 0;
+	padding: 8px 16px 16px;
+	box-sizing: border-box;
 }
 .clcf-block-fields .clcf-w-full { grid-column: 1 / -1; }
 @media ( max-width: 600px ) {

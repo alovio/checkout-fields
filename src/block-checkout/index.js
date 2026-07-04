@@ -10,6 +10,7 @@
 import { registerPlugin } from '@wordpress/plugins';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
+import { __ } from '@wordpress/i18n';
 import { activeMap } from '../frontend/conditional-logic';
 import { buildValues } from '../checkout-conditions/data-sources';
 import './style.css';
@@ -71,7 +72,7 @@ function Field( { field, value, onChange } ) {
 	} else if ( field.type === 'select' ) {
 		control = (
 			<select { ...common }>
-				<option value="">{ '—' }</option>
+				<option value="">{ __( 'Choose an option', 'corelabs-checkout-fields' ) }</option>
 				{ ( field.options || [] ).map( ( o ) => <option key={ o } value={ o }>{ o }</option> ) }
 			</select>
 		);

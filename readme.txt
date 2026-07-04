@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -66,6 +66,10 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
 == Changelog ==
+
+= 1.1.2 =
+* Fix: on the Block checkout, the fields section had no horizontal inset (fields touched the panel edge) — a WooCommerce Blocks slot rule was overriding the section padding. Fields now align with the order-summary panel's own content.
+* Improvement: dropdown fields on the Block checkout show "Choose an option" instead of a bare dash as the empty choice.
 
 = 1.1.1 =
 * Fix: dropdowns in the builder (simulation bar, region selector, condition tokens) opened visibly offset from their chip — wp-admin's global select min-height made the invisible overlay selects taller than their chips.
