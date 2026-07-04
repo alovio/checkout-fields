@@ -113,6 +113,11 @@ final class FileUploads {
 
 		$token = bin2hex( random_bytes( 16 ) );
 
+		// wp_handle_upload() lives in an admin include that REST requests don't load.
+		if ( ! function_exists( 'wp_handle_upload' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+		}
+
 		add_filter( 'upload_dir', array( self::class, 'upload_dir' ) );
 		$moved = wp_handle_upload(
 			$file,
