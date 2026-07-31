@@ -3,6 +3,7 @@ declare( strict_types=1 );
 
 namespace CoreLabs\CheckoutFields\Checkout;
 
+use CoreLabs\CheckoutFields\Fields\FieldOptions;
 use CoreLabs\CheckoutFields\Fields\FieldRepository;
 use CoreLabs\CheckoutFields\Logic\ConditionalLogic;
 
@@ -165,15 +166,17 @@ final class ClassicRenderer {
 				break;
 			case 'radio':
 				foreach ( (array) ( $f['options'] ?? array() ) as $opt ) {
-					$chk = ( (string) $opt === $default ) ? ' checked' : '';
-					printf( '<label class="clcf-opt"><input type="radio" name="%s" value="%s"%s%s /> %s</label>', esc_attr( $name ), esc_attr( (string) $opt ), ! empty( $f['required'] ) ? ' required' : '', $chk, esc_html( (string) $opt ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$opt_label = FieldOptions::label( $opt );
+					$chk       = ( $opt_label === $default ) ? ' checked' : '';
+					printf( '<label class="clcf-opt"><input type="radio" name="%s" value="%s"%s%s /> %s</label>', esc_attr( $name ), esc_attr( $opt_label ), ! empty( $f['required'] ) ? ' required' : '', $chk, esc_html( self::option_text( $f, $opt ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				break;
 			case 'select':
 				printf( '<select id="%s" name="%s"%s><option value="">%s</option>', esc_attr( $fid ), esc_attr( $name ), $req, esc_html__( 'Choose an option', 'corelabs-checkout-fields' ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				foreach ( (array) ( $f['options'] ?? array() ) as $opt ) {
-					$sel = ( (string) $opt === $default ) ? ' selected' : '';
-					printf( '<option value="%s"%s>%s</option>', esc_attr( (string) $opt ), $sel, esc_html( (string) $opt ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$opt_label = FieldOptions::label( $opt );
+					$sel       = ( $opt_label === $default ) ? ' selected' : '';
+					printf( '<option value="%s"%s>%s</option>', esc_attr( $opt_label ), $sel, esc_html( self::option_text( $f, $opt ) ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				}
 				echo '</select>';
 				break;
@@ -213,5 +216,63 @@ final class ClassicRenderer {
 				$val = ( '' !== $default ) ? sprintf( ' value="%s"', esc_attr( $default ) ) : '';
 				printf( '<input type="text" id="%s" name="%s"%s%s%s%s />', esc_attr( $fid ), esc_attr( $name ), $req, $ph, $ml, $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		}
+	}
+
+	/**
+	 * A choice reads as its label plus what picking it costs — "Express
+	 * (+$10.00)" — so shoppers compare before they reach the totals. The
+	 * submitted value stays the bare label; only the display changes.
+	 *
+	 * The amount comes from the same helper the fee calculator uses, so an
+	 * unpriced option shows the field price it falls back to and a repeated
+	 * label shows the price that label will actually be charged. Fields that
+	 * do not price their options keep bare labels — the field's own price is
+	 * stated once elsewhere.
+	 *
+	 * @param array<string,mixed> $f
+	 * @param mixed               $option
+	 */
+	private static function option_text( array $f, $option ): string {
+		$label = FieldOptions::label( $option );
+		if ( ! FieldOptions::has_priced_options( $f ) ) {
+			return $label;
+		}
+		$price = FieldOptions::effective_price( $f, $label );
+		if ( $price <= 0 ) {
+			return $label;
+		}
+		if ( 'percent' === (string) ( $f['priceMode'] ?? 'fixed' ) ) {
+			/* translators: %s: percentage number */
+			$suffix = sprintf( __( '+%s%%', 'corelabs-checkout-fields' ), (string) ( $price + 0 ) );
+		} else {
+			$suffix = '+' . self::money( $price );
+		}
+
+		/**
+		 * Filter the price suffix appended to an option label.
+		 *
+		 * @param string $suffix e.g. "+$10.00". Return '' to print the bare label.
+		 * @param mixed  $option the option (string or {label, price}).
+		 * @param array  $f      the field definition.
+		 */
+		$suffix = (string) apply_filters( 'clcf_option_price_suffix', $suffix, $option, $f );
+		if ( '' === $suffix ) {
+			return $label;
+		}
+
+		/* translators: 1: option label, 2: price suffix, e.g. "+$10.00" */
+		return sprintf( __( '%1$s (%2$s)', 'corelabs-checkout-fields' ), $label, $suffix );
+	}
+
+	/**
+	 * Formatted money as PLAIN text. wc_price() returns markup whose currency
+	 * symbol is an HTML entity, so strip the tags and decode — callers escape
+	 * once, and tests see real characters.
+	 */
+	private static function money( float $amount ): string {
+		if ( ! function_exists( 'wc_price' ) ) {
+			return number_format( $amount, 2 );
+		}
+		return html_entity_decode( wp_strip_all_tags( wc_price( $amount ) ), ENT_QUOTES, 'UTF-8' );
 	}
 }
