@@ -253,6 +253,11 @@ final class FieldSchema {
 			);
 		}
 
+		if ( 'file' === $type ) {
+			$max = ( isset( $f['maxFiles'] ) && is_numeric( $f['maxFiles'] ) ) ? (int) $f['maxFiles'] : 1;
+			return array( 'maxFiles' => min( 10, max( 1, $max ) ) );
+		}
+
 		return array();
 	}
 }
