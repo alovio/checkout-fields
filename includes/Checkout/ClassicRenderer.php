@@ -200,14 +200,19 @@ final class ClassicRenderer {
 				// The picker never posts the raw file — frontend.js uploads it to
 				// clcf/v1/upload on selection and writes the token into the hidden input.
 				$accept = '.' . implode( ',.', FileUploads::allowed_extensions() );
+				$maxf   = min( 10, max( 1, (int) ( $f['maxFiles'] ?? 1 ) ) );
+				$mult   = $maxf > 1 ? sprintf( ' multiple data-clcf-max-files="%d"', $maxf ) : '';
 				printf(
-					'<input type="file" id="%s" class="clcf-file-picker" data-clcf-file-for="%s" accept="%s"%s />',
+					'<input type="file" id="%s" class="clcf-file-picker" data-clcf-file-for="%s" accept="%s"%s%s />',
 					esc_attr( $fid ),
 					esc_attr( $id ),
 					esc_attr( $accept ),
-					$req // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$req, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					$mult // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				);
+				// Exactly one hidden input per field: it carries the token list.
 				printf( '<input type="hidden" name="%s" value="" />', esc_attr( $name ) );
+				echo '<span class="clcf-file-list"></span>';
 				echo '<small class="clcf-file-status" aria-live="polite"></small>';
 				break;
 			}
