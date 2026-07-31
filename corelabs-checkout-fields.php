@@ -3,7 +3,7 @@
  * Plugin Name: Alovio Checkout Fields for WooCommerce
  * Plugin URI: https://alovio.org/checkout-fields
  * Description: Add custom WooCommerce checkout fields with a drag-and-drop builder and full conditional logic — on classic and Block checkout.
- * Version: 1.3.0
+ * Version: 1.4.0
  * Author: Alovio
  * Author URI: https://alovio.org
  * Requires at least: 6.4
@@ -16,7 +16,7 @@
  */
 defined( 'ABSPATH' ) || exit;
 
-define( 'CLCF_VERSION', '1.3.0' );
+define( 'CLCF_VERSION', '1.4.0' );
 define( 'CLCF_FILE', __FILE__ );
 define( 'CLCF_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CLCF_URL', plugin_dir_url( __FILE__ ) );

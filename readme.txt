@@ -5,7 +5,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.3.0
+Stable tag: 1.4.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -70,14 +70,22 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 == Screenshots ==
 
 1. The drag-and-drop checkout-field builder with the conditional-logic editor.
-2. A conditional field showing on the Block checkout based on the selected payment method.
+2. The Block checkout: a field that appears only for the chosen payment method, an option carrying its own fee, and every fee itemized in the order summary.
 
 == Upgrade Notice ==
+
+= 1.4.0 =
+A Donate button replaces the cross-promo link in the builder header — the plugin stays free, and the note explains what supporting it means. No changes to your fields or checkout.
 
 = 1.3.0 =
 Fees are now itemized in the checkout totals and every dropdown/radio option can carry its own fee. If you prefer the old single "Checkout options" line, add the `clcf_itemized_fees` filter returning false.
 
 == Changelog ==
+
+= 1.4.0 =
+* NEW: A "Donate" button in the builder header. It opens a short note explaining that the plugin is free and stays free — conditional logic included, which most plugins in this category charge for — and offers a coffee or a review for anyone who wants to support it. It replaces the cross-promo link that used to sit in the header.
+* Improve: the builder header stays on one row at narrow window widths instead of wrapping labels mid-phrase ("Save & / publish"); it hides its least important items as space runs out and always keeps Save & publish.
+* Improve: the header's "undo" glyph is now a drawn icon matching the field-type set, instead of a text character that changed weight with the surrounding font.
 
 = 1.3.0 =
 * NEW: A fee per option — every choice in a dropdown or radio group can charge its own amount (Standard 0, Express 10, Overnight 20). Set it in the field's Options tab.
