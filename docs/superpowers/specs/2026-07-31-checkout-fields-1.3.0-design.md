@@ -107,14 +107,18 @@ Single line is used when either is true:
 2. `has_filter( 'clcf_fee_total' )` is true — a site is rewriting the charged total,
    and itemized rows cannot honestly represent a total that was adjusted outside them.
 
-The `has_filter()` test is deliberate: comparing the filtered total against the raw sum
-would need a float epsilon and would misfire on benign filters that merely re-cast the
-value. `clcf_fee_total` therefore keeps its current meaning — it wraps the charged
-total — and a site using it keeps being charged exactly what it asks for. In itemized
-mode the filter is not consulted, because it is not reachable: the mode only runs when
-no filter is attached.
+The `has_filter()` test is deliberate: it is a state check, so there is no float
+comparison and no epsilon to tune. The trade-off is accepted knowingly — any callback on
+`clcf_fee_total`, even a logger, puts that shop on the single line. `clcf_fee_total`
+therefore keeps its current meaning (it wraps the charged total) and a site using it
+keeps being charged exactly what it asks for. When both filters are present,
+**`clcf_fee_total` wins**: an explicit `clcf_itemized_fees` → `true` still yields the
+single line, because itemized rows cannot represent an externally rewritten total.
+`clcf_fee_label` applies only in single-line mode.
 
-The single-line fee keeps the id `clcf-checkout-options`.
+The single-line fee takes the id `clcf-checkout-options` (today WooCommerce derives
+`checkout-options` from the name); nothing persists off it, but it is the Store API
+`key`, so the changelog notes the change.
 
 **Row labels.** A breakdown row's `label` is the field label, plus the chosen value for
 choice fields — "Shipping speed: Overnight", "Gift wrapping". The value carries the
@@ -146,7 +150,7 @@ ships a broken store, so this list is exhaustive and each row is part of the wor
 | `Fields/FieldSchema.php:202` | `normalize_options()` returns `sanitize_text_field( … $o['label'] … )` | **prices are flattened away before they are ever stored — the whole feature becomes a silent no-op** |
 | `Checkout/Sanitizer.php:72` | `array_map( 'strval', … )` | value silently dropped — **order cannot be placed** |
 | `Checkout/Validator.php:94` | `array_map( 'strval', … )` | "has an invalid selection" on every priced choice |
-| `Checkout/ClassicRenderer.php:169,175` | `esc_html( $opt )` | prints `Array` |
+| `Checkout/ClassicRenderer.php:169,176` | `esc_html( $opt )` | prints `Array` |
 | `src/block-checkout/index.js:77,83` | `{ o }`, `key={ o }` | React "Objects are not valid as a child" |
 | `src/builder/FieldPreview.jsx:20,25` | `{ o }`, `key={ o }`, `options[0]` | canvas crash |
 | `src/builder/panels/Logic.jsx:92` | `{ label: o, value: o }` | **writes an object as a rule value** — conditional logic breaks |
@@ -156,7 +160,7 @@ ships a broken store, so this list is exhaustive and each row is part of the wor
 The first row is the critical one. `FieldRepository` normalizes on **both** read and
 write, so `normalize_options()` is the gate every option passes through; today it
 returns bare strings unconditionally. It is rewritten the way the sibling's was
-(`woo-product-options/includes/Fields/FieldSchema.php:218-255`): keep a bare string
+(`woo-product-options/includes/Fields/FieldSchema.php:217-254`): keep a bare string
 when a choice carries nothing extra, emit `{ label, price }` once it has a positive
 numeric price, and drop non-numeric or ≤ 0 prices. The sibling's `swatch` and
 `image_swatch` branches are dropped on port — those types are out of scope here. That
@@ -298,6 +302,9 @@ Additions:
 - **Render tests** — classic renderer output asserted *against* `FeeCalculator`.
   Product Options shipped display defects precisely because this layer had no tests.
 - A test proving two fields with the same label produce **two** fees.
+- Mode selection: itemized by default, single line when `clcf_itemized_fees` returns
+  `false`, and single line when `clcf_fee_total` has a callback. `TestCase.php` stubs
+  `apply_filters` but not `has_filter`, so that stub is added alongside.
 - `FileUploads::parse_tokens`, WEBP in the default whitelist, and `OrderPersistence`
   keeping the remaining files when one token is dead.
 - `FieldSchema` retaining and clamping `maxFiles`.
@@ -324,7 +331,7 @@ this release. The `svn ci` itself stays with the user, as always.
 | Priced options never charge because the fee gate ignores them | both gates test `has_priced_options()` too; QA on both checkouts |
 | Two fields share a label → second fee silently dropped | explicit fee ids via `fees_api()` + regression test + builder warning |
 | Fee lines print amounts that don't sum to the total | round per row, sum the rounded rows |
-| An option reader is missed → broken checkout or crash | the exhaustive eight-file table in §2 |
+| An option reader is missed → broken checkout or crash | the exhaustive nine-row table in §2 |
 | Classic and Block renderers drift apart | shared fixture + QA on both |
 | Existing shops see their totals change shape | `clcf_itemized_fees` filter + explicit changelog note |
 | Copied files drift from Product Options | the shared-by-copy list above |
