@@ -2,6 +2,10 @@
  * Typography scale. Sizes are relative (em) so fields inherit the theme's
  * body size; only the relationships between them are ours. Two weights, so
  * "emphasis" always means the same thing.
+ *
+ * Rule: apply a token only where the parent sets no font-size. Inside an
+ * element that already carries one (e.g. .clcf-file-item), inherit instead —
+ * em multiplies down the tree.
  */
 :root {
 	--clcf-fs-sm: 0.85em;   /* help text, file names, status */
@@ -225,7 +229,11 @@
 	border: 0;
 	background: none;
 	cursor: pointer;
-	font-size: var(--clcf-fs-lg);
+	/* Inherit, never a token: this button sits INSIDE .clcf-file-item, which
+	   is already 0.85em — an em token here would multiply (0.85 x 1.15) and
+	   land somewhere nobody chose. Tokens are for elements whose parent
+	   carries no size of its own. */
+	font-size: inherit;
 	line-height: 1;
 	padding: 2px 6px;
 	color: inherit;
