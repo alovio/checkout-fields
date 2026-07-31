@@ -61,9 +61,10 @@ logic rather than calling it; §2 explains how the two are kept in step.)
 
 **Why round per row.** Splitting one fee into N does **not** change what WooCommerce
 charges: `WC_Cart_Totals::get_fees_from_cart()` stores each fee at 4 decimals beyond
-the cent and the grand total is rounded once. The problem is display —
-`wc_cart_totals_fee_html()` renders each fee through `wc_price()`, which rounds each
-line to 2 dp, so unrounded rows produce visible lines that don't add up to the total.
+the cent and the grand total is rounded once. The problem is display: the classic checkout renders each fee through
+`wc_cart_totals_fee_html()` → `wc_price()` and the Block checkout through the Store
+API's `prepare_money_response()`, both rounding each line to 2 dp — so unrounded rows
+produce visible lines that don't add up to the total.
 Rounding each row and summing the rounded rows makes the printed lines, the printed
 total and the charged total agree by construction.
 
@@ -85,21 +86,40 @@ name (`sanitize_title`) and discards the return value, while
 `WC_Cart_Fees::add_fee()` returns `WP_Error( 'fee_exists' )` for a repeated id — so two
 fields labelled "Insurance" lose the second fee **silently** and the shop loses that
 money. `WC_Cart_Fees::add_fee()` only generates an id when the caller supplies none, so
-an explicit id removes the collision while labels stay human. The builder also warns
-about duplicate labels, as the Product Options builder does.
+an explicit id removes the collision while labels stay human. The builder also warns about two fields sharing a
+label. (Product Options warns about duplicate *option* labels inside one field, so this
+is new work rather than a port.)
 
 **Tax:** WooCommerce's fee default is `taxable = false`
 (`WC_Cart_Fees::$default_fee_props`), so Checkout Fields fees are non-taxable today.
 The new code passes `'taxable' => false` **explicitly** to preserve that exactly.
 Changing it would start charging tax on fees on every live store.
 
-**Filters.** Fees are always itemized; there is no second emission path.
-- `clcf_fee_total` continues to wrap the total returned by `total()`. It is applied to
-  the **sum**, not to individual rows, and is documented as such.
-- `clcf_fee_label` names the single line in non-itemized mode.
-- New `clcf_itemized_fees` (default `true`) emits one fee per field; returning `false`
-  restores the pre-1.3.0 single "Checkout options" line. (US spelling, matching
-  WordPress and WooCommerce hook conventions.)
+**Two emission modes, chosen deterministically.**
+
+- **Itemized (default):** one fee per breakdown row.
+- **Single line:** the pre-1.3.0 behaviour — one fee named by `clcf_fee_label`,
+  carrying the `total()` value.
+
+Single line is used when either is true:
+1. `apply_filters( 'clcf_itemized_fees', true )` returns `false` — the documented way
+   back for a shop that prefers a compact totals block; or
+2. `has_filter( 'clcf_fee_total' )` is true — a site is rewriting the charged total,
+   and itemized rows cannot honestly represent a total that was adjusted outside them.
+
+The `has_filter()` test is deliberate: comparing the filtered total against the raw sum
+would need a float epsilon and would misfire on benign filters that merely re-cast the
+value. `clcf_fee_total` therefore keeps its current meaning — it wraps the charged
+total — and a site using it keeps being charged exactly what it asks for. In itemized
+mode the filter is not consulted, because it is not reachable: the mode only runs when
+no filter is attached.
+
+The single-line fee keeps the id `clcf-checkout-options`.
+
+**Row labels.** A breakdown row's `label` is the field label, plus the chosen value for
+choice fields — "Shipping speed: Overnight", "Gift wrapping". The value carries the
+information the shopper needs at the moment they are reading the totals; the bare field
+label would leave "Shipping speed £12.00" ambiguous.
 
 **Orders and emails** need no extra work: each fee becomes its own order fee item on
 both checkouts — classic via `WC_Checkout::create_order_fee_lines()`, Store API via
@@ -118,7 +138,7 @@ Every reader goes through a new `FieldOptions` helper — `label()`, `price()`,
 replaces the field price and still runs through the field's price mode, so
 "10% Express / 20% Overnight" works like flat amounts.
 
-**Eight places read options today and every one assumes a string.** Missing any of them
+**Nine places read options today and every one assumes a string.** Missing any of them
 ships a broken store, so this list is exhaustive and each row is part of the work:
 
 | File | Today | Breaks as |
@@ -131,24 +151,31 @@ ships a broken store, so this list is exhaustive and each row is part of the wor
 | `src/builder/FieldPreview.jsx:20,25` | `{ o }`, `key={ o }`, `options[0]` | canvas crash |
 | `src/builder/panels/Logic.jsx:92` | `{ label: o, value: o }` | **writes an object as a rule value** — conditional logic breaks |
 | `src/builder/panels/General.jsx:20` | `DefaultControl` map | default-selection list renders `[object Object]` |
+| `src/builder/panels/General.jsx:75` | the options textarea (`join('\n')` / newline split) | rewrites every option back to a bare string, erasing prices — replaced by the Options panel below |
 
 The first row is the critical one. `FieldRepository` normalizes on **both** read and
 write, so `normalize_options()` is the gate every option passes through; today it
 returns bare strings unconditionally. It is rewritten the way the sibling's was
 (`woo-product-options/includes/Fields/FieldSchema.php:218-255`): keep a bare string
 when a choice carries nothing extra, emit `{ label, price }` once it has a positive
-numeric price, and drop non-numeric or ≤ 0 prices. That rewrite also drops
+numeric price, and drop non-numeric or ≤ 0 prices. The sibling's `swatch` and
+`image_swatch` branches are dropped on port — those types are out of scope here. That
+rewrite also drops
 empty-label options, which Checkout Fields currently keeps — a deliberate behaviour
 change (an unlabelled choice is unselectable) that the changelog calls out.
 
-The REST layer needs no change: the `options` arg is a bare `'type' => 'array'`
-(`Admin/RestController.php:41-44`), so nested objects survive.
+The REST layer needs no change: the `fields` arg is declared as a bare
+`'type' => 'array'` (`Admin/RestController.php:41-44`) with no per-item schema, so
+nested option objects survive the round-trip.
 
 Options are keyed by position wherever React lists them, so a duplicate label cannot
 produce a duplicate key.
 
-**The fee-bearing gate must learn about priced options — otherwise the feature is a
-no-op even after the above.** `src/frontend.js:155` and `src/block-checkout/index.js:21`
+**Three gates must learn about priced options — otherwise the feature is a no-op even
+after the above.** On the server, `FeeCalculator.php:42` skips a field with
+`if ( $price <= 0 ) { continue; }`; `breakdown()` replaces that with the field's
+effective price so a priced option lifts a zero-priced field. On the client,
+`src/frontend.js:155` and `src/block-checkout/index.js:21`
 both decide "does this checkout have fees?" with
 `fields.some( f => parseFloat( f.price ) > 0 )`. A field whose own price is 0 but whose
 options are priced fails that test, so the checkout never pushes the cart update that
@@ -199,7 +226,9 @@ attached), which stays correct.
   link; it renders one link per file instead. `render_email():136,142` prints
   `$r['display']` as escaped text, so it must print **file names**, not a URL blob.
   The `_clcf_fields` row gains an explicit `files` list rather than overloading
-  `display`.
+  `display`. Orders placed before 1.3.0 have no `files` key, so the existing
+  `strpos( $display, 'http' )` path stays as the fallback for them — otherwise every
+  historical order silently loses its download link.
 - `maxFiles` (1–10, clamped) is a new field property and must be added to
   `FieldSchema::normalize()`'s key whitelist (`:60-78`) — that method rebuilds each
   field from a fixed key set on both read and write, so an unlisted key is silently
@@ -216,9 +245,11 @@ a removable row, a cap message. Two details the current single-file code assumes
   `FileUploads.php:70` re-sets the transient on every upload, so the window is
   **rolling** — a shopper who trips it waits a full hour from their last attempt.
   Because `can_upload()` is the REST `permission_callback`, the failure currently
-  surfaces as WordPress's "Sorry, you are not allowed to do that." The limit is raised
-  to a per-field-aware default and the rate-limited case returns its own message so the
-  shopper knows to wait rather than retry.
+  surfaces as WordPress's "Sorry, you are not allowed to do that." Two changes: the default rises
+  from 20 to **60** per hour (10 files × 3 fields, plus headroom for re-picks), and the
+  rate-limit check moves out of the permission callback into `handle_upload()`, which
+  can return a `WP_Error` carrying "Too many uploads — please wait a few minutes."
+  `can_upload()` keeps only the nonce check, so its `bool` return stays correct.
 
 ### 4. Icons and brand mark
 
