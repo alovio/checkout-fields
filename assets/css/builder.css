@@ -353,3 +353,10 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-widthpick .clcf-diagram { display: flex; gap: 4px; margin-bottom: 7px; }
 .clcf-widthpick .clcf-diagram span { height: 12px; border-radius: 4px; background: var(--clcf-line); flex: 1; }
 .clcf-widthpick .clcf-diagram span.is-hl { background: var(--clcf-flame); }
+
+/* Options tab: one row per choice, label + its own fee. */
+.clcf-optrow { display: flex; align-items: flex-end; gap: 6px; margin-bottom: 6px; }
+.clcf-optrow .components-base-control { flex: 1; margin-bottom: 0 !important; }
+.clcf-optrow .clcf-optprice { flex: 0 0 84px; }
+.clcf-optrow .clcf-optprice .components-base-control { flex: none; }
+.clcf-opthelp { margin: 8px 0 0; font-size: 12px; color: #646970; }

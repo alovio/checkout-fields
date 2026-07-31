@@ -2,6 +2,7 @@ import { useDispatch } from '@wordpress/data';
 import { TextControl, ToggleControl, TextareaControl, SelectControl, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { STORE } from '../store';
+import { optionLabel } from '../../shared/options';
 
 const T = 'corelabs-checkout-fields';
 const HAS_OPTIONS = [ 'radio', 'select' ];
@@ -17,7 +18,10 @@ function DefaultControl( { field, set } ) {
 		return <ToggleControl label={ __( 'Checked by default', T ) } checked={ field.default === 'yes' } onChange={ ( on ) => set( { default: on ? 'yes' : '' } ) } />;
 	}
 	if ( HAS_OPTIONS.includes( t ) ) {
-		const opts = [ { label: __( '— none —', T ), value: '' }, ...( field.options || [] ).map( ( o ) => ( { label: o, value: o } ) ) ];
+		const opts = [
+			{ label: __( '— none —', T ), value: '' },
+			...( field.options || [] ).map( ( o ) => ( { label: optionLabel( o ), value: optionLabel( o ) } ) ),
+		];
 		return <SelectControl label={ __( 'Default selection', T ) } value={ field.default || '' } options={ opts } onChange={ ( v ) => set( { default: v } ) } />;
 	}
 	return null;
@@ -69,13 +73,6 @@ export default function General( { field } ) {
 				<TextControl type="number" min={ 0 } label={ __( 'Max length (characters)', T ) } value={ field.maxLength || '' } onChange={ ( v ) => set( { maxLength: parseInt( v, 10 ) || 0 } ) } />
 			) }
 
-			{ HAS_OPTIONS.includes( field.type ) && (
-				<TextareaControl
-					label={ __( 'Options (one per line)', T ) }
-					value={ ( field.options || [] ).join( '\n' ) }
-					onChange={ ( v ) => set( { options: v.split( '\n' ).map( ( s ) => s.trim() ).filter( Boolean ) } ) }
-				/>
-			) }
 			{ optionsEmpty && (
 				<Notice status="warning" isDismissible={ false }>{ __( 'Add at least one option.', T ) }</Notice>
 			) }
