@@ -49,9 +49,12 @@ final class Sanitizer {
 					}
 					break;
 				case 'file':
-					// Value is an upload token (32 hex chars), never a raw file.
-					if ( null !== $val && preg_match( '/^[a-f0-9]{32}$/', (string) $val ) ) {
-						$out[ $id ] = (string) $val;
+					// Value is a list of upload tokens, never a raw file. A
+					// multi-file field posts several, comma-joined.
+					$tokens = FileUploads::parse_tokens( $val );
+					$tokens = array_slice( $tokens, 0, max( 1, (int) ( $f['maxFiles'] ?? 1 ) ) );
+					if ( array() !== $tokens ) {
+						$out[ $id ] = implode( ',', $tokens );
 					}
 					break;
 				case 'textarea':

@@ -88,4 +88,24 @@ class SanitizerTest extends TestCase {
 		// The rendered text ("Express (+$10.00)") must never validate as a value.
 		$this->assertSame( array(), Sanitizer::sanitize( $g, array( 'speed' => 'Express (+$10.00)' ) ) );
 	}
+
+	public function test_file_field_keeps_every_token(): void {
+		$a = str_repeat( 'a1', 16 );
+		$b = str_repeat( 'b2', 16 );
+		$g = array( 'fields' => array( array( 'id' => 'art', 'type' => 'file', 'maxFiles' => 3 ) ) );
+
+		$this->assertSame( array( 'art' => $a ), Sanitizer::sanitize( $g, array( 'art' => $a ) ) );
+		// A multi-file value must survive: it used to fail the single-token
+		// regex and the whole field was dropped before it reached the order.
+		$this->assertSame( array( 'art' => "$a,$b" ), Sanitizer::sanitize( $g, array( 'art' => "$a,$b" ) ) );
+		$this->assertSame( array(), Sanitizer::sanitize( $g, array( 'art' => 'not-a-token' ) ) );
+	}
+
+	public function test_file_field_is_capped_at_max_files(): void {
+		$a = str_repeat( 'a1', 16 );
+		$b = str_repeat( 'b2', 16 );
+		$c = str_repeat( 'c3', 16 );
+		$g = array( 'fields' => array( array( 'id' => 'art', 'type' => 'file', 'maxFiles' => 2 ) ) );
+		$this->assertSame( array( 'art' => "$a,$b" ), Sanitizer::sanitize( $g, array( 'art' => "$a,$b,$c" ) ) );
+	}
 }
