@@ -1,0 +1,65 @@
+{
+  "_comment": "Shared PHP<->JS parity cases for per-option fees. PHP: FeeCalculatorTest::test_shared_option_pricing_fixtures. JS: options.test.js 'shared fixtures'. Each case is one field, a submitted value, a base subtotal, and the amount that field must charge.",
+  "cases": [
+    {
+      "name": "option price wins over an absent field price",
+      "field": { "id": "speed", "type": "select", "price": 0, "priceMode": "fixed",
+                 "options": [ "Standard", { "label": "Express", "price": 10 } ] },
+      "value": "Express", "base": 0, "expected": 10
+    },
+    {
+      "name": "unpriced option falls back to the field price",
+      "field": { "id": "speed", "type": "select", "price": 4, "priceMode": "fixed",
+                 "options": [ "Standard", { "label": "Express", "price": 10 } ] },
+      "value": "Standard", "base": 0, "expected": 4
+    },
+    {
+      "name": "priced option wins over a non-zero field price",
+      "field": { "id": "speed", "type": "select", "price": 4, "priceMode": "fixed",
+                 "options": [ "Standard", { "label": "Express", "price": 10 } ] },
+      "value": "Express", "base": 0, "expected": 10
+    },
+    {
+      "name": "option price runs through percent mode",
+      "field": { "id": "speed", "type": "radio", "price": 0, "priceMode": "percent",
+                 "options": [ { "label": "Express", "price": 10 } ] },
+      "value": "Express", "base": 200, "expected": 20
+    },
+    {
+      "name": "a value matching no option charges nothing",
+      "field": { "id": "speed", "type": "select", "price": 0, "priceMode": "fixed",
+                 "options": [ { "label": "Express", "price": 10 } ] },
+      "value": "Express (+$10.00)", "base": 0, "expected": 0
+    },
+    {
+      "name": "duplicate labels both charge the first match",
+      "field": { "id": "speed", "type": "select", "price": 0, "priceMode": "fixed",
+                 "options": [ { "label": "A", "price": 3 }, { "label": "A", "price": 9 } ] },
+      "value": "A", "base": 0, "expected": 3
+    },
+    {
+      "name": "a non-numeric option price is ignored, field price applies",
+      "field": { "id": "speed", "type": "select", "price": 2, "priceMode": "fixed",
+                 "options": [ { "label": "Odd", "price": "10abc" } ] },
+      "value": "Odd", "base": 0, "expected": 2
+    },
+    {
+      "name": "a negative option price is ignored, field price applies",
+      "field": { "id": "speed", "type": "select", "price": 2, "priceMode": "fixed",
+                 "options": [ { "label": "Odd", "price": -5 } ] },
+      "value": "Odd", "base": 0, "expected": 2
+    },
+    {
+      "name": "options on a non-choice field never price it",
+      "field": { "id": "note", "type": "text", "price": 5, "priceMode": "fixed",
+                 "options": [ { "label": "gold", "price": 500 } ] },
+      "value": "gold", "base": 0, "expected": 5
+    },
+    {
+      "name": "an empty selection charges nothing",
+      "field": { "id": "speed", "type": "select", "price": 0, "priceMode": "fixed",
+                 "options": [ { "label": "Express", "price": 10 } ] },
+      "value": "", "base": 0, "expected": 0
+    }
+  ]
+}
