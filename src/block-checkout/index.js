@@ -8,7 +8,7 @@
  * authoritatively. See docs/superpowers/notes/block-spike-findings.md.
  */
 import { registerPlugin } from '@wordpress/plugins';
-import { hasPricedOptions } from '../shared/options';
+import { hasPricedOptions, optionLabel, effectivePrice } from '../shared/options';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -21,6 +21,33 @@ const { ExperimentalOrderMeta, extensionCartUpdate } = window.wc.blocksCheckout;
 const CONFIG = window.CLCF_BLOCK || { fields: [], ctx: {}, sources: [] };
 // A field priced only through its options is fee-bearing too — miss that and
 // the cart update never fires, so the fee is never captured or charged.
+/**
+ * A choice reads as its label plus what picking it costs — the same rule the
+ * classic renderer applies, so both checkouts advertise identical amounts.
+ * Fields that do not price their options keep bare labels.
+ */
+function optionText( field, option ) {
+	const label = optionLabel( option );
+	if ( ! hasPricedOptions( field ) ) {
+		return label;
+	}
+	const price = effectivePrice( field, label );
+	if ( price <= 0 ) {
+		return label;
+	}
+	const suffix = field.priceMode === 'percent' ? `+${ price }%` : `+${ formatPrice( price ) }`;
+	return `${ label } (${ suffix })`;
+}
+
+/** Store-formatted money, falling back to two decimals. */
+function formatPrice( amount ) {
+	const cfg = ( window.wcSettings && window.wcSettings.currency ) || {};
+	const decimals = typeof cfg.minorUnit === 'number' ? cfg.minorUnit : 2;
+	const symbol = cfg.symbol || '';
+	const body = Number( amount ).toFixed( decimals );
+	return cfg.symbolPosition === 'right' ? `${ body }${ symbol }` : `${ symbol }${ body }`;
+}
+
 const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 || hasPricedOptions( f ) );
 
 function selectedShippingRate( cartData ) {
@@ -77,14 +104,25 @@ function Field( { field, value, onChange } ) {
 		control = (
 			<select { ...common }>
 				<option value="">{ __( 'Choose an option', 'corelabs-checkout-fields' ) }</option>
-				{ ( field.options || [] ).map( ( o ) => <option key={ o } value={ o }>{ o }</option> ) }
+				{ ( field.options || [] ).map( ( o, i ) => (
+					<option key={ i } value={ optionLabel( o ) }>{ optionText( field, o ) }</option>
+				) ) }
 			</select>
 		);
 	} else if ( field.type === 'radio' ) {
 		control = (
 			<span className="clcf-block-radios">
-				{ ( field.options || [] ).map( ( o ) => (
-					<label key={ o }><input type="radio" name={ id } value={ o } checked={ value === o } onChange={ () => onChange( o ) } required={ !! field.required } /> { o }</label>
+				{ ( field.options || [] ).map( ( o, i ) => (
+					<label key={ i }>
+						<input
+							type="radio"
+							name={ id }
+							value={ optionLabel( o ) }
+							checked={ value === optionLabel( o ) }
+							onChange={ () => onChange( optionLabel( o ) ) }
+							required={ !! field.required }
+						/> { optionText( field, o ) }
+					</label>
 				) ) }
 			</span>
 		);
