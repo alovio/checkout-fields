@@ -8,6 +8,7 @@
  * authoritatively. See docs/superpowers/notes/block-spike-findings.md.
  */
 import { registerPlugin } from '@wordpress/plugins';
+import { hasPricedOptions } from '../shared/options';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -18,7 +19,9 @@ import './style.css';
 const { ExperimentalOrderMeta, extensionCartUpdate } = window.wc.blocksCheckout;
 
 const CONFIG = window.CLCF_BLOCK || { fields: [], ctx: {}, sources: [] };
-const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 );
+// A field priced only through its options is fee-bearing too — miss that and
+// the cart update never fires, so the fee is never captured or charged.
+const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 || hasPricedOptions( f ) );
 
 function selectedShippingRate( cartData ) {
 	const packages = ( cartData && cartData.shippingRates ) || [];

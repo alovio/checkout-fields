@@ -10,6 +10,7 @@
  * validation/visibility remain authoritative on submit.
  */
 import { activeMap } from './frontend/conditional-logic';
+import { hasPricedOptions } from './shared/options';
 
 function parsePayload() {
 	const rules = document.querySelector( 'script.clcf-rules' );
@@ -152,7 +153,9 @@ function init() {
 	}
 	wireUploads();
 	const fields = payload.group.fields || [];
-	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 );
+	// A field priced only through its options is fee-bearing too — miss that
+	// and the checkout never refreshes, so the fee is never captured.
+	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 || hasPricedOptions( f ) );
 
 	const run = () => apply( payload.group, payload.seed );
 	document.addEventListener( 'change', run, true );
