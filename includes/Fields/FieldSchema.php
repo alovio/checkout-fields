@@ -194,19 +194,32 @@ final class FieldSchema {
 	}
 
 	/**
-	 * Radio/select options are plain strings.
+	 * Options keep the leanest shape that carries their data: a plain string
+	 * when a choice is just a label, an object once it needs a price. Field
+	 * groups saved before per-option pricing therefore normalize to exactly
+	 * what they already were — no migration.
+	 *
+	 * This method is the gate every option passes through: FieldRepository
+	 * normalizes on both read and write, so anything dropped here never
+	 * reaches the database.
 	 *
 	 * @param array<string,mixed> $f
-	 * @return string[]
+	 * @return array<int,mixed>
 	 */
 	private static function normalize_options( array $f ): array {
 		$raw = ( isset( $f['options'] ) && is_array( $f['options'] ) ) ? $f['options'] : array();
-		return array_values(
-			array_map(
-				static fn( $o ) => sanitize_text_field( is_array( $o ) ? (string) ( $o['label'] ?? '' ) : (string) $o ),
-				$raw
-			)
-		);
+		$out = array();
+
+		foreach ( $raw as $o ) {
+			$label = trim( sanitize_text_field( FieldOptions::label( $o ) ) );
+			if ( '' === $label ) {
+				continue; // an unlabelled choice cannot be selected.
+			}
+			$price = FieldOptions::price( $o );
+			$out[] = $price > 0 ? array( 'label' => $label, 'price' => $price ) : $label;
+		}
+
+		return $out;
 	}
 
 	/**

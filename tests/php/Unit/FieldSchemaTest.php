@@ -149,4 +149,51 @@ class FieldSchemaTest extends TestCase {
 		$this->assertSame( '10', $out['fields'][0]['max'] );
 		$this->assertSame( '0.5', $out['fields'][0]['step'] );
 	}
+
+	public function test_option_prices_survive_normalization_and_shapes_stay_lean(): void {
+		$out = FieldSchema::normalize(
+			array(
+				'fields' => array(
+					array(
+						'id'      => 'speed',
+						'type'    => 'select',
+						'options' => array(
+							'Standard',
+							array( 'label' => 'Express', 'price' => 10 ),
+							array( 'label' => 'Zero', 'price' => 0 ),
+						),
+					),
+				),
+			)
+		);
+		$opts = $out['fields'][0]['options'];
+		$this->assertSame( 'Standard', $opts[0], 'an unpriced choice stays a bare string' );
+		$this->assertSame( array( 'label' => 'Express', 'price' => 10.0 ), $opts[1] );
+		$this->assertSame( 'Zero', $opts[2], 'a zero price collapses back to a string' );
+	}
+
+	public function test_negative_and_non_numeric_option_prices_are_dropped(): void {
+		$out = FieldSchema::normalize(
+			array(
+				'fields' => array(
+					array(
+						'id'      => 'speed',
+						'type'    => 'radio',
+						'options' => array(
+							array( 'label' => 'A', 'price' => -5 ),
+							array( 'label' => 'B', 'price' => 'free' ),
+						),
+					),
+				),
+			)
+		);
+		$this->assertSame( array( 'A', 'B' ), $out['fields'][0]['options'] );
+	}
+
+	public function test_empty_label_options_are_dropped(): void {
+		$out = FieldSchema::normalize(
+			array( 'fields' => array( array( 'id' => 's', 'type' => 'select', 'options' => array( 'A', '', '  ' ) ) ) )
+		);
+		$this->assertSame( array( 'A' ), $out['fields'][0]['options'] );
+	}
 }
