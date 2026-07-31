@@ -2,6 +2,7 @@ import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE } from './store';
+import FieldIcon from '../shared/FieldIcon';
 import General from './panels/General';
 import Logic from './panels/Logic';
 import Options, { HAS_OPTIONS_TYPES } from './panels/Options';
@@ -10,7 +11,6 @@ import Fee from './panels/Fee';
 
 const T = 'corelabs-checkout-fields';
 
-const TYPE_IC = { text: 'Aa', textarea: '¶', number: '#', checkbox: '☑', radio: '◉', select: '▾', heading: 'H', email: '@', phone: '☎', url: '🔗', date: '📅', time: '🕐', file: '📎' };
 
 export default function SettingsPanel() {
 	const field = useSelect( ( select ) => select( STORE ).getSelected(), [] );
@@ -37,7 +37,7 @@ export default function SettingsPanel() {
 		<div className="clcf-settings">
 			<div className="clcf-sp-head">
 				<div className="clcf-sp-title">
-					<span className="clcf-ic">{ TYPE_IC[ field.type ] || '·' }</span>
+					<span className="clcf-ic"><FieldIcon type={ field.type } /></span>
 					<div>
 						<h3>{ field.label || field.type }</h3>
 						<small>{ meta }</small>

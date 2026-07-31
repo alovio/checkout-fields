@@ -7,6 +7,7 @@ import Palette from './Palette';
 import SimulationBar from './SimulationBar';
 import PreviewCanvas from './PreviewCanvas';
 import SettingsPanel from './SettingsPanel';
+import FlameMark from '../shared/FlameMark';
 
 const T = 'corelabs-checkout-fields';
 
@@ -90,7 +91,7 @@ export default function AppShell() {
 		<div className="clcf-app">
 			<div className="clcf-hdr">
 				<div className="clcf-logo">
-					<span className="clcf-mark">▲</span>
+					<span className="clcf-mark"><FlameMark /></span>
 					Alovio <span className="clcf-sub">{ __( 'Checkout Fields', T ) }</span>
 				</div>
 				<div className="clcf-grow"></div>

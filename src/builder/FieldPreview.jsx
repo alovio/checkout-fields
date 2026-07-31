@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { describeCondition, conditionAction } from './describe';
 import { optionLabel, effectivePrice, hasPricedOptions } from '../shared/options';
+import FieldIcon from '../shared/FieldIcon';
 
 const T = 'corelabs-checkout-fields';
 const SOURCES = () => ( window.CLCF_BUILDER && window.CLCF_BUILDER.sources ) || [];
@@ -48,11 +49,11 @@ function Control( { field } ) {
 		case 'url':
 			return <div className="clcf-input">{ ph || 'https://…' }</div>;
 		case 'date':
-			return <div className="clcf-input">{ __( 'Select date', T ) } 📅</div>;
+			return <div className="clcf-input clcf-input--icon">{ __( 'Select date', T ) } <FieldIcon type="date" size={ 15 } /></div>;
 		case 'time':
-			return <div className="clcf-input">{ __( 'Select time', T ) } 🕐</div>;
+			return <div className="clcf-input clcf-input--icon">{ __( 'Select time', T ) } <FieldIcon type="time" size={ 15 } /></div>;
 		case 'file':
-			return <div className="clcf-input">📎 { __( 'Choose file…', T ) }</div>;
+			return <div className="clcf-input clcf-input--icon"><FieldIcon type="file" size={ 15 } /> { __( 'Choose file…', T ) }</div>;
 		default:
 			return <div className="clcf-input">{ ph || '…' }</div>;
 	}
