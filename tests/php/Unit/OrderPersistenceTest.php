@@ -119,4 +119,27 @@ class OrderPersistenceTest extends TestCase {
 		$this->assertStringContainsString( 'one.png', (string) $meta[0]['value'] );
 		$this->assertStringContainsString( 'two.webp', (string) $meta[0]['value'] );
 	}
+
+	public function test_legacy_rows_without_a_files_list_keep_their_download_link(): void {
+		// Orders placed before 1.3.0 stored a bare URL in `display` and have no
+		// `files` key. render_admin() must still linkify them.
+		Monkey\Functions\when( 'esc_html' )->returnArg( 1 );
+		Monkey\Functions\when( 'esc_url' )->returnArg( 1 );
+		Monkey\Functions\when( 'esc_html__' )->returnArg( 1 );
+
+		$order = new class() {
+			public function get_meta( $key, $single = true ) {
+				return '_clcf_fields' === $key
+					? wp_json_encode( array( array( 'id' => 'art', 'label' => 'Artwork', 'display' => 'https://example.test/old.png' ) ) )
+					: '';
+			}
+		};
+
+		ob_start();
+		( new OrderPersistence() )->render_admin( $order );
+		$html = (string) ob_get_clean();
+
+		$this->assertStringContainsString( 'https://example.test/old.png', $html );
+		$this->assertStringContainsString( '<a href=', $html, 'a legacy file row must still render as a link' );
+	}
 }

@@ -69,6 +69,18 @@ export default function General( { field } ) {
 				</div>
 			) }
 
+			{ field.type === 'file' && (
+				<TextControl
+					type="number"
+					min={ 1 }
+					max={ 10 }
+					label={ __( 'Max files', T ) }
+					help={ __( 'Shoppers can attach up to this many files (1–10).', T ) }
+					value={ field.maxFiles || 1 }
+					onChange={ ( v ) => set( { maxFiles: Math.min( 10, Math.max( 1, parseInt( v, 10 ) || 1 ) ) } ) }
+				/>
+			) }
+
 			{ HAS_MAXLEN.includes( field.type ) && (
 				<TextControl type="number" min={ 0 } label={ __( 'Max length (characters)', T ) } value={ field.maxLength || '' } onChange={ ( v ) => set( { maxLength: parseInt( v, 10 ) || 0 } ) } />
 			) }
