@@ -4,7 +4,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.3.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,7 +71,23 @@ Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager 
 1. The drag-and-drop checkout-field builder with the conditional-logic editor.
 2. A conditional field showing on the Block checkout based on the selected payment method.
 
+== Upgrade Notice ==
+
+= 1.3.0 =
+Fees are now itemized in the checkout totals and every dropdown/radio option can carry its own fee. If you prefer the old single "Checkout options" line, add the `clcf_itemized_fees` filter returning false.
+
 == Changelog ==
+
+= 1.3.0 =
+* NEW: A fee per option — every choice in a dropdown or radio group can charge its own amount (Standard 0, Express 10, Overnight 20). Set it in the field's Options tab.
+* NEW: Fees are itemized. Each field gets its own line in the checkout totals ("Shipping speed: Express £10.00") instead of one lumped "Checkout options" row; return to a single line with the `clcf_itemized_fees` filter.
+* NEW: Option prices show beside each choice on both checkouts, so shoppers compare before they reach the totals. An option with no price of its own shows the field fee it falls back to.
+* NEW: Multi-file uploads — set **Max files** (1–10) on a file field; each uploaded file appears as a removable row and gets its own download link on the order.
+* NEW: WEBP joins the default allowed upload formats (JPG, PNG, WEBP, PDF — still filterable via `clcf_upload_extensions`).
+* Improve: the builder's field palette uses one drawn icon set instead of a mix of emoji and typographic stand-ins, so it looks the same on every operating system.
+* Improve: a rate-limited upload now says so ("Too many uploads — please wait…") instead of "Sorry, you are not allowed to do that", and the per-IP budget rises from 20 to 60 per hour to suit multi-file fields.
+* Fix: two fields sharing a label lost the second fee entirely — WooCommerce identifies a fee by its name, so fees now carry explicit ids.
+* Note: options with an empty label are removed when a field group is saved (an unlabelled choice cannot be selected). The single-line fee id changes from `checkout-options` to `clcf-checkout-options`, which is visible in the Store API.
 
 = 1.2.2 =
 * Builder header now links to Alovio Calculator, our free calculator/quote builder; readme lists it under "Also by Alovio".

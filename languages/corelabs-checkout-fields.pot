@@ -2,14 +2,14 @@
 # This file is distributed under the GPL-2.0-or-later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Alovio Checkout Fields for WooCommerce 1.2.0\n"
+"Project-Id-Version: Alovio Checkout Fields for WooCommerce 1.3.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/corelabs-checkout-fields\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-07-04T16:09:15+00:00\n"
+"POT-Creation-Date: 2026-07-31T17:44:11+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: corelabs-checkout-fields\n"
@@ -100,113 +100,134 @@ msgstr ""
 msgid "Guest (not logged in)"
 msgstr ""
 
-#: includes/Checkout/ClassicRenderer.php:138
+#: includes/Checkout/ClassicRenderer.php:139
 msgid "required"
 msgstr ""
 
-#: includes/Checkout/ClassicRenderer.php:173
-#: src/block-checkout/index.js:76
+#: includes/Checkout/ClassicRenderer.php:175
+#: src/block-checkout/index.js:110
 msgid "Choose an option"
 msgstr ""
 
-#: includes/Checkout/FeesIntegration.php:96
+#. translators: %s: percentage number
+#: includes/Checkout/ClassicRenderer.php:251
+#, php-format
+msgid "+%s%%"
+msgstr ""
+
+#. translators: 1: option label, 2: price suffix, e.g. "+$10.00"
+#: includes/Checkout/ClassicRenderer.php:269
+#, php-format
+msgid "%1$s (%2$s)"
+msgstr ""
+
+#: includes/Checkout/FeesIntegration.php:133
 msgid "Checkout options"
 msgstr ""
 
-#: includes/Checkout/FileUploads.php:89
+#: includes/Checkout/FileUploads.php:106
+msgid "Too many uploads — please wait a few minutes and try again."
+msgstr ""
+
+#: includes/Checkout/FileUploads.php:133
 msgid "File uploads are not enabled."
 msgstr ""
 
-#: includes/Checkout/FileUploads.php:95
+#: includes/Checkout/FileUploads.php:139
 msgid "No file received."
 msgstr ""
 
-#: includes/Checkout/FileUploads.php:99
+#: includes/Checkout/FileUploads.php:143
 msgid "The file is too large."
 msgstr ""
 
-#: includes/Checkout/FileUploads.php:105
-#: includes/Checkout/FileUploads.php:111
+#: includes/Checkout/FileUploads.php:149
+#: includes/Checkout/FileUploads.php:155
 msgid "This file type is not allowed."
 msgstr ""
 
-#: includes/Checkout/FileUploads.php:134
+#: includes/Checkout/FileUploads.php:178
 msgid "Upload failed. Please try again."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/FileUploads.php:188
+#: includes/Checkout/FileUploads.php:240
 #, php-format
 msgid "The file for “%s” could not be verified — please upload it again."
 msgstr ""
 
-#: includes/Checkout/OrderPersistence.php:112
-#: includes/Checkout/OrderPersistence.php:140
+#: includes/Checkout/OrderPersistence.php:125
+#: includes/Checkout/OrderPersistence.php:167
 msgid "Checkout fields"
 msgstr ""
 
-#: includes/Checkout/OrderPersistence.php:116
+#: includes/Checkout/OrderPersistence.php:134
+#: includes/Checkout/OrderPersistence.php:143
 msgid "View file"
 msgstr ""
 
-#: includes/Checkout/OrderPersistence.php:167
+#: includes/Checkout/OrderPersistence.php:194
 msgid "Yes"
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:49
+#: includes/Checkout/Validator.php:51
 #, php-format
 msgid "“%s” is required."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:58
+#: includes/Checkout/Validator.php:60
 #, php-format
 msgid "“%s” must be a number."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:63
+#: includes/Checkout/Validator.php:65
 #, php-format
 msgid "“%s” must be a valid email address."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:68
+#: includes/Checkout/Validator.php:70
 #, php-format
 msgid "“%s” must be a valid URL."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:73
+#: includes/Checkout/Validator.php:75
 #, php-format
 msgid "“%s” must be a valid time."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:80
+#: includes/Checkout/Validator.php:82
 #, php-format
 msgid "“%s” is not a valid date."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:84
+#: includes/Checkout/Validator.php:86
 #, php-format
 msgid "“%s” is before the earliest allowed date."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:88
+#: includes/Checkout/Validator.php:90
 #, php-format
 msgid "“%s” is after the latest allowed date."
 msgstr ""
 
 #. translators: %s: field label
-#: includes/Checkout/Validator.php:97
+#: includes/Checkout/Validator.php:100
 #, php-format
 msgid "“%s” has an invalid selection."
 msgstr ""
 
-#: src/block-checkout/index.js:125
-msgid "File attached"
+#: src/block-checkout/index.js:203
+msgid "Attached file"
+msgstr ""
+
+#: src/block-checkout/index.js:207
+msgid "Remove file"
 msgstr ""
