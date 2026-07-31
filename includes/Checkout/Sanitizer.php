@@ -3,6 +3,8 @@ declare( strict_types=1 );
 
 namespace CoreLabs\CheckoutFields\Checkout;
 
+use CoreLabs\CheckoutFields\Fields\FieldOptions;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -69,7 +71,8 @@ final class Sanitizer {
 					break;
 				case 'select':
 				case 'radio':
-					$opts = array_map( 'strval', (array) ( $f['options'] ?? array() ) );
+					// Options may be bare strings or {label, price}.
+					$opts = FieldOptions::labels( $f );
 					if ( null !== $val && in_array( (string) $val, $opts, true ) ) {
 						$out[ $id ] = (string) $val;
 					}

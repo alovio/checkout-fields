@@ -5,6 +5,8 @@ namespace CoreLabs\CheckoutFields\Checkout;
 
 use CoreLabs\CheckoutFields\Logic\ConditionalLogic;
 
+use CoreLabs\CheckoutFields\Fields\FieldOptions;
+
 defined( 'ABSPATH' ) || exit;
 
 /**
@@ -91,7 +93,8 @@ final class Validator {
 			}
 
 			if ( in_array( $type, array( 'select', 'radio' ), true ) && ! empty( $f['options'] ) ) {
-				$valid = array_map( 'strval', (array) $f['options'] );
+				// Options may be bare strings or {label, price}.
+				$valid = FieldOptions::labels( $f );
 				if ( ! in_array( (string) $value, $valid, true ) ) {
 					/* translators: %s: field label */
 					$errors[] = sprintf( __( '“%s” has an invalid selection.', 'corelabs-checkout-fields' ), $label );

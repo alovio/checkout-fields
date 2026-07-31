@@ -73,4 +73,19 @@ class SanitizerTest extends TestCase {
 		$this->assertSame( '2026-08-01', $out['dt'] );
 		$this->assertSame( '14:30', $out['tm'] );
 	}
+
+	public function test_priced_options_are_accepted_by_their_label(): void {
+		$g = array(
+			'fields' => array(
+				array(
+					'id'      => 'speed',
+					'type'    => 'select',
+					'options' => array( 'Standard', array( 'label' => 'Express', 'price' => 10 ) ),
+				),
+			),
+		);
+		$this->assertSame( array( 'speed' => 'Express' ), Sanitizer::sanitize( $g, array( 'speed' => 'Express' ) ) );
+		// The rendered text ("Express (+$10.00)") must never validate as a value.
+		$this->assertSame( array(), Sanitizer::sanitize( $g, array( 'speed' => 'Express (+$10.00)' ) ) );
+	}
 }
