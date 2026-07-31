@@ -22,12 +22,13 @@ rush fee currently sees a single opaque "Checkout options £20.00".
 
 ## Scope
 
-**In:** per-option fee amounts, itemised fee display (form + totals), multi-file
+**In:** per-option fee amounts, itemized fee display (form + totals), multi-file
 uploads, WEBP, the drawn icon set, the Alovio flame mark.
 
 **Deliberately out** (candidates for later releases): new field types (swatch, image
 swatch, buttons, quantity, surcharge), the `per_char` and `formula` pricing modes,
-option groups (a checkout is singular), negative fees/discounts.
+option groups (a checkout is singular), negative fees/discounts, configurable fee
+taxability.
 
 ## Architecture
 
@@ -41,69 +42,75 @@ Add:
 
 ```php
 FeeCalculator::breakdown( array $group, array $field_values, array $values,
-                          int $decimals, float $base ): array
+                          float $base = 0.0, ?int $decimals = null ): array
 // [ [ 'field_id' => string, 'label' => string, 'amount' => float ], … ]
 ```
 
-for engaged, active, priced fields, each row rounded to `$decimals`. `total()` becomes
-the sum of that breakdown, keeping its current signature by defaulting
-`$decimals = wc_get_price_decimals()`. Display and billing then read the same
-function — in Product Options display and pricing each decided money separately and
-that produced three defects where the page advertised an amount the cart did not
-charge. We do not repeat that split.
+for engaged, active, priced fields. `$decimals` resolves inside the method —
+`function_exists( 'wc_get_price_decimals' ) ? wc_get_price_decimals() : 2` — because
+`FeeCalculator` is pure logic unit-tested without WooCommerce loaded, and
+`wc_get_price_decimals()` is not stubbed in `tests/php/Unit/TestCase.php`. (A function
+call also cannot be a PHP parameter default.) Rows whose rounded amount is ≤ 0 are
+skipped, so a percent row that rounds to 0.00 never becomes a £0.00 fee line.
 
-**Rounding matters here.** `WC_Cart_Totals` rounds every fee independently, so N split
-fees can differ from one summed fee by up to N−1 minor units on percent-mode rows.
-Rounding per row inside `breakdown()` — and summing the rounded rows — makes the
-advertised total and the charged total agree by construction.
+`total()` keeps its signature and becomes the sum of the rounded rows. Display and
+billing then read the same PHP function — in Product Options display and pricing each
+decided money separately and that produced three defects where the page advertised an
+amount the cart did not charge. We do not repeat that split. (The JS side mirrors the
+logic rather than calling it; §2 explains how the two are kept in step.)
 
-**Emitting the fees.** `FeesIntegration::add_fee()` iterates the breakdown. It must
-use the fees API rather than the `WC_Cart::add_fee()` shortcut:
+**Why round per row.** Splitting one fee into N does **not** change what WooCommerce
+charges: `WC_Cart_Totals::get_fees_from_cart()` stores each fee at 4 decimals beyond
+the cent and the grand total is rounded once. The problem is display —
+`wc_cart_totals_fee_html()` renders each fee through `wc_price()`, which rounds each
+line to 2 dp, so unrounded rows produce visible lines that don't add up to the total.
+Rounding each row and summing the rounded rows makes the printed lines, the printed
+total and the charged total agree by construction.
+
+**Emitting the fees.** `FeesIntegration::add_fee()` iterates the breakdown and uses the
+fees API rather than the `WC_Cart::add_fee()` shortcut:
 
 ```php
 $cart->fees_api()->add_fee( [
-    'id'       => 'clcf-' . $field_id,   // unique per field, never derived from the label
-    'name'     => $row['label'],         // human text, may legitimately repeat
-    'amount'   => $row['amount'],
-    'taxable'  => false,                 // preserves today's behaviour — see below
-    'tax_class'=> '',
+    'id'        => 'clcf-' . $field_id,  // unique per field, never derived from the label
+    'name'      => $row['label'],        // human text, may legitimately repeat
+    'amount'    => $row['amount'],
+    'taxable'   => false,                // preserves today's behaviour — see below
+    'tax_class' => '',
 ] );
 ```
 
 This is the **fee-name collision fix**. `WC_Cart::add_fee()` derives the id from the
-name (`sanitize_title`), and `WC_Cart_Fees::add_fee()` returns
-`WP_Error( 'fee_exists' )` for a repeated id — a return value `WC_Cart::add_fee()`
-discards. Two fields labelled "Insurance" would therefore lose the second fee
-**silently**, and the shop would lose that money. Passing an explicit id keyed on the
-field id removes the collision while letting labels stay human. The builder also warns
+name (`sanitize_title`) and discards the return value, while
+`WC_Cart_Fees::add_fee()` returns `WP_Error( 'fee_exists' )` for a repeated id — so two
+fields labelled "Insurance" lose the second fee **silently** and the shop loses that
+money. `WC_Cart_Fees::add_fee()` only generates an id when the caller supplies none, so
+an explicit id removes the collision while labels stay human. The builder also warns
 about duplicate labels, as the Product Options builder does.
 
-**Tax:** WooCommerce's `add_fee()` defaults to `taxable = false`
+**Tax:** WooCommerce's fee default is `taxable = false`
 (`WC_Cart_Fees::$default_fee_props`), so Checkout Fields fees are non-taxable today.
 The new code passes `'taxable' => false` **explicitly** to preserve that exactly.
-Changing it would start charging tax on fees on every live store; making fee taxability
-configurable is out of scope for this release.
+Changing it would start charging tax on fees on every live store.
 
-**The two shipped filters keep defined meanings:**
-- `clcf_fee_total` still wraps the charged total. `total()` applies it as it does
-  today, and `add_fee()` compares the filtered total against the raw breakdown sum: if
-  a site has filtered it, the fees are emitted as a **single** line (the itemised split
-  cannot honestly represent an externally rewritten total). This keeps existing
-  integrations correct instead of silently ignoring them.
-- `clcf_fee_label` names the single line in that fallback and in the non-itemised mode.
-- New `clcf_itemised_fees` (default `true`) emits one fee per field; returning `false`
-  restores the pre-1.3.0 single "Checkout options" line.
+**Filters.** Fees are always itemized; there is no second emission path.
+- `clcf_fee_total` continues to wrap the total returned by `total()`. It is applied to
+  the **sum**, not to individual rows, and is documented as such.
+- `clcf_fee_label` names the single line in non-itemized mode.
+- New `clcf_itemized_fees` (default `true`) emits one fee per field; returning `false`
+  restores the pre-1.3.0 single "Checkout options" line. (US spelling, matching
+  WordPress and WooCommerce hook conventions.)
 
-**Orders and emails** need no extra work: each fee becomes its own order fee item, so
-the admin order screen, the customer email and the order-received page itemise
-automatically.
+**Orders and emails** need no extra work: each fee becomes its own order fee item on
+both checkouts — classic via `WC_Checkout::create_order_fee_lines()`, Store API via
+`OrderController` — so the admin order screen, the customer email and the
+order-received page itemize automatically.
 
 ### 2. Per-option fee amounts
 
 Options keep the leanest shape that carries their data: a bare string until an option
 needs a price, then `{ label, price }`. Groups saved by earlier versions normalize
-byte-identically, so **no migration is required**. (`FieldRepository` normalizes on both
-read and write; the REST arg is a bare `array`, so nested objects survive.)
+byte-identically, so **no migration is required**.
 
 Every reader goes through a new `FieldOptions` helper — `label()`, `price()`,
 `labels()`, `price_for_value()`, `effective_price()`, `has_priced_options()`,
@@ -111,26 +118,38 @@ Every reader goes through a new `FieldOptions` helper — `label()`, `price()`,
 replaces the field price and still runs through the field's price mode, so
 "10% Express / 20% Overnight" works like flat amounts.
 
-**Every place that reads options must move to `FieldOptions`/`optionLabel()`.** The
-current code assumes strings in eight places; missing any one of them ships a broken
-store, so the list is exhaustive:
+**Eight places read options today and every one assumes a string.** Missing any of them
+ships a broken store, so this list is exhaustive and each row is part of the work:
 
 | File | Today | Breaks as |
 | --- | --- | --- |
+| `Fields/FieldSchema.php:202` | `normalize_options()` returns `sanitize_text_field( … $o['label'] … )` | **prices are flattened away before they are ever stored — the whole feature becomes a silent no-op** |
 | `Checkout/Sanitizer.php:72` | `array_map( 'strval', … )` | value silently dropped — **order cannot be placed** |
 | `Checkout/Validator.php:94` | `array_map( 'strval', … )` | "has an invalid selection" on every priced choice |
-| `Checkout/ClassicRenderer.php:167,174` | `esc_html( $opt )` | prints `Array` |
+| `Checkout/ClassicRenderer.php:169,175` | `esc_html( $opt )` | prints `Array` |
 | `src/block-checkout/index.js:77,83` | `{ o }`, `key={ o }` | React "Objects are not valid as a child" |
-| `src/builder/FieldPreview.jsx:19,25` | `{ o }`, `key={ o }`, `options[0]` | canvas crash |
+| `src/builder/FieldPreview.jsx:20,25` | `{ o }`, `key={ o }`, `options[0]` | canvas crash |
 | `src/builder/panels/Logic.jsx:92` | `{ label: o, value: o }` | **writes an object as a rule value** — conditional logic breaks |
 | `src/builder/panels/General.jsx:20` | `DefaultControl` map | default-selection list renders `[object Object]` |
+
+The first row is the critical one. `FieldRepository` normalizes on **both** read and
+write, so `normalize_options()` is the gate every option passes through; today it
+returns bare strings unconditionally. It is rewritten the way the sibling's was
+(`woo-product-options/includes/Fields/FieldSchema.php:218-255`): keep a bare string
+when a choice carries nothing extra, emit `{ label, price }` once it has a positive
+numeric price, and drop non-numeric or ≤ 0 prices. That rewrite also drops
+empty-label options, which Checkout Fields currently keeps — a deliberate behaviour
+change (an unlabelled choice is unselectable) that the changelog calls out.
+
+The REST layer needs no change: the `options` arg is a bare `'type' => 'array'`
+(`Admin/RestController.php:41-44`), so nested objects survive.
 
 Options are keyed by position wherever React lists them, so a duplicate label cannot
 produce a duplicate key.
 
-**The fee-bearing gate must learn about priced options — this is the failure that
-would make the whole feature a no-op.** `src/frontend.js:155` and
-`src/block-checkout/index.js:21` both decide "does this checkout have fees?" with
+**The fee-bearing gate must learn about priced options — otherwise the feature is a
+no-op even after the above.** `src/frontend.js:155` and `src/block-checkout/index.js:21`
+both decide "does this checkout have fees?" with
 `fields.some( f => parseFloat( f.price ) > 0 )`. A field whose own price is 0 but whose
 options are priced fails that test, so the checkout never pushes the cart update that
 writes `clcf_fee_fields` into the session — and `FeesIntegration::add_fee()` reads that
@@ -140,23 +159,20 @@ gates become `parseFloat( f.price ) > 0 || hasPricedOptions( f )`.
 **Editing.** Options live in a `General`-tab textarea today (`options.join('\n')`),
 which has nowhere to put a price. Port the Product Options `Options` panel — one row
 per choice with a label and a price box — as a new **Options** tab shown only for
-option-bearing types, sitting between General and Logic (Checkout Fields' tabs are
-General / Logic / Layout / Fee; there is no Pricing tab, so the panel's help text must
-point at **Fee** instead). The textarea moves out of General.
-
-The port also changes one existing behaviour: Product Options' `normalize_options()`
-drops empty-label options, while Checkout Fields currently keeps them. Adopting the
-port therefore removes empty options on the next save. That is the desired behaviour
-(an unlabelled choice is unselectable), and it is called out in the changelog.
+option-bearing types, sitting between General and Logic. Checkout Fields' tabs are
+General / Logic / Layout / Fee; there is no Pricing tab, so the ported panel's help
+text must point at **Fee** instead. The textarea moves out of General.
 
 **Display.** Prices render beside each choice ("Express (+£10.00)") on both checkouts,
 and the field's pill summarises the span. An option with no price of its own displays
 the field price it falls back to, so what a shopper reads is always what the cart
 charges.
 
-**Parity.** Fee logic will live in three places: PHP calculation, PHP classic render,
-JS block render. Lock them with a shared `option-pricing-cases.json` fixture executed
-by both test suites — the technique already used for the conditional-logic engine.
+**Parity.** Fee logic lives in three places: PHP calculation, PHP classic render, JS
+block render. Lock them with a shared `option-pricing-cases.json` fixture executed by
+both test suites — the technique already used for the conditional-logic engine
+(`tests/fixtures/conditional-cases.json`, consumed by `ConditionalLogicTest.php` and
+`tests/js/conditional-logic.test.js`).
 
 ### 3. Uploads
 
@@ -165,40 +181,44 @@ a separate React uploader inside `block-checkout/index.js`.
 
 **Value format (cross-cutting decision).** A file field's value becomes a
 comma-joined token list (`"<32hex>,<32hex>"`) instead of a single token. Every consumer
-of that value is affected and each is handled explicitly: `Sanitizer`'s
-`^[a-f0-9]{32}$` check becomes a per-token check via `FileUploads::parse_tokens()`;
-`FileUploads::validate_tokens()` (called from `ClassicRenderer::validate_submit()` and
-`BlockIntegration::update_order_from_request()`) validates each token; `ConditionalLogic`
-comparisons continue to treat the value as an opaque string (non-empty = a file is
+is handled explicitly: `Sanitizer`'s `^[a-f0-9]{32}$` check becomes a per-token check
+via `FileUploads::parse_tokens()`; `FileUploads::validate_tokens()` — called from
+`ClassicRenderer::validate_submit()` and `BlockIntegration::update_order_from_request()`,
+not from `Validator`, which only does the required/empty check — validates each token;
+`ConditionalLogic` keeps treating the value as an opaque string (non-empty = a file is
 attached), which stays correct.
 
 **Server side:**
 - `FileUploads::parse_tokens( $value ): string[]` — parses, de-duplicates, drops
   malformed entries.
 - `FileUploads::consume()` stays single-token; the caller loops. A dead token must not
-  discard the field's other files — today `OrderPersistence::save()` `continue`s (and
-  loses the whole field) when `consume()` returns null.
-- `OrderPersistence` stores one entry per file. `render_admin()` currently decides
+  discard the field's other files — today `OrderPersistence::save():66` `continue`s and
+  loses the whole field when `consume()` returns null.
+- `OrderPersistence` stores one entry per file. `render_admin():115` currently decides
   "this is a file" with `0 === strpos( $display, 'http' )` and prints one "View file"
-  link; it renders one link per file instead. `render_email()` prints
+  link; it renders one link per file instead. `render_email():136,142` prints
   `$r['display']` as escaped text, so it must print **file names**, not a URL blob.
-  The `_clcf_fields` row shape gains an explicit `files` list rather than overloading
+  The `_clcf_fields` row gains an explicit `files` list rather than overloading
   `display`.
 - `maxFiles` (1–10, clamped) is a new field property and must be added to
-  `FieldSchema::normalize()`'s key whitelist — that method rebuilds each field from a
-  fixed set of keys on both read and write, so an unlisted key is silently discarded.
+  `FieldSchema::normalize()`'s key whitelist (`:60-78`) — that method rebuilds each
+  field from a fixed key set on both read and write, so an unlisted key is silently
+  discarded.
 - **WEBP** joins the default whitelist; `clcf_upload_extensions` still filters it.
 
 **UI (built twice, identical behaviour):** a `maxFiles` setting, each uploaded file as
 a removable row, a cap message. Two details the current single-file code assumes:
 - `frontend.js:105` finds its target with `wrap.querySelector( 'input[type="hidden"]' )`
-  — the new markup must keep exactly one hidden input per field (the token list), or
-  that lookup has to become explicit.
+  — the new markup keeps exactly one hidden input per field (the token list), so this
+  lookup stays valid.
 - `can_upload()`'s per-IP rate limit (`clcf_upload_rate_limit`, default 20/hour) is now
   reachable by a legitimate shopper: 10 files plus one re-pick exhausts half of it, and
-  the failure currently surfaces as the generic "Upload failed — please try again."
-  The limit is raised to a per-field-aware default and the rate-limited response gets
-  its own message so the shopper knows to wait rather than retry.
+  `FileUploads.php:70` re-sets the transient on every upload, so the window is
+  **rolling** — a shopper who trips it waits a full hour from their last attempt.
+  Because `can_upload()` is the REST `permission_callback`, the failure currently
+  surfaces as WordPress's "Sorry, you are not allowed to do that." The limit is raised
+  to a per-field-aware default and the rate-limited case returns its own message so the
+  shopper knows to wait rather than retry.
 
 ### 4. Icons and brand mark
 
@@ -206,17 +226,20 @@ a removable row, a cap message. Two details the current single-file code assumes
 (text, textarea, number, checkbox, radio, select, heading, email, phone, url, date,
 time, file) — replaces the mix of typographic stand-ins, Unicode shapes and colour
 emoji, which render differently on every OS. `FlameMark` replaces the `▲` placeholder.
+The sibling's `FieldIcon` already covers all 13 types, so no new artwork is needed.
 
-Both are new files, but four existing files call them (the spec's earlier claim that
-"existing code is untouched" was wrong):
+Both are new files, and **five existing files call them**:
 
-- `src/builder/Palette.jsx` — the `META` icon map,
+- `src/builder/Palette.jsx:9` — the `META` icon map,
 - `src/builder/SettingsPanel.jsx:12` — a **second, duplicated** `TYPE_IC` emoji map,
 - `src/builder/FieldPreview.jsx:33,35,37` — inline 📅 🕐 📎,
-- `src/builder/AppShell.jsx:93` — the `▲` mark.
+- `src/builder/AppShell.jsx:93` — the `▲` mark,
+- `assets/css/builder.css:74,134,279` — `.clcf-ic` styles a text glyph
+  (`font-size`/`font-weight`) and `.clcf-logo .clcf-mark` paints a gradient behind the
+  triangle; both need SVG-appropriate rules.
 
-The ported components default to Product Options' `clpo-` CSS class names; they are
-re-prefixed to `clcf-` to match this plugin's stylesheet.
+The ported components default to Product Options' `clpo-` class names; they are
+re-prefixed to `clcf-`.
 
 ### Shared-by-copy files
 
@@ -232,42 +255,47 @@ Current suite: 61 PHP tests + 5 JS suites (31 `it()` blocks). JS runs via
 
 Additions:
 
-- `FeeCalculatorTest` — breakdown rows, per-row rounding, effective price per option,
-  all three modes, and `total()` equals the sum of the rounded rows.
+- `FieldSchemaTest` — `normalize_options()` preserves a positive price, collapses an
+  unpriced choice back to a bare string, and drops non-numeric/≤ 0 prices. This is the
+  regression guard for the silent no-op.
+- `FeeCalculatorTest` — breakdown rows, per-row rounding, zero-amount rows skipped,
+  effective price per option, all three modes, and `total()` equal to the sum of the
+  rounded rows.
 - `FieldOptionsTest` — both option shapes, field-price fallback, duplicate labels,
   non-choice fields, malformed prices.
 - Shared `option-pricing-cases.json` executed by PHPUnit **and** Jest.
 - **Render tests** — classic renderer output asserted *against* `FeeCalculator`.
   Product Options shipped display defects precisely because this layer had no tests.
 - A test proving two fields with the same label produce **two** fees.
-- A test proving a filtered `clcf_fee_total` still charges the filtered amount.
 - `FileUploads::parse_tokens`, WEBP in the default whitelist, and `OrderPersistence`
   keeping the remaining files when one token is dead.
 - `FieldSchema` retaining and clamping `maxFiles`.
 
 Live QA runs on **both** checkouts separately: fields render, prices sit beside
-options, totals itemise, multi-file upload with per-file removal, a `.webp` uploaded
+options, totals itemize, multi-file upload with per-file removal, a `.webp` uploaded
 end-to-end (`wp_handle_upload()` gates on `get_allowed_mime_types()` independently of
 our whitelist), and an order carrying several fee lines and several download links.
 
 ## Release mechanics
 
-Version bump in `corelabs-checkout-fields.php` and `readme.txt` (`Stable tag: 1.3.0`),
-changelog + upgrade notice covering the totals-shape change and the empty-option
-removal, `.pot` regeneration, `bin/build-dist.sh`, then the SVN deploy script — commit
-left to the user, as always.
+Version bump in `corelabs-checkout-fields.php` and `readme.txt` (`Stable tag: 1.3.0`);
+changelog covering the totals-shape change and the empty-option removal; an
+`== Upgrade Notice ==` section, which this readme does not yet have (the sibling's
+does); `.pot` regeneration; `bin/build-dist.sh`. There is no `bin/svn-deploy.sh` in
+this repository — it exists only in Product Options and is ported across as part of
+this release. The `svn ci` itself stays with the user, as always.
 
 ## Risks
 
 | Risk | Mitigation |
 | --- | --- |
-| Priced options never charge because the fee gate ignores them | both gates test `hasPricedOptions()` too; covered by QA on both checkouts |
+| `normalize_options()` flattens prices → feature silently does nothing | rewritten first; `FieldSchemaTest` guards it |
+| Priced options never charge because the fee gate ignores them | both gates test `has_priced_options()` too; QA on both checkouts |
 | Two fields share a label → second fee silently dropped | explicit fee ids via `fees_api()` + regression test + builder warning |
-| Split fees round differently from one summed fee | round per row in `breakdown()`, sum the rounded rows |
-| A site filtering `clcf_fee_total` silently loses its filter | itemisation falls back to a single line when the filter changed the total |
+| Fee lines print amounts that don't sum to the total | round per row, sum the rounded rows |
 | An option reader is missed → broken checkout or crash | the exhaustive eight-file table in §2 |
 | Classic and Block renderers drift apart | shared fixture + QA on both |
-| Existing shops see their totals change shape | `clcf_itemised_fees` filter + explicit changelog note |
+| Existing shops see their totals change shape | `clcf_itemized_fees` filter + explicit changelog note |
 | Copied files drift from Product Options | the shared-by-copy list above |
 
 ## Out of scope for this release
