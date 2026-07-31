@@ -23,8 +23,8 @@
 /* ── Labels & descriptions ─────────────────────────────────── */
 .clcf-block-field__label {
 	display: block;
-	font-weight: 600;
-	font-size: 0.95em;
+	font-weight: var(--clcf-fw-strong, 600);
+	font-size: var(--clcf-fs-md, 1em);
 	margin-bottom: 7px;
 	line-height: 1.35;
 }
@@ -32,7 +32,7 @@
 .clcf-block-field__desc {
 	display: block;
 	color: #6b7280;
-	font-size: 0.85em;
+	font-size: var(--clcf-fs-sm, 0.85em);
 	line-height: 1.45;
 	margin: -3px 0 7px;
 }
@@ -101,7 +101,7 @@
 	border: 1.5px solid #d7d9de;
 	border-radius: 10px;
 	background: #fff;
-	font-weight: 500;
+	font-weight: var(--clcf-fw-med, 500);
 	cursor: pointer;
 	margin: 0;
 	transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -149,7 +149,7 @@
 }
 .clcf-block-field input[type="file"]::file-selector-button {
 	font: inherit;
-	font-weight: 600;
+	font-weight: var(--clcf-fw-strong, 600);
 	color: #1f2328;
 	background: #fff;
 	border: 1.5px solid #d7d9de;
@@ -165,4 +165,4 @@
 }
 
 /* Heading */
-.clcf-block-field--heading strong { font-size: 1.1em; }
+.clcf-block-field--heading strong { font-size: var(--clcf-fs-lg, 1.15em); }

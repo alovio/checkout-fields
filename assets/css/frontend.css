@@ -1,3 +1,17 @@
+/**
+ * Typography scale. Sizes are relative (em) so fields inherit the theme's
+ * body size; only the relationships between them are ours. Two weights, so
+ * "emphasis" always means the same thing.
+ */
+:root {
+	--clcf-fs-sm: 0.85em;   /* help text, file names, status */
+	--clcf-fs-md: 1em;      /* labels and controls — the same size, so a label
+	                           never looks smaller than the field it names */
+	--clcf-fs-lg: 1.15em;   /* section headings */
+	--clcf-fw-med: 500;     /* choice labels — interactive, not shouty */
+	--clcf-fw-strong: 600;  /* field labels, buttons, headings */
+}
+
 /* Alovio Checkout Fields — checkout-facing styles (classic checkout).
    One consistent visual language for ALL field types; the Block checkout gets
    the same vocabulary via build/style-block-checkout.css. */
@@ -23,8 +37,8 @@
 /* ── Labels & descriptions ─────────────────────────────────── */
 .clcf-field__label {
 	display: block;
-	font-weight: 600;
-	font-size: 0.95em;
+	font-weight: var(--clcf-fw-strong);
+	font-size: var(--clcf-fs-md);
 	margin-bottom: 7px;
 	line-height: 1.35;
 }
@@ -37,7 +51,7 @@
 .clcf-field__desc {
 	display: block;
 	color: #6b7280;
-	font-size: 0.85em;
+	font-size: var(--clcf-fs-sm);
 	line-height: 1.45;
 	margin: -3px 0 7px;
 }
@@ -106,7 +120,7 @@
 	border: 1.5px solid #d7d9de;
 	border-radius: 10px;
 	background: #fff;
-	font-weight: 500;
+	font-weight: var(--clcf-fw-med);
 	cursor: pointer;
 	margin: 0;
 	transition: border-color 0.15s ease, background-color 0.15s ease;
@@ -155,7 +169,7 @@
 }
 .clcf-field input[type="file"].clcf-file-picker::file-selector-button {
 	font: inherit;
-	font-weight: 600;
+	font-weight: var(--clcf-fw-strong);
 	color: #1f2328;
 	background: #fff;
 	border: 1.5px solid #d7d9de;
@@ -172,15 +186,15 @@
 .clcf-file-status {
 	display: block;
 	margin-top: 7px;
-	font-size: 0.85em;
+	font-size: var(--clcf-fs-sm);
 	color: #6b7280;
 }
-.clcf-file-status:not( :empty ) { color: #047857; font-weight: 600; }
+.clcf-file-status:not( :empty ) { color: #047857; font-weight: var(--clcf-fw-strong); }
 
 /* ── Heading fields ────────────────────────────────────────── */
 .clcf-field--heading .clcf-heading {
-	font-size: 1.15em;
-	font-weight: 700;
+	font-size: var(--clcf-fs-lg);
+	font-weight: var(--clcf-fw-strong);
 	margin: 8px 0 2px;
 }
 
@@ -200,7 +214,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: 8px;
-	font-size: 13px;
+	font-size: var(--clcf-fs-sm);
 	padding: 5px 10px;
 	border: 1px solid rgba(0, 0, 0, 0.12);
 	border-radius: 6px;
@@ -211,7 +225,7 @@
 	border: 0;
 	background: none;
 	cursor: pointer;
-	font-size: 16px;
+	font-size: var(--clcf-fs-lg);
 	line-height: 1;
 	padding: 2px 6px;
 	color: inherit;

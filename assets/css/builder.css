@@ -1,6 +1,15 @@
 /* Alovio Checkout Fields — builder v2. Visual contract: docs/mockups/builder-v2.html */
 
 :root {
+	/* Typography: five steps and two weights. Absolute px because this is
+	   wp-admin chrome, which has its own base size we should not scale with. */
+	--clcf-fs-xs: 11px;    /* uppercase micro-labels */
+	--clcf-fs-sm: 12px;    /* secondary/help text */
+	--clcf-fs-md: 13px;    /* the default UI size */
+	--clcf-fs-lg: 15px;    /* panel and card titles */
+	--clcf-fs-xl: 17px;    /* empty-state headline */
+	--clcf-fw-med: 600;
+	--clcf-fw-bold: 700;
 	--clcf-flame: #f97316;
 	--clcf-flame-deep: #ea580c;
 	--clcf-flame-soft: #ffedd5;
@@ -48,7 +57,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 }
 
 .clcf-app {
-	font-size: 13px;
+	font-size: var(--clcf-fs-md);
 	color: var(--clcf-ink);
 	background: var(--clcf-bg);
 	display: flex;
@@ -70,7 +79,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	gap: 16px;
 	padding: 0 20px;
 }
-.clcf-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 15px; }
+.clcf-logo { display: flex; align-items: center; gap: 10px; font-weight: var(--clcf-fw-bold); font-size: var(--clcf-fs-lg); }
 .clcf-logo .clcf-mark {
 	width: 28px; height: 28px; border-radius: 8px;
 	background: linear-gradient(135deg, var(--clcf-flame), var(--clcf-flame-deep));
@@ -78,11 +87,11 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	color: #fff; /* the flame inherits this */
 }
 .clcf-logo .clcf-flame { display: block; }
-.clcf-logo .clcf-sub { color: #a8a29e; font-weight: 600; font-size: 13px; margin-left: 2px; }
+.clcf-logo .clcf-sub { color: #a8a29e; font-weight: var(--clcf-fw-med); font-size: var(--clcf-fs-md); margin-left: 2px; }
 .clcf-hdr .clcf-grow { flex: 1; }
-.clcf-more { color: #a8a29e; font-size: 12.5px; font-weight: 700; text-decoration: none; margin-right: 4px; }
+.clcf-more { color: #a8a29e; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); text-decoration: none; margin-right: 4px; }
 .clcf-more:hover { color: #fdba74; }
-.clcf-status { display: flex; align-items: center; gap: 7px; color: #a8a29e; font-size: 12.5px; font-weight: 600; }
+.clcf-status { display: flex; align-items: center; gap: 7px; color: #a8a29e; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-med); }
 .clcf-status .clcf-dot { width: 7px; height: 7px; border-radius: 50%; background: #57534e; }
 .clcf-status.is-dirty .clcf-dot { background: #f59e0b; }
 .clcf-status.is-saved .clcf-dot { background: var(--clcf-green); }
@@ -92,7 +101,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-btn-ghost {
 	height: 34px; padding: 0 14px; border-radius: var(--clcf-r-sm);
 	border: 1px solid #44403c; background: transparent; color: #d6d3d1;
-	font-size: 13px; font-weight: 700; cursor: pointer;
+	font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); cursor: pointer;
 	display: inline-flex; align-items: center; gap: 7px;
 }
 .clcf-btn-ghost:hover:not(:disabled) { border-color: #78716c; color: #fff; }
@@ -100,7 +109,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-btn-primary {
 	height: 34px; padding: 0 18px; border-radius: var(--clcf-r-sm); border: none;
 	background: linear-gradient(135deg, var(--clcf-flame), var(--clcf-flame-deep));
-	color: #fff; font-size: 13px; font-weight: 800; cursor: pointer;
+	color: #fff; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); cursor: pointer;
 	box-shadow: 0 4px 14px -4px rgba(234, 88, 12, 0.6);
 	display: inline-flex; align-items: center; gap: 7px;
 }
@@ -117,7 +126,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 @media (max-width: 1100px) { .clcf-work { grid-template-columns: 220px 1fr 300px; } }
 
 .clcf-sec-label {
-	font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase;
+	font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); letter-spacing: 0.08em; text-transform: uppercase;
 	color: var(--clcf-ink-3); margin: 4px 6px 10px;
 }
 
@@ -130,7 +139,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-ptype {
 	height: 72px; border: 1px solid var(--clcf-line); border-radius: var(--clcf-r);
 	display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;
-	background: #fff; font-size: 12px; font-weight: 700; color: var(--clcf-ink-2); cursor: pointer;
+	background: #fff; font-size: var(--clcf-fs-sm); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-2); cursor: pointer;
 }
 .clcf-ptype:hover { border-color: var(--clcf-flame-border); box-shadow: var(--clcf-shadow); }
 .clcf-ptype .clcf-ic {
@@ -141,11 +150,11 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 /* Drawn field icons: one stroked set, coloured by the parent. */
 .clcf-fic { display: block; }
 .clcf-tpl { border: 1px dashed var(--clcf-line-2); border-radius: var(--clcf-r); padding: 12px; }
-.clcf-tpl h4 { font-size: 12.5px; margin: 0 0 4px; }
-.clcf-tpl p { font-size: 11.5px; color: var(--clcf-ink-3); line-height: 1.45; margin: 0 0 9px; }
+.clcf-tpl h4 { font-size: var(--clcf-fs-md); margin: 0 0 4px; }
+.clcf-tpl p { font-size: var(--clcf-fs-sm); color: var(--clcf-ink-3); line-height: 1.45; margin: 0 0 9px; }
 .clcf-tpl .clcf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .clcf-chip {
-	font-size: 11px; font-weight: 700; color: var(--clcf-flame-deep);
+	font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); color: var(--clcf-flame-deep);
 	background: var(--clcf-flame-soft); border: 1px solid var(--clcf-flame-border);
 	padding: 4px 9px; border-radius: 999px; cursor: pointer;
 }
@@ -161,7 +170,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	display: flex; align-items: center; gap: 10px; color: #d6d3d1; flex-wrap: wrap;
 }
 .clcf-simbar .clcf-lbl {
-	font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: #a8a29e;
+	font-size: var(--clcf-fs-sm); font-weight: var(--clcf-fw-bold); letter-spacing: 0.04em; color: #a8a29e;
 	display: flex; align-items: center; gap: 7px;
 }
 .clcf-simbar .clcf-lbl .clcf-eye { width: 16px; height: 16px; border-radius: 5px; background: var(--clcf-flame); }
@@ -169,14 +178,14 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	position: relative; display: inline-flex; align-items: center; gap: 7px;
 	height: 30px; padding: 0 11px; border-radius: 999px;
 	background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.14);
-	font-size: 12px; font-weight: 700; color: #e7e5e4;
+	font-size: var(--clcf-fs-sm); font-weight: var(--clcf-fw-bold); color: #e7e5e4;
 }
 .clcf-sim select {
 	position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
 }
 .clcf-sim.is-active { background: rgba(249, 115, 22, 0.18); border-color: rgba(249, 115, 22, 0.55); color: #fdba74; }
 .clcf-sim .clcf-car { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; opacity: 0.7; }
-.clcf-simbar .clcf-hint { margin-left: auto; font-size: 11.5px; color: #78716c; }
+.clcf-simbar .clcf-hint { margin-left: auto; font-size: var(--clcf-fs-sm); color: #78716c; }
 
 /* Checkout preview canvas */
 .clcf-canvas { flex: 1; overflow-y: auto; padding: 16px 22px 22px; }
@@ -186,9 +195,9 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	padding: 26px 30px;
 }
 .clcf-shead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
-.clcf-shead h2 { font-size: 15px; font-weight: 800; margin: 0; }
+.clcf-shead h2 { font-size: var(--clcf-fs-lg); font-weight: var(--clcf-fw-bold); margin: 0; }
 .clcf-region-tag {
-	position: relative; font-size: 11px; font-weight: 700; color: var(--clcf-ink-3);
+	position: relative; font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-3);
 	border: 1px dashed var(--clcf-line-2); border-radius: 999px; padding: 4px 11px; cursor: pointer;
 }
 .clcf-region-tag select { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
@@ -213,38 +222,38 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 }
 .clcf-fld.is-dragging { opacity: 0.45; }
 .clcf-fld.is-drop-target { outline: 2px dashed var(--clcf-flame-border); outline-offset: 3px; }
-.clcf-fld .clcf-flabel { font-size: 12.5px; font-weight: 700; margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
+.clcf-fld .clcf-flabel { font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); margin-bottom: 7px; display: flex; align-items: center; gap: 6px; }
 .clcf-fld .clcf-req { color: #dc2626; }
-.clcf-fld .clcf-fdesc { font-size: 11.5px; color: var(--clcf-ink-3); margin: -3px 0 7px; }
+.clcf-fld .clcf-fdesc { font-size: var(--clcf-fs-sm); color: var(--clcf-ink-3); margin: -3px 0 7px; }
 .clcf-fld .clcf-input {
 	min-height: 36px; border-radius: 9px; border: 1px solid var(--clcf-line-2); background: #fff;
-	display: flex; align-items: center; padding: 6px 12px; color: var(--clcf-ink-3); font-size: 13px;
+	display: flex; align-items: center; padding: 6px 12px; color: var(--clcf-ink-3); font-size: var(--clcf-fs-md);
 }
 .clcf-fld .clcf-input--area { min-height: 58px; align-items: flex-start; }
 .clcf-fld .clcf-input--check { width: 36px; justify-content: center; }
-.clcf-fld .clcf-opts { display: flex; flex-wrap: wrap; gap: 10px; color: var(--clcf-ink-2); font-size: 12.5px; }
+.clcf-fld .clcf-opts { display: flex; flex-wrap: wrap; gap: 10px; color: var(--clcf-ink-2); font-size: var(--clcf-fs-md); }
 .clcf-fld .clcf-opts .clcf-radio {
 	width: 15px; height: 15px; border-radius: 50%; border: 2px solid var(--clcf-line-2);
 	display: inline-block; vertical-align: -3px; margin-right: 5px;
 }
-.clcf-fld .clcf-heading-preview { font-size: 15px; font-weight: 800; }
+.clcf-fld .clcf-heading-preview { font-size: var(--clcf-fs-lg); font-weight: var(--clcf-fw-bold); }
 .clcf-fld .clcf-grip {
 	position: absolute; left: -13px; top: 50%; transform: translateY(-50%);
 	width: 22px; height: 30px; border-radius: 7px; background: #fff; border: 1px solid var(--clcf-line);
 	display: flex; align-items: center; justify-content: center;
-	color: var(--clcf-ink-3); font-size: 12px; box-shadow: var(--clcf-shadow); cursor: grab;
+	color: var(--clcf-ink-3); font-size: var(--clcf-fs-sm); box-shadow: var(--clcf-shadow); cursor: grab;
 }
 .clcf-fld .clcf-ops { position: absolute; top: -13px; right: 10px; display: flex; gap: 4px; }
 .clcf-op {
 	width: 26px; height: 26px; border-radius: 7px; background: var(--clcf-coal); color: #fff;
 	border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
-	font-size: 12px; box-shadow: 0 4px 10px -2px rgba(28, 25, 23, 0.4);
+	font-size: var(--clcf-fs-sm); box-shadow: 0 4px 10px -2px rgba(28, 25, 23, 0.4);
 }
 .clcf-op:hover { background: var(--clcf-flame-deep); }
 .clcf-logic-flag {
 	position: absolute; bottom: -11px; left: 12px; z-index: 1;
 	display: inline-flex; align-items: center; gap: 6px;
-	font-size: 10.5px; font-weight: 800; letter-spacing: 0.03em;
+	font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); letter-spacing: 0.03em;
 	background: var(--clcf-flame-soft); color: var(--clcf-flame-deep);
 	border: 1px solid var(--clcf-flame-border); border-radius: 999px; padding: 3px 9px;
 	white-space: nowrap; max-width: 90%; overflow: hidden; text-overflow: ellipsis;
@@ -253,7 +262,7 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 /* Ghost / hidden-by-preview section */
 .clcf-hiddenbar {
 	margin-top: 18px; display: flex; align-items: center; gap: 9px;
-	font-size: 12px; color: var(--clcf-ink-3); font-weight: 600;
+	font-size: var(--clcf-fs-sm); color: var(--clcf-ink-3); font-weight: var(--clcf-fw-med);
 }
 .clcf-hiddenbar .clcf-line { flex: 1; height: 1px; background: var(--clcf-line); }
 .clcf-fld.is-ghost { border: 1.5px dashed var(--clcf-line-2); background: #fafaf9; opacity: 0.75; }
@@ -267,11 +276,11 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-empty .clcf-empty-ic {
 	width: 64px; height: 64px; border-radius: 18px; margin: 0 auto 18px;
 	background: linear-gradient(135deg, var(--clcf-flame), var(--clcf-flame-deep));
-	display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: 800;
+	display: flex; align-items: center; justify-content: center; color: #fff; font-size: 26px; font-weight: var(--clcf-fw-bold);
 	box-shadow: 0 14px 30px -10px rgba(234, 88, 12, 0.5);
 }
-.clcf-empty h3 { font-size: 17px; color: var(--clcf-ink); margin: 0 0 8px; }
-.clcf-empty p { font-size: 13px; line-height: 1.55; margin: 0; }
+.clcf-empty h3 { font-size: var(--clcf-fs-xl); color: var(--clcf-ink); margin: 0 0 8px; }
+.clcf-empty p { font-size: var(--clcf-fs-md); line-height: 1.55; margin: 0; }
 
 /* ── Settings panel ─────────────────────────────────────────── */
 .clcf-settings {
@@ -287,28 +296,28 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 }
 /* Preview controls that carry a leading/trailing icon. */
 .clcf-input--icon { display: flex; align-items: center; gap: 7px; }
-.clcf-sp-title h3 { font-size: 14px; font-weight: 800; margin: 0; line-height: 1.25; }
-.clcf-sp-title small { display: block; font-size: 11px; color: var(--clcf-ink-3); font-weight: 600; }
+.clcf-sp-title h3 { font-size: var(--clcf-fs-lg); font-weight: var(--clcf-fw-bold); margin: 0; line-height: 1.25; }
+.clcf-sp-title small { display: block; font-size: var(--clcf-fs-xs); color: var(--clcf-ink-3); font-weight: var(--clcf-fw-med); }
 .clcf-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--clcf-line); }
 .clcf-tab {
-	padding: 9px 13px; font-size: 12.5px; font-weight: 700; color: var(--clcf-ink-3);
+	padding: 9px 13px; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-3);
 	border: none; background: none; cursor: pointer; border-bottom: 2px solid transparent;
 }
 .clcf-tab.is-on { color: var(--clcf-flame-deep); border-bottom-color: var(--clcf-flame); }
 .clcf-sp-body { padding: 16px 18px; overflow-y: auto; flex: 1; }
-.clcf-sp-empty { padding: 40px 24px; text-align: center; color: var(--clcf-ink-3); font-size: 13px; line-height: 1.6; }
+.clcf-sp-empty { padding: 40px 24px; text-align: center; color: var(--clcf-ink-3); font-size: var(--clcf-fs-md); line-height: 1.6; }
 .clcf-sp-foot {
 	padding: 13px 18px; border-top: 1px solid var(--clcf-line); flex: none;
-	display: flex; align-items: center; gap: 8px; color: var(--clcf-ink-3); font-size: 11.5px;
+	display: flex; align-items: center; gap: 8px; color: var(--clcf-ink-3); font-size: var(--clcf-fs-sm);
 }
 .clcf-kbd {
 	border: 1px solid var(--clcf-line-2); border-radius: 5px; padding: 2px 6px;
-	font-size: 10.5px; font-weight: 700; background: #fff;
+	font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); background: #fff;
 }
 
 /* Settings form controls (restyle WP components lightly within our panel) */
 .clcf-sp-body .components-base-control { margin-bottom: 14px; }
-.clcf-sp-body .components-base-control__label { font-size: 11px; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; color: var(--clcf-ink-2); }
+.clcf-sp-body .components-base-control__label { font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); letter-spacing: 0.05em; text-transform: uppercase; color: var(--clcf-ink-2); }
 .clcf-sp-body .components-text-control__input,
 .clcf-sp-body .components-select-control__input,
 .clcf-sp-body .components-textarea-control__input {
@@ -321,39 +330,39 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 
 /* Logic tab — sentence tokens */
 .clcf-rule-card { border: 1px solid var(--clcf-line); border-radius: var(--clcf-r); padding: 13px 14px; background: #fafaf9; }
-.clcf-rule-when { font-size: 11px; font-weight: 800; letter-spacing: 0.07em; color: var(--clcf-ink-3); text-transform: uppercase; margin-bottom: 9px; }
-.clcf-sentence { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12.5px; color: var(--clcf-ink-2); }
+.clcf-rule-when { font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); letter-spacing: 0.07em; color: var(--clcf-ink-3); text-transform: uppercase; margin-bottom: 9px; }
+.clcf-sentence { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: var(--clcf-fs-md); color: var(--clcf-ink-2); }
 .clcf-sentence + .clcf-sentence { margin-top: 8px; }
 .clcf-tok {
 	position: relative; display: inline-flex; align-items: center; gap: 6px;
 	border: 1px solid var(--clcf-line-2); background: #fff; border-radius: 8px;
-	padding: 5px 10px; font-weight: 700; color: var(--clcf-ink); font-size: 12px; cursor: pointer;
+	padding: 5px 10px; font-weight: var(--clcf-fw-bold); color: var(--clcf-ink); font-size: var(--clcf-fs-sm); cursor: pointer;
 }
 .clcf-tok select { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
 .clcf-tok input { border: none; outline: none; width: 72px; font: inherit; color: inherit; background: transparent; padding: 0; }
 .clcf-tok.clcf-tok--src { border-color: var(--clcf-flame-border); background: var(--clcf-flame-soft); color: var(--clcf-flame-deep); }
 .clcf-tok.clcf-tok--val { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
 .clcf-tok .clcf-car { width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent; border-top: 4px solid currentColor; opacity: 0.55; }
-.clcf-rule-x { border: none; background: none; color: var(--clcf-ink-3); cursor: pointer; font-size: 13px; padding: 2px 4px; }
+.clcf-rule-x { border: none; background: none; color: var(--clcf-ink-3); cursor: pointer; font-size: var(--clcf-fs-md); padding: 2px 4px; }
 .clcf-rule-x:hover { color: #dc2626; }
 .clcf-andor { display: inline-flex; border: 1px solid var(--clcf-line-2); border-radius: 8px; overflow: hidden; margin: 10px 0; }
-.clcf-andor button { padding: 5px 13px; font-size: 11.5px; font-weight: 800; color: var(--clcf-ink-3); background: #fff; border: none; cursor: pointer; }
+.clcf-andor button { padding: 5px 13px; font-size: var(--clcf-fs-sm); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-3); background: #fff; border: none; cursor: pointer; }
 .clcf-andor button.is-on { background: var(--clcf-coal); color: #fff; }
 .clcf-addrule {
 	margin-top: 11px; display: inline-flex; align-items: center; gap: 7px; cursor: pointer;
-	font-size: 12.5px; font-weight: 800; color: var(--clcf-flame-deep); border: none; background: none; padding: 0;
+	font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); color: var(--clcf-flame-deep); border: none; background: none; padding: 0;
 }
 .clcf-then { margin-top: 16px; }
-.clcf-then-lbl { font-size: 11px; font-weight: 800; letter-spacing: 0.07em; color: var(--clcf-ink-3); text-transform: uppercase; margin-bottom: 9px; }
+.clcf-then-lbl { font-size: var(--clcf-fs-xs); font-weight: var(--clcf-fw-bold); letter-spacing: 0.07em; color: var(--clcf-ink-3); text-transform: uppercase; margin-bottom: 9px; }
 .clcf-seg { display: flex; border: 1px solid var(--clcf-line-2); border-radius: 9px; overflow: hidden; }
-.clcf-seg button { flex: 1; text-align: center; padding: 8px 0; font-size: 12.5px; font-weight: 800; color: var(--clcf-ink-3); background: #fff; border: none; cursor: pointer; }
+.clcf-seg button { flex: 1; text-align: center; padding: 8px 0; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-3); background: #fff; border: none; cursor: pointer; }
 .clcf-seg button.is-on { background: linear-gradient(135deg, var(--clcf-flame), var(--clcf-flame-deep)); color: #fff; }
 
 /* Layout tab */
 .clcf-widthpick { display: flex; gap: 10px; margin-bottom: 16px; }
 .clcf-widthpick button {
 	flex: 1; border: 1px solid var(--clcf-line-2); border-radius: var(--clcf-r); background: #fff;
-	padding: 10px; cursor: pointer; font-size: 12px; font-weight: 700; color: var(--clcf-ink-2);
+	padding: 10px; cursor: pointer; font-size: var(--clcf-fs-sm); font-weight: var(--clcf-fw-bold); color: var(--clcf-ink-2);
 }
 .clcf-widthpick button.is-on { border-color: var(--clcf-flame); box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.12); color: var(--clcf-flame-deep); }
 .clcf-widthpick .clcf-diagram { display: flex; gap: 4px; margin-bottom: 7px; }
@@ -365,4 +374,4 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-optrow .components-base-control { flex: 1; margin-bottom: 0 !important; }
 .clcf-optrow .clcf-optprice { flex: 0 0 84px; }
 .clcf-optrow .clcf-optprice .components-base-control { flex: none; }
-.clcf-opthelp { margin: 8px 0 0; font-size: 12px; color: #646970; }
+.clcf-opthelp { margin: 8px 0 0; font-size: var(--clcf-fs-sm); color: #646970; }
