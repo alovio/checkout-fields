@@ -8,6 +8,8 @@ import SimulationBar from './SimulationBar';
 import PreviewCanvas from './PreviewCanvas';
 import SettingsPanel from './SettingsPanel';
 import FlameMark from '../shared/FlameMark';
+import UiIcon from '../shared/UiIcon';
+import SupportButton from '../shared/SupportButton';
 
 const T = 'corelabs-checkout-fields';
 
@@ -95,15 +97,18 @@ export default function AppShell() {
 					Alovio <span className="clcf-sub">{ __( 'Checkout Fields', T ) }</span>
 				</div>
 				<div className="clcf-grow"></div>
-				{ /* Alovio family cross-promo — the Calculator is the flagship. */ }
-				<a className="clcf-more" href="https://alovio.org/calculator" target="_blank" rel="noopener noreferrer">
-					{ __( 'Try Alovio Calculator', T ) } ↗
-				</a>
-				<span className={ statusCls }><span className="clcf-dot"></span>{ statusTxt }</span>
-				<button className="clcf-btn-ghost" disabled={ ! canUndo } onClick={ undo }>⟲ { __( 'Undo', T ) }</button>
+				<span className={ statusCls } title={ statusTxt }>
+					<span className="clcf-dot"></span>
+					<span className="clcf-lbl-wide">{ statusTxt }</span>
+				</span>
+				<button className="clcf-btn-ghost" disabled={ ! canUndo } onClick={ undo } aria-label={ __( 'Undo', T ) }>
+					<UiIcon name="undo" />
+					<span className="clcf-lbl-wide">{ __( 'Undo', T ) }</span>
+				</button>
 				<button className="clcf-btn-primary" disabled={ saving } onClick={ save }>
 					{ saving ? __( 'Saving…', T ) : __( 'Save & publish', T ) }
 				</button>
+				<SupportButton />
 			</div>
 			<div className="clcf-work">
 				<Palette />

@@ -78,6 +78,11 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 	align-items: center;
 	gap: 16px;
 	padding: 0 20px;
+	/* Queried below, so the header sheds on its OWN width. A viewport media
+	   query would be wrong: wp-admin's sidebar is 160px, or 36px folded, so the
+	   same viewport gives the header two different widths. */
+	container-type: inline-size;
+	container-name: clcf-hdr;
 }
 .clcf-logo { display: flex; align-items: center; gap: 10px; font-weight: var(--clcf-fw-bold); font-size: var(--clcf-fs-lg); }
 .clcf-logo .clcf-mark {
@@ -89,8 +94,14 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 .clcf-logo .clcf-flame { display: block; }
 .clcf-logo .clcf-sub { color: #a8a29e; font-weight: var(--clcf-fw-med); font-size: var(--clcf-fs-md); margin-left: 2px; }
 .clcf-hdr .clcf-grow { flex: 1; }
-.clcf-more { color: #a8a29e; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-bold); text-decoration: none; margin-right: 4px; }
-.clcf-more:hover { color: #fdba74; }
+/* Labels here mean nothing broken in half ("Save & / publish"), so the header
+   is one row and its items keep their size. */
+.clcf-hdr > * { flex: none; }
+.clcf-hdr .clcf-grow { flex: 1; }
+.clcf-hdr button,
+.clcf-hdr .clcf-logo,
+.clcf-hdr .clcf-status { white-space: nowrap; }
+.clcf-uic { display: block; flex: none; }
 .clcf-status { display: flex; align-items: center; gap: 7px; color: #a8a29e; font-size: var(--clcf-fs-md); font-weight: var(--clcf-fw-med); }
 .clcf-status .clcf-dot { width: 7px; height: 7px; border-radius: 50%; background: #57534e; }
 .clcf-status.is-dirty .clcf-dot { background: #f59e0b; }
@@ -115,6 +126,61 @@ body.clcf-builder-page #wpbody-content > .error { display: none; }
 }
 .clcf-btn-primary:hover { filter: brightness(1.06); }
 .clcf-btn-primary:disabled { opacity: 0.6; cursor: default; }
+
+/* This header is short enough to survive to ~720px of content width; below
+   that it sheds the least useful labels rather than overflowing. Save &
+   publish keeps its label at every width — it is why anyone is on this screen.
+   (Widths are CONTENT box: a container query measures inside the padding.) */
+@container clcf-hdr (max-width: 760px) {
+	/* The dot carries saved/dirty/error on its own; the span keeps a title. */
+	.clcf-status .clcf-lbl-wide { display: none; }
+	.clcf-status { gap: 0; }
+}
+@container clcf-hdr (max-width: 640px) {
+	/* Icon-only Undo and Donate. Both keep an aria-label. */
+	.clcf-hdr button .clcf-lbl-wide { display: none; }
+	.clcf-hdr .clcf-btn-ghost { padding: 0 11px; }
+}
+
+/* ── Support ──────────────────────────────────────────────────
+   Sits last in the header, deliberately quieter than the primary action
+   beside it: a request for money must never out-shout Save & publish. */
+.clcf-hdr .clcf-support .clcf-uic { color: #fb7185; }
+.clcf-hdr .clcf-support:hover { border-color: #fb7185; color: #fff; }
+
+.clcf-support-modal { max-width: 540px; }
+.clcf-support-modal p {
+	font-size: var(--clcf-fs-md); line-height: 1.65;
+	color: var(--clcf-ink-2); margin: 0 0 14px;
+}
+.clcf-support-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+.clcf-support-actions a { text-decoration: none; }
+.clcf-linkbtn { background: none; border: 0; color: var(--clcf-ink-3); cursor: pointer; font-size: var(--clcf-fs-md); padding: 2px 6px; }
+.clcf-linkbtn:hover { text-decoration: underline; }
+.clcf-support-actions .clcf-linkbtn { margin-left: auto; }
+/* .clcf-btn-ghost is dressed for the dark header; on the modal's white
+   background it needs its own skin rather than a second component. */
+.clcf-btn-ghost.is-light { border-color: var(--clcf-line-2); color: var(--clcf-ink-2); background: #fff; }
+.clcf-btn-ghost.is-light:hover { border-color: var(--clcf-ink-3); color: var(--clcf-ink); }
+
+/* An anchor dressed as a button. wp-admin styles bare `a:hover` and `a:focus`
+   (0,1,1), which outranks the class rules above (0,1,0), so the label turned
+   wp-admin blue on hover and picked up a blue focus glow — over an orange
+   fill. These restate the button's own colours for every link state. */
+a.clcf-btn-primary,
+a.clcf-btn-primary:hover,
+a.clcf-btn-primary:focus,
+a.clcf-btn-primary:active { color: #fff; text-decoration: none; }
+a.clcf-btn-ghost,
+a.clcf-btn-ghost:hover,
+a.clcf-btn-ghost:focus,
+a.clcf-btn-ghost:active { text-decoration: none; box-shadow: none; }
+a.clcf-btn-ghost.is-light,
+a.clcf-btn-ghost.is-light:focus { color: var(--clcf-ink-2); }
+a.clcf-btn-ghost.is-light:hover,
+a.clcf-btn-ghost.is-light:active { color: var(--clcf-ink); border-color: var(--clcf-ink-3); }
+a.clcf-btn-primary:focus-visible,
+a.clcf-btn-ghost:focus-visible { outline: 2px solid var(--clcf-flame); outline-offset: 2px; }
 
 /* ── Workspace ──────────────────────────────────────────────── */
 .clcf-work {

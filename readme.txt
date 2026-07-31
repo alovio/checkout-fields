@@ -1,5 +1,6 @@
 === Alovio Checkout Fields – Custom WooCommerce Checkout Fields + Conditional Logic ===
 Contributors: 74h1r
+Donate link: https://alovio.org/donate
 Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.0
