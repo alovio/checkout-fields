@@ -8,6 +8,7 @@
  * authoritatively. See docs/superpowers/notes/block-spike-findings.md.
  */
 import { registerPlugin } from '@wordpress/plugins';
+import { hasPricedOptions, optionLabel, effectivePrice } from '../shared/options';
 import { useState, useEffect } from '@wordpress/element';
 import { useSelect, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
@@ -18,7 +19,40 @@ import './style.css';
 const { ExperimentalOrderMeta, extensionCartUpdate } = window.wc.blocksCheckout;
 
 const CONFIG = window.CLCF_BLOCK || { fields: [], ctx: {}, sources: [] };
-const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 );
+// A field priced only through its options is fee-bearing too — miss that and
+// the cart update never fires, so the fee is never captured or charged.
+/**
+ * A choice reads as its label plus what picking it costs — the same rule the
+ * classic renderer applies, so both checkouts advertise identical amounts.
+ * Fields that do not price their options keep bare labels.
+ */
+function optionText( field, option ) {
+	const label = optionLabel( option );
+	if ( ! hasPricedOptions( field ) ) {
+		return label;
+	}
+	const price = effectivePrice( field, label );
+	if ( price <= 0 ) {
+		return label;
+	}
+	const suffix = field.priceMode === 'percent' ? `+${ price }%` : `+${ formatPrice( price ) }`;
+	return `${ label } (${ suffix })`;
+}
+
+/** Store-formatted money, falling back to two decimals. */
+function formatPrice( amount ) {
+	const cfg = ( window.wcSettings && window.wcSettings.currency ) || {};
+	const decimals = typeof cfg.minorUnit === 'number' ? cfg.minorUnit : 2;
+	const symbol = cfg.symbol || '';
+	const body = Number( amount ).toFixed( decimals );
+	return cfg.symbolPosition === 'right' ? `${ body }${ symbol }` : `${ symbol }${ body }`;
+}
+
+// Uploaded file names, kept per field so the list can show them. The token
+// list in the field value is the source of truth; this is display only.
+const FILE_NAMES = {};
+
+const HAS_FEES = ( CONFIG.fields || [] ).some( ( f ) => parseFloat( f.price ) > 0 || hasPricedOptions( f ) );
 
 function selectedShippingRate( cartData ) {
 	const packages = ( cartData && cartData.shippingRates ) || [];
@@ -74,14 +108,25 @@ function Field( { field, value, onChange } ) {
 		control = (
 			<select { ...common }>
 				<option value="">{ __( 'Choose an option', 'corelabs-checkout-fields' ) }</option>
-				{ ( field.options || [] ).map( ( o ) => <option key={ o } value={ o }>{ o }</option> ) }
+				{ ( field.options || [] ).map( ( o, i ) => (
+					<option key={ i } value={ optionLabel( o ) }>{ optionText( field, o ) }</option>
+				) ) }
 			</select>
 		);
 	} else if ( field.type === 'radio' ) {
 		control = (
 			<span className="clcf-block-radios">
-				{ ( field.options || [] ).map( ( o ) => (
-					<label key={ o }><input type="radio" name={ id } value={ o } checked={ value === o } onChange={ () => onChange( o ) } required={ !! field.required } /> { o }</label>
+				{ ( field.options || [] ).map( ( o, i ) => (
+					<label key={ i }>
+						<input
+							type="radio"
+							name={ id }
+							value={ optionLabel( o ) }
+							checked={ value === optionLabel( o ) }
+							onChange={ () => onChange( optionLabel( o ) ) }
+							required={ !! field.required }
+						/> { optionText( field, o ) }
+					</label>
 				) ) }
 			</span>
 		);
@@ -92,37 +137,86 @@ function Field( { field, value, onChange } ) {
 		control = <input type="date" { ...common } min={ field.min || undefined } max={ field.max || undefined } />;
 	} else if ( field.type === 'file' ) {
 		const cfg = CONFIG.upload || {};
+		const maxFiles = Math.min( 10, Math.max( 1, parseInt( field.maxFiles, 10 ) || 1 ) );
+		// The value carries the token list; names ride alongside for display.
+		const tokens = String( value || '' ).split( ',' ).map( ( t ) => t.trim() ).filter( Boolean );
+		const names = FILE_NAMES[ field.id ] || {};
+
 		const pick = async ( e ) => {
-			const file = e.target.files && e.target.files[ 0 ];
-			if ( ! file ) {
-				onChange( '' );
+			let picked = Array.from( e.target.files || [] );
+			if ( ! picked.length ) {
 				return;
 			}
-			if ( cfg.maxMb && file.size > cfg.maxMb * 1048576 ) {
-				e.target.value = '';
-				onChange( '' );
-				window.alert( `File is too large (max ${ cfg.maxMb } MB).` );
-				return;
-			}
-			try {
-				const form = new FormData();
-				form.append( 'file', file );
-				const resp = await fetch( cfg.url, { method: 'POST', headers: { 'X-CLCF-Nonce': cfg.nonce }, body: form } );
-				const data = await resp.json();
-				if ( ! resp.ok || ! data.token ) {
-					throw new Error( ( data && data.message ) || 'upload failed' );
+			const current = maxFiles === 1 ? [] : tokens.slice();
+			const room = Math.max( 0, maxFiles - current.length );
+			const overflow = picked.length > room;
+			picked = picked.slice( 0, room );
+
+			const oversize = picked.filter( ( f ) => cfg.maxMb && f.size > cfg.maxMb * 1048576 );
+			picked = picked.filter( ( f ) => ! cfg.maxMb || f.size <= cfg.maxMb * 1048576 );
+
+			const added = {};
+			for ( const file of picked ) {
+				try {
+					const form = new FormData();
+					form.append( 'file', file );
+					const headers = { 'X-CLCF-Nonce': cfg.nonce };
+					if ( cfg.restNonce ) {
+						headers[ 'X-WP-Nonce' ] = cfg.restNonce;
+					}
+					const resp = await fetch( cfg.url, { method: 'POST', headers, body: form } );
+					const data = await resp.json();
+					if ( ! resp.ok || ! data.token ) {
+						throw new Error( ( data && data.message ) || 'upload failed' );
+					}
+					current.push( data.token );
+					added[ data.token ] = data.name;
+				} catch ( err ) {
+					window.alert( err.message || 'Upload failed — please try again.' );
 				}
-				onChange( data.token );
-			} catch ( err ) {
-				e.target.value = '';
-				onChange( '' );
-				window.alert( err.message || 'Upload failed — please try again.' );
 			}
+
+			e.target.value = '';
+			if ( oversize.length ) {
+				window.alert( `File is too large (max ${ cfg.maxMb } MB).` );
+			} else if ( overflow ) {
+				window.alert( `Only ${ maxFiles } files allowed.` );
+			}
+			FILE_NAMES[ field.id ] = { ...( FILE_NAMES[ field.id ] || {} ), ...added };
+			onChange( current.join( ',' ) ); // re-renders, so the new names show
 		};
+
+		const removeToken = ( token ) => {
+			onChange( tokens.filter( ( t ) => t !== token ).join( ',' ) );
+		};
+
 		control = (
 			<>
-				<input type="file" id={ id } accept={ cfg.accept || undefined } required={ !! field.required && ! value } onChange={ pick } />
-				{ value ? <small className="clcf-block-field__desc">✓ { __( 'File attached', 'corelabs-checkout-fields' ) }</small> : null }
+				<input
+					type="file"
+					id={ id }
+					accept={ cfg.accept || undefined }
+					multiple={ maxFiles > 1 }
+					required={ !! field.required && ! tokens.length }
+					onChange={ pick }
+				/>
+				{ tokens.length > 0 && (
+					<span className="clcf-file-list">
+						{ tokens.map( ( t ) => (
+							<span key={ t } className="clcf-file-item">
+								<span className="clcf-file-item__name">{ names[ t ] || __( 'Attached file', 'corelabs-checkout-fields' ) }</span>
+								<button
+									type="button"
+									className="clcf-file-remove"
+									aria-label={ __( 'Remove file', 'corelabs-checkout-fields' ) }
+									onClick={ () => removeToken( t ) }
+								>
+									×
+								</button>
+							</span>
+						) ) }
+					</span>
+				) }
 			</>
 		);
 	} else {

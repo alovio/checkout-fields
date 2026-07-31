@@ -163,6 +163,9 @@ final class BlockFieldsIntegration implements IntegrationInterface {
 			'upload' => array(
 				'url'    => esc_url_raw( rest_url( 'clcf/v1/upload' ) ),
 				'nonce'  => wp_create_nonce( 'clcf_upload' ),
+				// Logged-in visitors: REST cookie auth rejects the request before
+				// our permission callback unless a wp_rest nonce rides along.
+				'restNonce' => wp_create_nonce( 'wp_rest' ),
 				'accept' => '.' . implode( ',.', FileUploads::allowed_extensions() ),
 				'maxMb'  => round( FileUploads::max_bytes() / 1048576, 1 ),
 			),

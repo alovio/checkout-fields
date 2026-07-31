@@ -85,4 +85,19 @@ class ValidatorTest extends TestCase {
 		$this->assertNotEmpty( Validator::validate( $group, array(), array( '@payment_method' => 'cod' ) ) );
 		$this->assertSame( array(), Validator::validate( $group, array(), array( '@payment_method' => 'bacs' ) ) );
 	}
+
+	public function test_priced_options_validate_on_the_bare_label(): void {
+		$g = array(
+			'fields' => array(
+				array(
+					'id'      => 'speed',
+					'type'    => 'select',
+					'label'   => 'Speed',
+					'options' => array( 'Standard', array( 'label' => 'Express', 'price' => 10 ) ),
+				),
+			),
+		);
+		$this->assertSame( array(), Validator::validate( $g, array( 'speed' => 'Express' ), array( 'speed' => 'Express' ) ) );
+		$this->assertCount( 1, Validator::validate( $g, array( 'speed' => 'Nope' ), array( 'speed' => 'Nope' ) ) );
+	}
 }

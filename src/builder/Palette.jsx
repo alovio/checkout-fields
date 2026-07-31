@@ -1,25 +1,27 @@
 import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE } from './store';
+import FieldIcon from '../shared/FieldIcon';
 import { TEMPLATES } from './templates';
 
 const T = 'corelabs-checkout-fields';
 const FALLBACK = [ 'text', 'textarea', 'number', 'checkbox', 'radio', 'select', 'heading' ];
 
-const META = {
-	text: { label: __( 'Text', T ), ic: 'Aa' },
-	textarea: { label: __( 'Text area', T ), ic: '¶' },
-	number: { label: __( 'Number', T ), ic: '#' },
-	checkbox: { label: __( 'Checkbox', T ), ic: '☑' },
-	radio: { label: __( 'Radio', T ), ic: '◉' },
-	select: { label: __( 'Dropdown', T ), ic: '▾' },
-	heading: { label: __( 'Heading', T ), ic: 'H' },
-	email: { label: __( 'Email', T ), ic: '@' },
-	phone: { label: __( 'Phone', T ), ic: '☎' },
-	url: { label: __( 'URL', T ), ic: '🔗' },
-	date: { label: __( 'Date', T ), ic: '📅' },
-	time: { label: __( 'Time', T ), ic: '🕐' },
-	file: { label: __( 'File', T ), ic: '📎' },
+
+const LABELS = {
+	text: __( 'Text', T ),
+	textarea: __( 'Text area', T ),
+	number: __( 'Number', T ),
+	checkbox: __( 'Checkbox', T ),
+	radio: __( 'Radio', T ),
+	select: __( 'Dropdown', T ),
+	heading: __( 'Heading', T ),
+	email: __( 'Email', T ),
+	phone: __( 'Phone', T ),
+	url: __( 'URL', T ),
+	date: __( 'Date', T ),
+	time: __( 'Time', T ),
+	file: __( 'File', T ),
 };
 
 export default function Palette() {
@@ -31,11 +33,10 @@ export default function Palette() {
 			<div className="clcf-sec-label">{ __( 'Add a field', T ) }</div>
 			<div className="clcf-ptypes">
 				{ types.map( ( type ) => {
-					const m = META[ type ] || { label: type, ic: '·' };
 					return (
 						<button key={ type } className="clcf-ptype" onClick={ () => addField( type ) }>
-							<span className="clcf-ic">{ m.ic }</span>
-							{ m.label }
+							<span className="clcf-ic"><FieldIcon type={ type } /></span>
+							{ LABELS[ type ] || type }
 						</button>
 					);
 				} ) }

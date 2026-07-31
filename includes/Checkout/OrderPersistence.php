@@ -59,18 +59,31 @@ final class OrderPersistence {
 				continue;
 			}
 
-			$label   = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
+			$label = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
+			$files = array();
 			if ( 'file' === $type ) {
-				$resolved = FileUploads::consume( (string) $val );
-				if ( null === $resolved ) {
-					continue; // token vanished — nothing to attach.
+				// One value can carry several tokens. A token that vanished must
+				// not discard the field's other files.
+				foreach ( FileUploads::parse_tokens( $val ) as $token ) {
+					$resolved = FileUploads::consume( $token );
+					if ( null !== $resolved ) {
+						$files[] = array( 'name' => $resolved['name'], 'url' => $resolved['url'] );
+					}
 				}
-				$display = $resolved['url'];
+				if ( array() === $files ) {
+					continue; // nothing survived — nothing to attach.
+				}
+				// Names, not URLs: this string is printed in customer emails.
+				$display = implode( ', ', array_map( static fn( $file ) => $file['name'], $files ) );
 			} else {
 				$display = self::format_value( $f, $val );
 			}
 
-			$stored[] = array( 'id' => $id, 'label' => $label, 'display' => $display );
+			$row = array( 'id' => $id, 'label' => $label, 'display' => $display );
+			if ( array() !== $files ) {
+				$row['files'] = $files;
+			}
+			$stored[] = $row;
 			$order->add_meta_data( $label, $display, true );
 		}
 
@@ -112,6 +125,20 @@ final class OrderPersistence {
 		echo '<div class="clcf-order-fields"><h3>' . esc_html__( 'Checkout fields', 'corelabs-checkout-fields' ) . '</h3>';
 		foreach ( $rows as $r ) {
 			$display = (string) $r['display'];
+			if ( ! empty( $r['files'] ) && is_array( $r['files'] ) ) {
+				$links = array();
+				foreach ( $r['files'] as $file ) {
+					$links[] = sprintf(
+						'<a href="%s" target="_blank" rel="noopener">%s</a>',
+						esc_url( (string) ( $file['url'] ?? '' ) ),
+						esc_html( (string) ( $file['name'] ?? __( 'View file', 'corelabs-checkout-fields' ) ) )
+					);
+				}
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- each link escaped above.
+				printf( '<p><strong>%s:</strong> %s</p>', esc_html( (string) $r['label'] ), implode( ', ', $links ) );
+				continue;
+			}
+			// Orders placed before 1.3.0 stored a bare URL in `display`.
 			if ( 0 === strpos( $display, 'http' ) ) {
 				printf( '<p><strong>%s:</strong> <a href="%s" target="_blank" rel="noopener">%s</a></p>', esc_html( (string) $r['label'] ), esc_url( $display ), esc_html__( 'View file', 'corelabs-checkout-fields' ) );
 			} else {

@@ -61,4 +61,24 @@ class FileUploadsTest extends TestCase {
 		$this->assertNotContains( 'php', FileUploads::allowed_extensions() );
 		$this->assertGreaterThan( 1024 * 1024, FileUploads::max_bytes() );
 	}
+
+	public function test_webp_allowed_by_default(): void {
+		$this->assertContains( 'webp', FileUploads::allowed_extensions() );
+	}
+
+	public function test_parse_tokens_handles_one_and_many(): void {
+		$a = str_repeat( 'a1', 16 );
+		$b = str_repeat( 'b2', 16 );
+		$this->assertSame( array( $a ), FileUploads::parse_tokens( $a ) );
+		$this->assertSame( array( $a, $b ), FileUploads::parse_tokens( "$a,$b" ) );
+		$this->assertSame( array( $a, $b ), FileUploads::parse_tokens( " $a , $b " ) );
+	}
+
+	public function test_parse_tokens_drops_garbage_and_duplicates(): void {
+		$a = str_repeat( 'a1', 16 );
+		$this->assertSame( array( $a ), FileUploads::parse_tokens( "$a,$a,nope,," ) );
+		$this->assertSame( array(), FileUploads::parse_tokens( '' ) );
+		$this->assertSame( array(), FileUploads::parse_tokens( null ) );
+		$this->assertSame( array(), FileUploads::parse_tokens( array( $a ) ) );
+	}
 }

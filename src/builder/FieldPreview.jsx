@@ -1,8 +1,23 @@
 import { __ } from '@wordpress/i18n';
 import { describeCondition, conditionAction } from './describe';
+import { optionLabel, effectivePrice, hasPricedOptions } from '../shared/options';
+import FieldIcon from '../shared/FieldIcon';
 
 const T = 'corelabs-checkout-fields';
 const SOURCES = () => ( window.CLCF_BUILDER && window.CLCF_BUILDER.sources ) || [];
+
+/** Label plus what picking it costs — the same rule both checkouts print. */
+function optionText( field, option ) {
+	const label = optionLabel( option );
+	if ( ! hasPricedOptions( field ) ) {
+		return label;
+	}
+	const price = effectivePrice( field, label );
+	if ( price <= 0 ) {
+		return label;
+	}
+	return `${ label } (${ field.priceMode === 'percent' ? `+${ price }%` : `+${ price }` })`;
+}
 
 function Control( { field } ) {
 	const ph = field.placeholder || '';
@@ -16,13 +31,17 @@ function Control( { field } ) {
 		case 'radio':
 			return (
 				<div className="clcf-opts">
-					{ ( field.options || [] ).slice( 0, 4 ).map( ( o ) => (
-						<span key={ o }><span className="clcf-radio"></span>{ o }</span>
+					{ ( field.options || [] ).slice( 0, 4 ).map( ( o, i ) => (
+						<span key={ i }><span className="clcf-radio"></span>{ optionText( field, o ) }</span>
 					) ) }
 				</div>
 			);
 		case 'select':
-			return <div className="clcf-input">{ ( field.options && field.options[ 0 ] ) || __( 'Choose…', T ) } ▾</div>;
+			return (
+				<div className="clcf-input">
+					{ field.options && field.options.length ? optionText( field, field.options[ 0 ] ) : __( 'Choose…', T ) } ▾
+				</div>
+			);
 		case 'email':
 			return <div className="clcf-input">{ ph || 'name@example.com' }</div>;
 		case 'phone':
@@ -30,11 +49,11 @@ function Control( { field } ) {
 		case 'url':
 			return <div className="clcf-input">{ ph || 'https://…' }</div>;
 		case 'date':
-			return <div className="clcf-input">{ __( 'Select date', T ) } 📅</div>;
+			return <div className="clcf-input clcf-input--icon">{ __( 'Select date', T ) } <FieldIcon type="date" size={ 15 } /></div>;
 		case 'time':
-			return <div className="clcf-input">{ __( 'Select time', T ) } 🕐</div>;
+			return <div className="clcf-input clcf-input--icon">{ __( 'Select time', T ) } <FieldIcon type="time" size={ 15 } /></div>;
 		case 'file':
-			return <div className="clcf-input">📎 { __( 'Choose file…', T ) }</div>;
+			return <div className="clcf-input clcf-input--icon"><FieldIcon type="file" size={ 15 } /> { __( 'Choose file…', T ) }</div>;
 		default:
 			return <div className="clcf-input">{ ph || '…' }</div>;
 	}

@@ -10,6 +10,7 @@
  * validation/visibility remain authoritative on submit.
  */
 import { activeMap } from './frontend/conditional-logic';
+import { hasPricedOptions } from './shared/options';
 
 function parsePayload() {
 	const rules = document.querySelector( 'script.clcf-rules' );
@@ -96,6 +97,61 @@ function wireUploads() {
 	if ( ! cfg ) {
 		return;
 	}
+	/** Tokens currently held by a field (the hidden input carries the list). */
+	const tokensOf = ( hidden ) =>
+		String( hidden.value || '' )
+			.split( ',' )
+			.map( ( t ) => t.trim() )
+			.filter( ( t ) => /^[a-f0-9]{32}$/.test( t ) );
+
+	const syncHidden = ( wrap ) => {
+		const hidden = wrap.querySelector( 'input[type="hidden"]' );
+		const picker = wrap.querySelector( '.clcf-file-picker' );
+		const tokens = Array.from( wrap.querySelectorAll( '.clcf-file-item' ) ).map( ( el ) => el.dataset.token );
+		hidden.value = tokens.join( ',' );
+		// A required picker would block submit once its FileList is cleared, so
+		// the requirement rides on the picker only while nothing is uploaded.
+		if ( picker && picker.dataset.clcfRequired ) {
+			if ( tokens.length ) {
+				picker.removeAttribute( 'required' );
+			} else {
+				picker.setAttribute( 'required', 'required' );
+			}
+		}
+		hidden.dispatchEvent( new Event( 'change', { bubbles: true } ) );
+	};
+
+	const addItem = ( list, token, name ) => {
+		const item = document.createElement( 'span' );
+		item.className = 'clcf-file-item';
+		item.dataset.token = token;
+		const label = document.createElement( 'span' );
+		label.className = 'clcf-file-item__name';
+		label.textContent = name;
+		const remove = document.createElement( 'button' );
+		remove.type = 'button';
+		remove.className = 'clcf-file-remove';
+		remove.setAttribute( 'aria-label', `Remove ${ name }` );
+		remove.textContent = '×';
+		item.append( label, remove );
+		list.append( item );
+	};
+
+	document.addEventListener( 'click', ( e ) => {
+		const btn = e.target.closest && e.target.closest( '.clcf-file-remove' );
+		if ( ! btn ) {
+			return;
+		}
+		e.preventDefault();
+		const wrap = btn.closest( '.clcf-field' );
+		btn.closest( '.clcf-file-item' ).remove();
+		const status = wrap.querySelector( '.clcf-file-status' );
+		if ( status ) {
+			status.textContent = '';
+		}
+		syncHidden( wrap );
+	} );
+
 	document.addEventListener( 'change', async ( e ) => {
 		const picker = e.target;
 		if ( ! picker.classList || ! picker.classList.contains( 'clcf-file-picker' ) ) {
@@ -103,44 +159,66 @@ function wireUploads() {
 		}
 		const wrap = picker.closest( '.clcf-field' );
 		const hidden = wrap.querySelector( 'input[type="hidden"]' );
+		const list = wrap.querySelector( '.clcf-file-list' );
 		const status = wrap.querySelector( '.clcf-file-status' );
-		const file = picker.files && picker.files[ 0 ];
-		if ( ! file ) {
-			hidden.value = '';
+		const setStatus = ( t ) => {
 			if ( status ) {
-				status.textContent = '';
+				status.textContent = t;
 			}
+		};
+		if ( picker.hasAttribute( 'required' ) ) {
+			picker.dataset.clcfRequired = '1';
+		}
+
+		const maxFiles = parseInt( picker.dataset.clcfMaxFiles || '1', 10 ) || 1;
+		let files = Array.from( picker.files || [] );
+		if ( ! files.length ) {
 			return;
 		}
-		if ( file.size > cfg.maxMb * 1048576 ) {
-			picker.value = '';
-			hidden.value = '';
-			if ( status ) {
-				status.textContent = `File is too large (max ${ cfg.maxMb } MB).`;
-			}
-			return;
+
+		// A single-file field replaces its file; a multi-file field appends.
+		if ( maxFiles === 1 && list ) {
+			list.textContent = '';
+			syncHidden( wrap );
 		}
-		if ( status ) {
-			status.textContent = 'Uploading…';
+		const room = Math.max( 0, maxFiles - tokensOf( hidden ).length );
+		const overflow = files.length > room;
+		files = files.slice( 0, room );
+
+		const oversize = files.filter( ( f ) => f.size > cfg.maxMb * 1048576 );
+		files = files.filter( ( f ) => f.size <= cfg.maxMb * 1048576 );
+
+		let failed = '';
+		for ( const file of files ) {
+			setStatus( `Uploading ${ file.name }…` );
+			try {
+				const form = new FormData();
+				form.append( 'file', file );
+				const headers = { 'X-CLCF-Nonce': cfg.nonce };
+					if ( cfg.restNonce ) {
+						headers[ 'X-WP-Nonce' ] = cfg.restNonce;
+					}
+					const resp = await fetch( cfg.url, { method: 'POST', headers, body: form } );
+				const data = await resp.json();
+				if ( ! resp.ok || ! data.token ) {
+					throw new Error( ( data && data.message ) || 'upload failed' );
+				}
+				addItem( list, data.token, data.name );
+				syncHidden( wrap );
+			} catch ( err ) {
+				failed = err.message || 'Upload failed — please try again.';
+			}
 		}
-		try {
-			const form = new FormData();
-			form.append( 'file', file );
-			const resp = await fetch( cfg.url, { method: 'POST', headers: { 'X-CLCF-Nonce': cfg.nonce }, body: form } );
-			const data = await resp.json();
-			if ( ! resp.ok || ! data.token ) {
-				throw new Error( ( data && data.message ) || 'upload failed' );
-			}
-			hidden.value = data.token;
-			if ( status ) {
-				status.textContent = `✓ ${ data.name }`;
-			}
-		} catch ( err ) {
-			picker.value = '';
-			hidden.value = '';
-			if ( status ) {
-				status.textContent = err.message || 'Upload failed — please try again.';
-			}
+
+		picker.value = '';
+		if ( failed ) {
+			setStatus( failed );
+		} else if ( oversize.length ) {
+			setStatus( `File is too large (max ${ cfg.maxMb } MB).` );
+		} else if ( overflow ) {
+			setStatus( `Only ${ maxFiles } files allowed.` );
+		} else {
+			setStatus( '' );
 		}
 	}, true );
 }
@@ -152,7 +230,9 @@ function init() {
 	}
 	wireUploads();
 	const fields = payload.group.fields || [];
-	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 );
+	// A field priced only through its options is fee-bearing too — miss that
+	// and the checkout never refreshes, so the fee is never captured.
+	const hasFees = fields.some( ( f ) => parseFloat( f.price ) > 0 || hasPricedOptions( f ) );
 
 	const run = () => apply( payload.group, payload.seed );
 	document.addEventListener( 'change', run, true );

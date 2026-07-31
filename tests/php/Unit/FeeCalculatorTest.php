@@ -63,4 +63,95 @@ class FeeCalculatorTest extends TestCase {
 		$this->assertSame( 0.0, $bad['fields'][0]['price'] );
 		$this->assertSame( 'fixed', $bad['fields'][0]['priceMode'] );
 	}
+
+	/* ── breakdown: the per-field rows both the charge and the display read ── */
+
+	public function test_breakdown_returns_one_row_per_charging_field(): void {
+		$g    = array(
+			'fields' => array(
+				array( 'id' => 'wrap', 'type' => 'checkbox', 'label' => 'Gift wrapping', 'price' => 8, 'priceMode' => 'fixed' ),
+				array( 'id' => 'note', 'type' => 'text', 'label' => 'Note', 'price' => 0 ),
+			),
+		);
+		$vals = array( 'wrap' => 'yes', 'note' => 'hi' );
+		$rows = FeeCalculator::breakdown( $g, $vals, $vals, 0.0, 2 );
+		$this->assertCount( 1, $rows );
+		$this->assertSame( 'wrap', $rows[0]['field_id'] );
+		$this->assertSame( 'Gift wrapping', $rows[0]['label'] );
+		$this->assertSame( 8.0, $rows[0]['amount'] );
+	}
+
+	public function test_total_is_the_sum_of_the_rounded_rows(): void {
+		$g    = array(
+			'fields' => array(
+				array( 'id' => 'a', 'type' => 'checkbox', 'label' => 'A', 'price' => 3.333, 'priceMode' => 'fixed' ),
+				array( 'id' => 'b', 'type' => 'checkbox', 'label' => 'B', 'price' => 3.333, 'priceMode' => 'fixed' ),
+			),
+		);
+		$vals = array( 'a' => 'yes', 'b' => 'yes' );
+		$rows = FeeCalculator::breakdown( $g, $vals, $vals, 0.0, 2 );
+		$this->assertSame( 3.33, $rows[0]['amount'] );
+		$this->assertSame( 6.66, FeeCalculator::total( $g, $vals, $vals, 0.0 ) );
+	}
+
+	public function test_rows_rounding_to_zero_are_skipped(): void {
+		$g    = array(
+			'fields' => array( array( 'id' => 'tiny', 'type' => 'checkbox', 'label' => 'Tiny', 'price' => 0.4, 'priceMode' => 'percent' ) ),
+		);
+		$vals = array( 'tiny' => 'yes' );
+		$this->assertSame( array(), FeeCalculator::breakdown( $g, $vals, $vals, 1.0, 2 ) );
+	}
+
+	public function test_a_priced_option_lifts_a_zero_priced_field(): void {
+		$g    = array(
+			'fields' => array(
+				array(
+					'id'        => 'speed',
+					'type'      => 'select',
+					'label'     => 'Shipping speed',
+					'price'     => 0,
+					'priceMode' => 'fixed',
+					'options'   => array( 'Standard', array( 'label' => 'Overnight', 'price' => 12 ) ),
+				),
+			),
+		);
+		$vals = array( 'speed' => 'Overnight' );
+		$rows = FeeCalculator::breakdown( $g, $vals, $vals, 0.0, 2 );
+		$this->assertCount( 1, $rows, 'the field price is 0 but the option charges' );
+		$this->assertSame( 12.0, $rows[0]['amount'] );
+		$this->assertSame( 'Shipping speed: Overnight', $rows[0]['label'] );
+	}
+
+	public function test_row_label_omits_the_value_for_non_choice_fields(): void {
+		$g    = array( 'fields' => array( array( 'id' => 'wrap', 'type' => 'checkbox', 'label' => 'Gift wrapping', 'price' => 8 ) ) );
+		$vals = array( 'wrap' => 'yes' );
+		$rows = FeeCalculator::breakdown( $g, $vals, $vals, 0.0, 2 );
+		$this->assertSame( 'Gift wrapping', $rows[0]['label'] );
+	}
+
+	/**
+	 * The shared PHP↔JS fixture — the same file tests/js/options.test.js runs.
+	 *
+	 * @dataProvider optionPricingProvider
+	 * @param array<string,mixed> $case
+	 */
+	public function test_shared_option_pricing_fixtures( array $case ): void {
+		$g    = array( 'fields' => array( $case['field'] ) );
+		$vals = array( $case['field']['id'] => $case['value'] );
+		$this->assertSame(
+			(float) $case['expected'],
+			FeeCalculator::total( $g, $vals, $vals, (float) $case['base'] ),
+			$case['name']
+		);
+	}
+
+	/** @return array<string,array{0:array}> */
+	public function optionPricingProvider(): array {
+		$raw   = json_decode( (string) file_get_contents( dirname( __DIR__, 2 ) . '/fixtures/option-pricing-cases.json' ), true );
+		$cases = array();
+		foreach ( $raw['cases'] as $c ) {
+			$cases[ $c['name'] ] = array( $c );
+		}
+		return $cases;
+	}
 }

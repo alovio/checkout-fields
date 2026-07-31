@@ -2,6 +2,7 @@ import { useDispatch, useSelect } from '@wordpress/data';
 import { ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { STORE } from '../store';
+import { optionLabel } from '../../shared/options';
 
 const T = 'corelabs-checkout-fields';
 
@@ -73,8 +74,8 @@ function TokSelect( { kind, value, valueLabel, options, onChange } ) {
 		<span className={ `clcf-tok${ kind ? ` clcf-tok--${ kind }` : '' }` }>
 			{ valueLabel } <span className="clcf-car"></span>
 			<select value={ value } onChange={ ( e ) => onChange( e.target.value ) }>
-				{ options.map( ( o ) => (
-					<option key={ o.value } value={ o.value }>{ o.label }</option>
+				{ options.map( ( o, i ) => (
+					<option key={ i } value={ o.value }>{ o.label }</option>
 				) ) }
 			</select>
 		</span>
@@ -89,7 +90,7 @@ function SiblingValue( { siblings, controllerId, value, onChange } ) {
 		return <TokSelect kind="val" value={ value } valueLabel={ value === 'yes' ? __( 'Checked', T ) : __( 'Unchecked', T ) } options={ opts } onChange={ onChange } />;
 	}
 	if ( t === 'select' || t === 'radio' ) {
-		const opts = ( ctrl.options || [] ).map( ( o ) => ( { label: o, value: o } ) );
+		const opts = ( ctrl.options || [] ).map( ( o ) => ( { label: optionLabel( o ), value: optionLabel( o ) } ) );
 		return <TokSelect kind="val" value={ value } valueLabel={ value || '—' } options={ opts.length ? opts : [ { label: '—', value: '' } ] } onChange={ onChange } />;
 	}
 	return (

@@ -2,14 +2,15 @@ import { useState, useEffect } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { STORE } from './store';
+import FieldIcon from '../shared/FieldIcon';
 import General from './panels/General';
 import Logic from './panels/Logic';
+import Options, { HAS_OPTIONS_TYPES } from './panels/Options';
 import Layout from './panels/Layout';
 import Fee from './panels/Fee';
 
 const T = 'corelabs-checkout-fields';
 
-const TYPE_IC = { text: 'Aa', textarea: '¶', number: '#', checkbox: '☑', radio: '◉', select: '▾', heading: 'H', email: '@', phone: '☎', url: '🔗', date: '📅', time: '🕐', file: '📎' };
 
 export default function SettingsPanel() {
 	const field = useSelect( ( select ) => select( STORE ).getSelected(), [] );
@@ -36,7 +37,7 @@ export default function SettingsPanel() {
 		<div className="clcf-settings">
 			<div className="clcf-sp-head">
 				<div className="clcf-sp-title">
-					<span className="clcf-ic">{ TYPE_IC[ field.type ] || '·' }</span>
+					<span className="clcf-ic"><FieldIcon type={ field.type } /></span>
 					<div>
 						<h3>{ field.label || field.type }</h3>
 						<small>{ meta }</small>
@@ -44,6 +45,9 @@ export default function SettingsPanel() {
 				</div>
 				<div className="clcf-tabs">
 					<button className={ `clcf-tab${ tab === 'general' ? ' is-on' : '' }` } onClick={ () => setTab( 'general' ) }>{ __( 'General', T ) }</button>
+					{ HAS_OPTIONS_TYPES.includes( field.type ) && (
+						<button className={ `clcf-tab${ tab === 'options' ? ' is-on' : '' }` } onClick={ () => setTab( 'options' ) }>{ __( 'Options', T ) }</button>
+					) }
 					<button className={ `clcf-tab${ tab === 'logic' ? ' is-on' : '' }` } onClick={ () => setTab( 'logic' ) }>{ __( 'Logic', T ) }</button>
 					<button className={ `clcf-tab${ tab === 'layout' ? ' is-on' : '' }` } onClick={ () => setTab( 'layout' ) }>{ __( 'Layout', T ) }</button>
 					{ field.type !== 'heading' && (
@@ -53,6 +57,7 @@ export default function SettingsPanel() {
 			</div>
 			<div className="clcf-sp-body">
 				{ tab === 'general' && <General field={ field } /> }
+				{ tab === 'options' && HAS_OPTIONS_TYPES.includes( field.type ) && <Options field={ field } /> }
 				{ tab === 'logic' && <Logic field={ field } /> }
 				{ tab === 'layout' && <Layout field={ field } /> }
 				{ tab === 'fee' && field.type !== 'heading' && <Fee field={ field } /> }
