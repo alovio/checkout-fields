@@ -27,7 +27,29 @@ final class FileUploads {
 
 	/** @return string[] */
 	public static function allowed_extensions(): array {
-		return (array) apply_filters( 'clcf_upload_extensions', array( 'jpg', 'jpeg', 'png', 'pdf' ) );
+		return (array) apply_filters( 'clcf_upload_extensions', array( 'jpg', 'jpeg', 'png', 'webp', 'pdf' ) );
+	}
+
+	/**
+	 * Parse a submitted file value — a single token or a comma-joined list
+	 * (multi-file fields) — into unique, well-formed tokens. Malformed entries
+	 * are dropped silently; existence is checked separately.
+	 *
+	 * @param mixed $val
+	 * @return string[]
+	 */
+	public static function parse_tokens( $val ): array {
+		if ( ! is_string( $val ) || '' === $val ) {
+			return array();
+		}
+		$out = array();
+		foreach ( explode( ',', $val ) as $t ) {
+			$t = trim( $t );
+			if ( preg_match( '/^[a-f0-9]{32}$/', $t ) && ! in_array( $t, $out, true ) ) {
+				$out[] = $t;
+			}
+		}
+		return $out;
 	}
 
 	public static function max_bytes(): int {
@@ -61,14 +83,32 @@ final class FileUploads {
 		if ( ! wp_verify_nonce( $nonce, 'clcf_upload' ) ) {
 			return false;
 		}
+		// The rate limit lives in handle_upload(): a permission callback can only
+		// answer bool, and a shopper who trips it would just see WordPress's
+		// "Sorry, you are not allowed to do that."
+		return true;
+	}
+
+	/**
+	 * Per-IP upload budget. Generous enough for a legitimate shopper filling
+	 * several multi-file fields (and re-picking a few times); the transient is
+	 * re-set on every upload, so the window rolls from the last attempt.
+	 *
+	 * @return \WP_Error|null error when the budget is spent.
+	 */
+	private function rate_limited(): ?\WP_Error {
 		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( (string) $_SERVER['REMOTE_ADDR'] ) ) : 'unknown';
 		$key   = 'clcf_upl_' . md5( $ip );
 		$count = (int) get_transient( $key );
-		if ( $count >= (int) apply_filters( 'clcf_upload_rate_limit', 20 ) ) {
-			return false;
+		if ( $count >= (int) apply_filters( 'clcf_upload_rate_limit', 60 ) ) {
+			return new \WP_Error(
+				'clcf_rate_limited',
+				__( 'Too many uploads — please wait a few minutes and try again.', 'corelabs-checkout-fields' ),
+				array( 'status' => 429 )
+			);
 		}
 		set_transient( $key, $count + 1, HOUR_IN_SECONDS );
-		return true;
+		return null;
 	}
 
 	/**
@@ -85,6 +125,10 @@ final class FileUploads {
 
 	/** @param \WP_REST_Request $request */
 	public function handle_upload( $request ) {
+		$limited = $this->rate_limited();
+		if ( null !== $limited ) {
+			return $limited;
+		}
 		if ( ! $this->store_has_file_fields() ) {
 			return new \WP_Error( 'clcf_no_file_fields', __( 'File uploads are not enabled.', 'corelabs-checkout-fields' ), array( 'status' => 400 ) );
 		}
@@ -182,8 +226,16 @@ final class FileUploads {
 			if ( '' === $val ) {
 				continue; // required-ness is handled by Validator.
 			}
-			$label = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
-			if ( ! preg_match( '/^[a-f0-9]{32}$/', $val ) || ! is_array( get_option( 'clcf_upload_' . $val ) ) ) {
+			$label  = ( '' !== (string) ( $f['label'] ?? '' ) ) ? (string) $f['label'] : $id;
+			$tokens = self::parse_tokens( $val );
+			$ok     = array() !== $tokens;
+			foreach ( $tokens as $token ) {
+				if ( ! is_array( get_option( 'clcf_upload_' . $token ) ) ) {
+					$ok = false;
+					break;
+				}
+			}
+			if ( ! $ok ) {
 				/* translators: %s: field label */
 				$errors[] = sprintf( __( 'The file for “%s” could not be verified — please upload it again.', 'corelabs-checkout-fields' ), $label );
 			}
