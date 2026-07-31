@@ -15,7 +15,7 @@
 ## Conventions for every task
 
 - Run PHP tests with `vendor/bin/phpunit --colors=never`. Baseline before you start: **OK (61 tests, 131 assertions)**.
-- Run JS tests with `npm run test:js`. Baseline: **5 suites, 31 tests**. Never `npx jest` — it fails on ESM.
+- Run JS tests with `npm run test:js`. Baseline: **5 suites, 44 tests**. Never `npx jest` — it fails on ESM.
 - Build JS with `npm run build` before any browser check.
 - Commit with `git -c user.name='Tahir' -c user.email='ttaxiir@gmail.com' commit -m "…"`. Never `git add -A`; stage the exact files.
 - Never add `Co-Authored-By` lines.
