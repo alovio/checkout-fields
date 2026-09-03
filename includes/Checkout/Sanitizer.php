@@ -62,6 +62,22 @@ final class Sanitizer {
 						$out[ $id ] = sanitize_textarea_field( (string) $val );
 					}
 					break;
+				case 'delivery':
+					// Classic posts an array clcf[id][date]/[slot]; Block sends the
+					// composite string directly. Store one scalar "date|slot".
+					if ( is_array( $val ) ) {
+						$d = sanitize_text_field( (string) ( $val['date'] ?? '' ) );
+						$s = sanitize_text_field( (string) ( $val['slot'] ?? '' ) );
+					} else {
+						$parts = explode( '|', (string) $val, 2 );
+						$d     = sanitize_text_field( (string) ( $parts[0] ?? '' ) );
+						$s     = sanitize_text_field( (string) ( $parts[1] ?? '' ) );
+					}
+					$s = str_replace( '|', '', $s );
+					if ( '' !== $d || '' !== $s ) {
+						$out[ $id ] = $d . '|' . $s;
+					}
+					break;
 				case 'number':
 					if ( null !== $val && '' !== $val ) {
 						$out[ $id ] = (float) $val;

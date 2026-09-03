@@ -92,6 +92,22 @@ final class Validator {
 				}
 			}
 
+			if ( 'delivery' === $type ) {
+				$parts = explode( '|', (string) $value, 2 );
+				$date  = (string) ( $parts[0] ?? '' );
+				$slot  = (string) ( $parts[1] ?? '' );
+
+				if ( ! DeliveryDates::is_valid( $f, $date ) ) {
+					/* translators: %s: field label */
+					$errors[] = sprintf( __( '“%s”: that delivery date is not available. Please choose another.', 'corelabs-checkout-fields' ), $label );
+				}
+				$slots = (array) ( $f['timeSlots'] ?? array() );
+				if ( ! empty( $slots ) && ! in_array( $slot, $slots, true ) ) {
+					/* translators: %s: field label */
+					$errors[] = sprintf( __( '“%s”: please choose a delivery time.', 'corelabs-checkout-fields' ), $label );
+				}
+			}
+
 			if ( in_array( $type, array( 'select', 'radio' ), true ) && ! empty( $f['options'] ) ) {
 				// Options may be bare strings or {label, price}.
 				$valid = FieldOptions::labels( $f );

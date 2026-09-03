@@ -441,3 +441,11 @@ a.clcf-btn-ghost:focus-visible { outline: 2px solid var(--clcf-flame); outline-o
 .clcf-optrow .clcf-optprice { flex: 0 0 84px; }
 .clcf-optrow .clcf-optprice .components-base-control { flex: none; }
 .clcf-opthelp { margin: 8px 0 0; font-size: var(--clcf-fs-sm); color: #646970; }
+
+/* Delivery field constraints editor */
+.clcf-delivery-cfg .clcf-cfg-label { font-weight: 600; font-size: 12px; margin: 12px 0 6px; }
+.clcf-weekdays { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+.clcf-weekday { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; }
+.clcf-cfg-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+.clcf-cfg-row .components-base-control { flex: 1; margin-bottom: 0; }
+.clcf-cfg-row input[type="date"] { flex: 1; }

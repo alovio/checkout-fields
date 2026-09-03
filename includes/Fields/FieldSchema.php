@@ -258,6 +258,43 @@ final class FieldSchema {
 			return array( 'maxFiles' => min( 10, max( 1, $max ) ) );
 		}
 
+		if ( 'delivery' === $type ) {
+			$weekdays = array();
+			foreach ( (array) ( $f['disabledWeekdays'] ?? array() ) as $d ) {
+				$d = (int) $d;
+				if ( $d >= 0 && $d <= 6 ) {
+					$weekdays[ $d ] = $d; // dedupe
+				}
+			}
+			$dates = array();
+			foreach ( (array) ( $f['disabledDates'] ?? array() ) as $d ) {
+				$d = trim( sanitize_text_field( (string) $d ) );
+				if ( preg_match( '/^\d{4}-\d{2}-\d{2}$/', $d ) ) {
+					$dates[ $d ] = $d;
+				}
+			}
+			$slots = array();
+			foreach ( (array) ( $f['timeSlots'] ?? array() ) as $s ) {
+				// '|' is our date/slot separator in the stored value, so it can't live in a slot label.
+				$s = trim( str_replace( '|', '', sanitize_text_field( (string) $s ) ) );
+				if ( '' !== $s ) {
+					$slots[] = $s;
+				}
+			}
+			$cutoff = trim( (string) ( $f['cutoffTime'] ?? '' ) );
+			if ( ! preg_match( '/^([01]\d|2[0-3]):[0-5]\d$/', $cutoff ) ) {
+				$cutoff = '';
+			}
+			return array(
+				'disabledWeekdays' => array_values( $weekdays ),
+				'disabledDates'    => array_values( $dates ),
+				'minLeadDays'      => max( 0, (int) ( $f['minLeadDays'] ?? 0 ) ),
+				'daysAhead'        => min( 365, max( 1, (int) ( $f['daysAhead'] ?? 21 ) ) ),
+				'cutoffTime'       => $cutoff,
+				'timeSlots'        => $slots,
+			);
+		}
+
 		return array();
 	}
 }

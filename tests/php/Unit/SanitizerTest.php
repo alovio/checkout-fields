@@ -32,6 +32,25 @@ class SanitizerTest extends TestCase {
 		$this->assertSame( 3.0, $out['qty'] );
 	}
 
+	public function test_delivery_combines_to_a_single_composite(): void {
+		$group = array( 'fields' => array( array( 'id' => 'del', 'type' => 'delivery', 'timeSlots' => array( '9–12' ) ) ) );
+
+		// Classic posts an array; Block posts the composite string — both become "date|slot".
+		$classic = Sanitizer::sanitize( $group, array( 'del' => array( 'date' => '2026-09-10', 'slot' => '9–12' ) ) );
+		$this->assertSame( '2026-09-10|9–12', $classic['del'] );
+
+		$block = Sanitizer::sanitize( $group, array( 'del' => '2026-09-10|9–12' ) );
+		$this->assertSame( '2026-09-10|9–12', $block['del'] );
+
+		// A stray separator inside the slot can't corrupt the value.
+		$dirty = Sanitizer::sanitize( $group, array( 'del' => array( 'date' => '2026-09-10', 'slot' => 'a|b' ) ) );
+		$this->assertSame( '2026-09-10|ab', $dirty['del'] );
+
+		// Nothing chosen ⇒ not stored.
+		$empty = Sanitizer::sanitize( $group, array( 'del' => '|' ) );
+		$this->assertArrayNotHasKey( 'del', $empty );
+	}
+
 	public function test_checkbox_only_when_set(): void {
 		$this->assertSame( 'yes', Sanitizer::sanitize( $this->group(), array( 'gift' => '1' ) )['gift'] );
 		$this->assertArrayNotHasKey( 'gift', Sanitizer::sanitize( $this->group(), array() ) );

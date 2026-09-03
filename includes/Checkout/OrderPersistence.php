@@ -196,6 +196,13 @@ final class OrderPersistence {
 		if ( 'number' === $type ) {
 			return (string) ( (float) $val );
 		}
+		if ( 'delivery' === $type ) {
+			$parts = explode( '|', (string) $val, 2 );
+			$ts    = strtotime( (string) ( $parts[0] ?? '' ) );
+			$date  = $ts ? wp_date( (string) get_option( 'date_format' ), $ts ) : (string) ( $parts[0] ?? '' );
+			$slot  = (string) ( $parts[1] ?? '' );
+			return '' !== $slot ? $date . ' · ' . $slot : $date;
+		}
 		return (string) $val;
 	}
 }

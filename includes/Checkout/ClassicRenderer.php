@@ -196,6 +196,39 @@ final class ClassicRenderer {
 				printf( '<input type="date" id="%s" name="%s"%s%s%s%s />', esc_attr( $fid ), esc_attr( $name ), $req, $min, $max, $val ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 				break;
 			}
+			case 'delivery': {
+				// Two selects posted as an array clcf[id][date] / clcf[id][slot]. The
+				// date options are the server-computed selectable dates, so only valid
+				// days are pickable and the classic checkout needs no date JS at all.
+				echo '<span class="clcf-delivery">';
+				printf(
+					'<select class="clcf-delivery__date" id="%s" name="%s[date]"%s><option value="">%s</option>',
+					esc_attr( $fid ),
+					esc_attr( $name ),
+					$req, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+					esc_html__( 'Choose a date', 'corelabs-checkout-fields' )
+				);
+				foreach ( DeliveryDates::valid_dates( $f ) as $d ) {
+					$sel = ( $d['value'] === $default ) ? ' selected' : '';
+					printf( '<option value="%s"%s>%s</option>', esc_attr( $d['value'] ), $sel, esc_html( $d['label'] ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+				echo '</select>';
+				$slots = (array) ( $f['timeSlots'] ?? array() );
+				if ( ! empty( $slots ) ) {
+					printf(
+						'<select class="clcf-delivery__slot" name="%s[slot]"%s><option value="">%s</option>',
+						esc_attr( $name ),
+						$req, // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+						esc_html__( 'Choose a time', 'corelabs-checkout-fields' )
+					);
+					foreach ( $slots as $s ) {
+						printf( '<option value="%s">%s</option>', esc_attr( (string) $s ), esc_html( (string) $s ) );
+					}
+					echo '</select>';
+				}
+				echo '</span>';
+				break;
+			}
 			case 'file': {
 				// The picker never posts the raw file — frontend.js uploads it to
 				// clcf/v1/upload on selection and writes the token into the hidden input.

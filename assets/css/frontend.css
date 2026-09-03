@@ -242,3 +242,7 @@
 }
 .clcf-file-remove:hover,
 .clcf-file-remove:focus-visible { opacity: 1; }
+
+/* Delivery date + time slot selects */
+.clcf-delivery { display: flex; gap: 8px; flex-wrap: wrap; }
+.clcf-delivery select { flex: 1; min-width: 130px; }

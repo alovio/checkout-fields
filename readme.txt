@@ -3,9 +3,9 @@ Contributors: 74h1r
 Donate link: https://alovio.org/donate
 Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
-Tested up to: 7.0
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,10 @@ A Donate button replaces the cross-promo link in the builder header — the plug
 Fees are now itemized in the checkout totals and every dropdown/radio option can carry its own fee. If you prefer the old single "Checkout options" line, add the `clcf_itemized_fees` filter returning false.
 
 == Changelog ==
+
+= 1.5.0 =
+* NEW: **Delivery date & time** field. Shoppers pick a delivery date and a time slot right on the checkout — and you decide what's offered: block weekends or any weekdays, block specific holiday dates, set a minimum lead time and a daily cutoff (orders after it start counting from the next day), and define the time slots (e.g. 9:00–12:00). Only valid dates are ever selectable, it works identically on the classic checkout and the Block (Store API) checkout, and the same rules are enforced again on the server.
+* Tested up to WordPress 7.1.
 
 = 1.4.0 =
 * NEW: A "Donate" button in the builder header. It opens a short note explaining that the plugin is free and stays free — conditional logic included, which most plugins in this category charge for — and offers a coffee or a review for anyone who wants to support it. It replaces the cross-promo link that used to sit in the header.

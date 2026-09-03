@@ -157,9 +157,18 @@ final class BlockFieldsIntegration implements IntegrationInterface {
 
 		// Static config only — the dynamic context comes from the cart Store API
 		// endpoint data (computed per-request, safely after wp_loaded).
-		$group = ( new FieldRepository() )->get();
-		$data  = array(
-			'fields' => array_values( (array) ( $group['fields'] ?? array() ) ),
+		$group  = ( new FieldRepository() )->get();
+		$fields = array_values( (array) ( $group['fields'] ?? array() ) );
+		foreach ( $fields as &$fld ) {
+			// Give the Block checkout the same server-computed date list the classic
+			// renderer uses, so both offer identical valid days.
+			if ( 'delivery' === (string) ( $fld['type'] ?? '' ) ) {
+				$fld['validDates'] = DeliveryDates::valid_dates( $fld );
+			}
+		}
+		unset( $fld );
+		$data = array(
+			'fields' => $fields,
 			'upload' => array(
 				'url'    => esc_url_raw( rest_url( 'clcf/v1/upload' ) ),
 				'nonce'  => wp_create_nonce( 'clcf_upload' ),

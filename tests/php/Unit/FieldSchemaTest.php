@@ -22,6 +22,34 @@ class FieldSchemaTest extends TestCase {
 		$this->assertSame( 'Note', $out['fields'][0]['label'] );
 	}
 
+	public function test_delivery_constraints_are_normalized(): void {
+		$out = FieldSchema::normalize(
+			array(
+				'fields' => array(
+					array(
+						'id'               => 'del',
+						'type'             => 'delivery',
+						'label'            => 'Delivery',
+						'disabledWeekdays' => array( '0', '6', 9, 3 ), // 9 out of range dropped
+						'disabledDates'    => array( '2026-12-25', 'bad', '2026-01-01' ),
+						'minLeadDays'      => -2,   // clamped to 0
+						'daysAhead'        => 999,  // clamped to 365
+						'cutoffTime'       => '14:00',
+						'timeSlots'        => array( ' 9–12 ', 'a|b', '', 'x' ), // trimmed, '|' stripped, empties dropped
+					),
+				),
+			)
+		);
+		$f = $out['fields'][0];
+
+		$this->assertEqualsCanonicalizing( array( 0, 3, 6 ), $f['disabledWeekdays'] );
+		$this->assertEqualsCanonicalizing( array( '2026-12-25', '2026-01-01' ), $f['disabledDates'] );
+		$this->assertSame( 0, $f['minLeadDays'] );
+		$this->assertSame( 365, $f['daysAhead'] );
+		$this->assertSame( '14:00', $f['cutoffTime'] );
+		$this->assertSame( array( '9–12', 'ab', 'x' ), $f['timeSlots'] );
+	}
+
 	public function test_drops_duplicate_and_empty_ids(): void {
 		$out = FieldSchema::normalize(
 			array(

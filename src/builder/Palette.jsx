@@ -21,6 +21,7 @@ const LABELS = {
 	url: __( 'URL', T ),
 	date: __( 'Date', T ),
 	time: __( 'Time', T ),
+	delivery: __( 'Delivery', T ),
 	file: __( 'File', T ),
 };
 

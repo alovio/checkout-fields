@@ -166,3 +166,7 @@
 
 /* Heading */
 .clcf-block-field--heading strong { font-size: var(--clcf-fs-lg, 1.15em); }
+
+/* Delivery date + time slot selects */
+.clcf-block-delivery { display: flex; gap: 8px; flex-wrap: wrap; }
+.clcf-block-delivery select { flex: 1; min-width: 130px; }

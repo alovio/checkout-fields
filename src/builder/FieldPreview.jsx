@@ -52,6 +52,15 @@ function Control( { field } ) {
 			return <div className="clcf-input clcf-input--icon">{ __( 'Select date', T ) } <FieldIcon type="date" size={ 15 } /></div>;
 		case 'time':
 			return <div className="clcf-input clcf-input--icon">{ __( 'Select time', T ) } <FieldIcon type="time" size={ 15 } /></div>;
+		case 'delivery':
+			return (
+				<div style={ { display: 'flex', gap: 6 } }>
+					<div className="clcf-input clcf-input--icon" style={ { flex: 1 } }>{ __( 'Select date', T ) } <FieldIcon type="delivery" size={ 15 } /></div>
+					{ ( field.timeSlots || [] ).length > 0 && (
+						<div className="clcf-input" style={ { flex: 1 } }>{ field.timeSlots[ 0 ] || __( 'Time', T ) } ▾</div>
+					) }
+				</div>
+			);
 		case 'file':
 			return <div className="clcf-input clcf-input--icon"><FieldIcon type="file" size={ 15 } /> { __( 'Choose file…', T ) }</div>;
 		default:

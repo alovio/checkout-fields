@@ -22,6 +22,7 @@ export const DEFAULTS = {
 	url: { label: 'Website / link', ...BASE },
 	date: { label: 'Pick a date', ...BASE, min: '', max: '' },
 	time: { label: 'Pick a time', ...BASE },
+	delivery: { label: 'Delivery date', ...BASE, disabledWeekdays: [ 0 ], disabledDates: [], minLeadDays: 1, daysAhead: 21, cutoffTime: '', timeSlots: [] },
 	file: { label: 'Upload a file', ...BASE },
 };
 

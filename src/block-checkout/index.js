@@ -135,6 +135,30 @@ function Field( { field, value, onChange } ) {
 		control = <input type={ htmlType } { ...common } placeholder={ field.placeholder || '' } />;
 	} else if ( field.type === 'date' ) {
 		control = <input type="date" { ...common } min={ field.min || undefined } max={ field.max || undefined } />;
+	} else if ( field.type === 'delivery' ) {
+		// Value is the composite "date|slot"; the date options are the same
+		// server-computed valid days the classic checkout uses (field.validDates).
+		const [ curDate = '', curSlot = '' ] = String( value || '' ).split( '|' );
+		const slots = field.timeSlots || [];
+		const emit = ( d, s ) => onChange( `${ d }|${ s }` );
+		control = (
+			<span className="clcf-block-delivery">
+				<select id={ id } required={ !! field.required } value={ curDate } onChange={ ( e ) => emit( e.target.value, curSlot ) }>
+					<option value="">{ __( 'Choose a date', 'corelabs-checkout-fields' ) }</option>
+					{ ( field.validDates || [] ).map( ( d ) => (
+						<option key={ d.value } value={ d.value }>{ d.label }</option>
+					) ) }
+				</select>
+				{ slots.length > 0 && (
+					<select className="clcf-block-delivery__slot" required={ !! field.required } value={ curSlot } onChange={ ( e ) => emit( curDate, e.target.value ) }>
+						<option value="">{ __( 'Choose a time', 'corelabs-checkout-fields' ) }</option>
+						{ slots.map( ( s, i ) => (
+							<option key={ i } value={ s }>{ s }</option>
+						) ) }
+					</select>
+				) }
+			</span>
+		);
 	} else if ( field.type === 'file' ) {
 		const cfg = CONFIG.upload || {};
 		const maxFiles = Math.min( 10, Math.max( 1, parseInt( field.maxFiles, 10 ) || 1 ) );

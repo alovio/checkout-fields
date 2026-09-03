@@ -19,6 +19,32 @@ class ValidatorTest extends TestCase {
 		$this->assertSame( array(), $errors );
 	}
 
+	public function test_delivery_rejects_unavailable_date_and_bad_slot(): void {
+		// Every weekday disabled ⇒ no date is ever selectable, so the date part
+		// always errors — a deterministic way to exercise the delivery branch.
+		$f     = array(
+			'id'               => 'del',
+			'type'             => 'delivery',
+			'label'            => 'Delivery',
+			'disabledWeekdays' => array( 0, 1, 2, 3, 4, 5, 6 ),
+			'disabledDates'    => array(),
+			'minLeadDays'      => 0,
+			'daysAhead'        => 30,
+			'cutoffTime'       => '',
+			'timeSlots'        => array( '9–12', '12–3' ),
+		);
+		$group = array( 'fields' => array( $f ) );
+
+		// Real slot, unavailable date ⇒ exactly one (date) error.
+		$e1 = Validator::validate( $group, array( 'del' => '2026-12-25|9–12' ), array( 'del' => '2026-12-25|9–12' ) );
+		$this->assertCount( 1, $e1 );
+		$this->assertStringContainsString( 'not available', $e1[0] );
+
+		// Unknown slot ⇒ a second (slot) error.
+		$e2 = Validator::validate( $group, array( 'del' => '2026-12-25|nope' ), array( 'del' => '2026-12-25|nope' ) );
+		$this->assertCount( 2, $e2 );
+	}
+
 	public function test_hidden_required_field_is_not_validated(): void {
 		// "vat" only shows for the customer role; for a guest it is inactive → skipped.
 		$group = array(

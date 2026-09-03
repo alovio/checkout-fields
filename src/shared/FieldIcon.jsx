@@ -44,6 +44,8 @@ const PATHS = {
 	url: <><path d="M10.5 13.5a4.5 4.5 0 0 0 6.4 0l2.4-2.4a4.5 4.5 0 0 0-6.4-6.4l-1.2 1.2" /><path d="M13.5 10.5a4.5 4.5 0 0 0-6.4 0l-2.4 2.4a4.5 4.5 0 0 0 6.4 6.4l1.2-1.2" /></>,
 	// Clock.
 	time: <><circle cx="12" cy="12" r="8.7" /><path d="M12 7v5.3l3.4 2" /></>,
+	// Calendar with a clock hand — a scheduled delivery date + time.
+	delivery: <><rect x="3" y="5" width="18" height="16" rx="2.5" /><path d="M8 3v4" /><path d="M16 3v4" /><path d="M3 10h18" /><path d="M12 13.3v2.4l1.7 1" /></>,
 	// Stepper arrows.
 	// Two buttons side by side, the left one picked.
 	// Picture.
