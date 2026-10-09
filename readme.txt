@@ -5,7 +5,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -67,6 +67,18 @@ No. Conditions are evaluated by a small shared engine on the page and re-checked
 
 Yes. If you are comparing against Checkout Field Editor, Checkout Field Manager or a similar plugin, Alovio Checkout Fields gives you the full conditional-logic engine — show / hide / require with multi-condition AND/OR rules — free, and identical on both the classic and Block (Store API) checkout. Most alternatives paywall conditional logic; here it is in the free plugin.
 
+== Privacy ==
+
+**Update checks.** This plugin is distributed from alovio.org rather than the WordPress.org plugin directory, so it asks alovio.org for its updates. About twice a day WordPress sends one request to licenses.alovio.org carrying three things: the plugin slug, the version you are running, and your site's domain. Nothing else leaves your site — no personal data, no customer data, no content, and no licence key, because the free plugins have none.
+
+We keep one record per site: the domain, the version, when it was first seen and when it was last seen. It exists so we know how many sites run the plugin and which versions are still in use, which is what tells us whether a release has reached people and which versions still need supporting. It is never sold, never shared with anyone, and never used to contact you.
+
+**Switching it off.** Add this to wp-config.php:
+
+`define( 'ALOVIO_NO_UPDATE_CHECK', true );`
+
+The plugin then sends nothing at all. It also stops being told about new versions, so you would check alovio.org and install updates by hand.
+
 == Screenshots ==
 
 1. The drag-and-drop checkout-field builder with the conditional-logic editor.
@@ -81,6 +93,9 @@ A Donate button replaces the cross-promo link in the builder header — the plug
 Fees are now itemized in the checkout totals and every dropdown/radio option can carry its own fee. If you prefer the old single "Checkout options" line, add the `clcf_itemized_fees` filter returning false.
 
 == Changelog ==
+
+= 1.6.1 =
+* Update checks can now be switched off entirely with `define( 'ALOVIO_NO_UPDATE_CHECK', true );` in wp-config.php, and the new Privacy section above sets out exactly what an update check sends and what is kept.
 
 = 1.6.0 =
 * Alovio Checkout Fields is now distributed from alovio.org, and this version updates itself from there: new releases appear on the Plugins → Updates screen as usual, with no key and nothing to sign up for. Nothing else about the plugin changed.
