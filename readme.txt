@@ -5,7 +5,7 @@ Tags: woocommerce, checkout, checkout fields, conditional logic, custom fields
 Requires at least: 6.4
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 1.5.0
+Stable tag: 1.6.0
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,6 +81,9 @@ A Donate button replaces the cross-promo link in the builder header — the plug
 Fees are now itemized in the checkout totals and every dropdown/radio option can carry its own fee. If you prefer the old single "Checkout options" line, add the `clcf_itemized_fees` filter returning false.
 
 == Changelog ==
+
+= 1.6.0 =
+* Alovio Checkout Fields is now distributed from alovio.org, and this version updates itself from there: new releases appear on the Plugins → Updates screen as usual, with no key and nothing to sign up for. Nothing else about the plugin changed.
 
 = 1.5.0 =
 * NEW: **Delivery date & time** field. Shoppers pick a delivery date and a time slot right on the checkout — and you decide what's offered: block weekends or any weekdays, block specific holiday dates, set a minimum lead time and a daily cutoff (orders after it start counting from the next day), and define the time slots (e.g. 9:00–12:00). Only valid dates are ever selectable, it works identically on the classic checkout and the Block (Store API) checkout, and the same rules are enforced again on the server.
